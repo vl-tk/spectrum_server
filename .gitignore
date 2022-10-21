@@ -44,4 +44,4 @@ dev_preload_code.py
 logs/*.log
 
 .server.env
-todo/
+test/**
