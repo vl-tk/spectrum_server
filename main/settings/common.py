@@ -29,14 +29,18 @@ INSTALLED_APPS = [
     'drf_spectacular',
     'corsheaders',
     'multiselectfield',
+    'debug_toolbar',
+    'admin_cursor_paginator',
 
     # User apps
     'apps',
     'apps.users',
+    'apps.data',
 ]
 
 MIDDLEWARE = [
     'main.middleware.TimezoneMiddleware',
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
@@ -77,6 +81,12 @@ TEMPLATES = [
             ],
         },
     },
+]
+
+INTERNAL_IPS = [
+    # ...
+    "127.0.0.1",
+    # ...
 ]
 
 LOG_PATH = os.path.join(BASE_DIR, '../logs')

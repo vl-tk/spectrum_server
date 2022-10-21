@@ -17,6 +17,7 @@ services:
       POSTGRES_DB: main
     volumes:
       - ./pgdata:/var/lib/postgresql/data
+      - ./test:/home
     ports:
       - 5432:5432
     healthcheck:
@@ -24,6 +25,24 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    command:
+      - "postgres"
+      - "-c"
+      - "shared_preload_libraries=pg_stat_statements"
+      - "-c"
+      - "pg_stat_statements.track=all"
+      - "-c"
+      - "max_wal_size=64"
+
+  pghero:
+    image: ankane/pghero:latest
+    restart: always
+    environment:
+      - DATABASE_URL=postgres://main:s50XgW4@postgres:5432/main
+    depends_on:
+      - postgres
+    ports:
+      - 2345:8080
 
   redis:
     image: redis:6

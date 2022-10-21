@@ -39,6 +39,7 @@ urlpatterns = \
 
         # Health check http server
         path('health', HealthCheckView.as_view(), name='health_check'),
+        path('__debug__/', include('debug_toolbar.urls')),
 
         # path('schema/', SpectacularAPIView.as_view(), name='schema'),
         # path('swagger/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
