@@ -1,0 +1,15 @@
+{% extends 'emails/layouts/base.html' %}
+
+{% block title %}
+    Attention!
+{% endblock %}
+
+{% block content %}
+<tr>
+    <td style="font-size: 14px; line-height: 24px; color: #464646;">
+        Follow the <a href="{{ url }}" style="color: #006AFF; text-decoration: none;">
+            link
+        </a> to reset your old password
+    </td>
+</tr>
+{% endblock %}

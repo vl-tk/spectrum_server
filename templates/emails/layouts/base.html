@@ -1,0 +1,22 @@
+<table
+    style="width: 100%; max-width: 800px; padding: 24px 0 64px; background: #F3F6F9; margin: 0 auto; border-spacing: 0;"
+>
+    {% include 'emails/layouts/header.html' %}
+    <tbody
+        style="width: 496px; display: block; margin: 0 auto; padding: 40px 52px; background: white; border-radius: 0 0 10px 10px;"
+    >
+        <tr style="padding-bottom: 16px; display: inline-table;">
+            <td style="font-weight: bold; font-size: 20px; line-height: 23px;">
+                {% block title %}
+                {% endblock %}
+            </td>
+        </tr>
+        {% block content %}
+        {% endblock %}
+        <tr style="display: block; padding-top: 40px;">
+            <td style="font-size: 14px; line-height: 24px; color: #464646;">
+            </td>
+        </tr>
+    </tbody>
+    {% include 'emails/layouts/footer.html' %}
+</table>

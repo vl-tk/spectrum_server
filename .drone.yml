@@ -1,0 +1,171 @@
+# CHECKLIST: WHAT TO CHECK FOR OTHER PROJECT:
+
+# 1. Prefix in image name and stage/prod: build-spectrum-stage
+# 2. branch - main OR development
+# 3. DJANGO_STAGE_SECRET_KEY in drone repo settings
+
+# 4. if repository is trusted in drone (for /var/run/docker.sock to be available)
+# 5. deploy_stage: if host and username are correct for project server
+# 6. deploy_stage: if SSH_PUBLIC_KEY is in ~/.ssh/authorized_keys for project server
+
+name: stage
+
+kind: pipeline      # https://docs.drone.io/pipeline/configuration/
+type: docker
+
+steps:
+
+  - name: notify_about_start
+    image: appleboy/drone-discord
+    settings:
+      webhook_id: 893421615042404383
+      webhook_token: 64sAhkacw9k-eiDHh2ttp1aZ6Q1dN2UjNCOAGeyP2qV5YN8wuRxMlC7xDChPbzrRsiPG
+      username: drone.io
+      message: >
+       ⚙️ [Build {{build.number}}](<{{ build.link }}/1/3>) of `{{repo.name}}`:`{{commit.branch}}` STARTED.
+
+       Latest [commit](<https://github.com/GoodBitDev/{{repo.name}}/commit/${DRONE_COMMIT_SHA:0:7}>) by {{commit.author}} on `{{commit.branch}}`:
+       ```{{commit.message}}```
+       [Image](<https://hub.docker.com/repository/docker/goodbitdev/builds>): `goodbitdev/builds:build-spectrum-stage-${DRONE_COMMIT_SHA:0:7}`
+    when:
+      event:
+        - push
+        - pull_request
+      branch: [development]
+      # event: tag # in case of new git tag added
+
+  # or this can be done via drone.io docker plugin, not using list of commands
+  - name: build
+    image: docker:latest
+    environment:
+      DJANGO_SECRET_KEY:
+        from_secret: DJANGO_STAGE_SECRET_KEY # from repo secrets
+      DOCKER_HUB_USERNAME:
+        from_secret: DOCKER_HUB_USERNAME # from org secrets (common for all)
+      DOCKER_HUB_PASSWORD:
+        from_secret: DOCKER_HUB_PASSWORD # from org secrets (common for all)
+      MAIN_IMAGE: goodbitdev/builds:build-spectrum-stage-${DRONE_COMMIT_SHA:0:7}
+      DJANGO_SETTINGS_MODULE: main.settings.prod
+    volumes:
+      - name: docker_sock
+        path: /var/run/docker.sock
+    commands:
+      # - apk --no-cache add curl jq
+      - docker images  # for debug purpose
+      # - chmod +x ./docker/latest_dockerhub_image.sh
+      # - source ./docker/latest_dockerhub_image.sh
+      # - echo $CACHE_IMAGE
+      # - docker build --build-arg DJANGO_SECRET_KEY=$DJANGO_SECRET_KEY --cache-from $CACHE_IMAGE -t $MAIN_IMAGE .
+      - docker build --build-arg DJANGO_SECRET_KEY=$DJANGO_SECRET_KEY -t $MAIN_IMAGE .
+      - docker run $MAIN_IMAGE
+      - docker logout  # for some reason required
+      - echo $DOCKER_HUB_PASSWORD | docker login docker.io -u $DOCKER_HUB_USERNAME --password-stdin
+      - echo $MAIN_IMAGE
+      - docker push $MAIN_IMAGE
+      - docker container prune --force --filter "until=24h"
+      - docker image prune -a --force --filter "until=24h"
+    when:
+      event: [push, pull_request]
+      branch: [development]
+      # event: tag # in case of new git tag
+
+  - name: test
+    image: goodbitdev/builds:build-spectrum-stage-${DRONE_COMMIT_SHA:0:7}
+    environment:
+      DJANGO_SETTINGS_MODULE: main.settings.test
+      DB_HOST: spectrum-postgres
+      DB_USER: main
+      DB_PORT: 5432
+    volumes:
+      - name: docker_sock
+        path: /var/run/docker.sock
+    commands:
+      - pytest --cov=.
+    when:
+      event: [push, pull_request]
+      branch: [development]
+
+  - name: notify_after_build
+    image: appleboy/drone-discord
+    settings:
+      webhook_id: 893421615042404383
+      webhook_token: 64sAhkacw9k-eiDHh2ttp1aZ6Q1dN2UjNCOAGeyP2qV5YN8wuRxMlC7xDChPbzrRsiPG
+      username: drone.io
+      message: >
+       {{#success build.status}}
+         Build {{build.number}} of '{{repo.name}}':{{commit.branch}}. Status: OK.
+       {{else}}
+         ❌ Build {{build.number}} of '{{repo.name}}'. Status: FAIL.
+       {{/success}}
+    when:
+      branch: [development]
+      # event: tag # in case of new git tag
+      status:
+      - success
+      - failure
+
+  - name: deploy_stage
+    image: appleboy/drone-ssh
+    environment:
+      DOCKER_HUB_USERNAME:
+        from_secret: DOCKER_HUB_USERNAME # from org secrets
+      DOCKER_HUB_PASSWORD:
+        from_secret: DOCKER_HUB_PASSWORD # from org secrets
+    settings:
+      host: spectrum.goodbit.dev
+      username: ubuntu
+      key:
+          from_secret: SSH_PRIVATE_KEY  # from org secrets (common for all) - for the target server
+          # SSH_PUBLIC_KEY is
+          # Drone
+          # ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIN58+7X8ywwq4Zsdt3AdGg/0BlV9gzSgSEgzRM2cRNBA developer.goodbit@gmail.com
+      port: 22
+      script:
+        # - whoami
+        - echo $DOCKER_HUB_PASSWORD | docker login docker.io -u $DOCKER_HUB_USERNAME --password-stdin
+        # test: - docker pull goodbitdev/builds:build-spectrum-stage-004abf9
+        - cd /home/ubuntu/services/spectrum_server/ci/stage
+        - python3 scripts.py deploy goodbitdev/builds:build-spectrum-stage-${DRONE_COMMIT_SHA:0:7}
+        - docker image prune -a --force --filter "until=168h"
+    when:
+      branch: [development]
+      # event: tag # in case of new git tag
+      status:
+      - success
+
+  - name: notify_after_deploy
+    image: appleboy/drone-discord
+    settings:
+      webhook_id: 893421615042404383
+      webhook_token: 64sAhkacw9k-eiDHh2ttp1aZ6Q1dN2UjNCOAGeyP2qV5YN8wuRxMlC7xDChPbzrRsiPG
+      username: drone.io
+      message: >
+       {{#success build.status}}
+         ✅ Deploy of [build {{build.number}}](<{{ build.link }}/1/3>) to stage [spectrum.goodbit.dev](<https://spectrum.goodbit.dev/>). Status: OK.
+       {{else}}
+         ❌ Deploy of [build {{build.number}}](<{{ build.link }}/1/3>) to stage [spectrum.goodbit.dev](<https://spectrum.goodbit.dev/>). Status: FAIL.
+       {{/success}}
+    when:
+      branch: [development]
+      # event: tag # in case of new git tag
+      status:
+      - success
+      - failure
+
+volumes:
+  - name: docker_sock
+    host:
+      path: /var/run/docker.sock
+
+services:
+  # This database stays running during the whole pipeline and can be accessed from any of the other steps.
+
+  - name: spectrum-postgres
+    image: postgres:13.1-alpine
+    environment:
+      POSTGRES_DB: main
+      POSTGRES_USER: main
+      POSTGRES_PASSWORD: s50XgW4
+
+  - name: spectrum-redis
+    image: redis:6

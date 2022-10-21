@@ -1,0 +1,29 @@
+{% extends 'emails/layouts/base.html' %}
+
+{% block title %}
+    Welcome to MyDreamDJ, {{ user.first_name }}!
+{% endblock %}
+
+{% block content %}
+<tr>
+    <td style="font-size: 14px; line-height: 24px; color: #464646;">
+        Your User Profile has been created! <br>
+        We thank You for registration and are happy to see You on our Website!
+        <br><br>
+        To gain access to the websites functionality You only need to confirm your Email:
+        <a href="{{ url }}" style="color: #006AFF; text-decoration: none;">Click here</a>.
+    </td>
+</tr>
+<tr>
+    <td style="font-size: 14px; line-height: 24px; color: #464646;">
+        If you haven’t ever registered a User Profile, but have troubles connecting your Email, please contact our suppor:
+        <a href="mailto:info@mydreamdj.com" style="color: #006AFF; text-decoration: none;">info@mydreamDJ.com</a>
+    </td>
+</tr>
+<tr>
+    <td style="font-size: 14px; line-height: 24px; color: #464646;">
+        For the Safety of our Users, we never store your Password unencrypted, for this reason we will not be able to send it to You.
+        If you have forgotten your password, you can reset it by following the link "Forgot your password?" in the login window.
+    </td>
+</tr>
+{% endblock %}
