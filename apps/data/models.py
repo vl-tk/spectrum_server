@@ -36,6 +36,9 @@ class CHZRecord(models.Model):
 
     out_recycle = models.PositiveIntegerField()
 
+    # created_at = models.DateTimeField(auto_now_add=True, editable=False)
+    # updated_at = models.DateTimeField(auto_now=True, editable=False)
+
     class Meta:
         verbose_name = 'Запись ЧЗ'
         verbose_name_plural = 'Записи ЧЗ'
@@ -56,11 +59,11 @@ class DGisRecord(models.Model):
 
     legal_name = models.CharField('Юридическое название', max_length=2048)
 
-    org_form = models.CharField('Организационно-правовая форма', max_length=2048)
+    org_form = models.CharField('ОПФ', max_length=2048)
 
     branch_legal_name = models.CharField('Юридическое название филиала', max_length=2048)
 
-    branch_org_name = models.CharField('Организационно-правовая форма филиала', max_length=2048)
+    branch_org_name = models.CharField('ОПФ филиала', max_length=2048)
 
     extension = models.CharField('Расширение', max_length=2048)
 
@@ -78,9 +81,9 @@ class DGisRecord(models.Model):
     number_of_floors = models.CharField('Этажность', max_length=2048)
     building_purpose = models.CharField('Назначение здания', max_length=2048)
 
-    phone_area_code = models.CharField('Код телефонной зоны', max_length=2048)
-    phones = models.CharField('Телефоны', max_length=2048)
-    emails = models.CharField('Адреса электронной почты', max_length=2048)
+    phone_area_code = models.TextField('Код телефонной зоны')
+    phones = models.TextField('Телефоны', max_length=4096)
+    emails = models.TextField('Адреса электронной почты', max_length=2048)
 
     web_alias = models.CharField('Web-Алиас', max_length=2048)
     web_sites = models.CharField('Веб сайты', max_length=2048)
@@ -108,9 +111,56 @@ class DGisRecord(models.Model):
     # not in table
     inn = models.CharField('ИНН', max_length=255)
 
+    created_at = models.DateTimeField(auto_now_add=True, editable=False)
+    updated_at = models.DateTimeField(auto_now=True, editable=False)
+
     class Meta:
         verbose_name = 'Запись 2Гис'
         verbose_name_plural = 'Записи 2Гис'
+
+        # only 32 fields are suppported but we need all fields to 100% check if line is unique
+        # constraints = [
+        #     models.UniqueConstraint(fields=[
+        #         'name',
+        #         'brand',
+        #         'legal_name',
+        #         'org_form',
+        #         'branch_legal_name',
+        #         'branch_org_name',
+        #         'extension',
+        #         'extension_addition',
+        #         'division',
+        #         'division_extension',
+        #         'project_publications',
+        #         'unit',
+        #         'street',
+        #         'address',
+        #         'number_of_floors',
+        #         'building_purpose',
+        #         'phone_area_code',
+        #         'phones',
+        #         'emails',
+        #         'web_alias',
+        #         'web_sites',
+        #         'soc_skype',
+        #         'soc_icq',
+        #         'soc_vk',
+        #         'soc_twitter',
+        #         'soc_facebook',
+        #         'soc_instagram',
+        #         'soc_linkedin',
+        #         'soc_pinterest',
+        #         'soc_youtube',
+        #         'soc_google_plus',
+        #         'soc_odnoklassniki',
+        #         'soc_whatsapp',
+        #         'soc_viber',
+        #         'soc_telegram',
+        #         'soc_work_time',
+        #         'categories',
+        #         'inn_ogrn'
+        #     ], name='unique_imported_fields')
+        # ]
 
     def __str__(self):
         return f'#{self.pk} - "{self.name}"'

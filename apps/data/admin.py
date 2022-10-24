@@ -44,6 +44,7 @@ class DGisRecordAdmin(admin.ModelAdmin):
     show_full_result_count = False
 
     list_display = [
+        'pk',
         'name',
         'brand',
         'legal_name',
@@ -71,6 +72,9 @@ class DGisRecordAdmin(admin.ModelAdmin):
     ]
 
     search_fields = [
+        'name',
+        'brand',
+        'inn'
     ]
 
     list_filter = [
