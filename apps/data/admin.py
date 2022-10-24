@@ -1,6 +1,7 @@
 from admin_cursor_paginator import CursorPaginatorAdmin
 from apps.data.models import CHZRecord, DGisRecord
 from django.contrib import admin
+from django.utils.html import strip_tags
 
 # from .admin_opt import OptAdmin
 
@@ -38,6 +39,13 @@ class CHZRecordAdmin(CursorPaginatorAdmin):
     ]
 
 
+def make_short_text(text: str) -> str:
+    text = strip_tags(text).replace('&nbsp;', ' ')
+    if len(text) > 100:
+        return text[0:100] + '...'
+    return text
+
+
 @admin.register(DGisRecord)
 class DGisRecordAdmin(admin.ModelAdmin):
 
@@ -47,6 +55,8 @@ class DGisRecordAdmin(admin.ModelAdmin):
         'pk',
         'name',
         'brand',
+        'inn_ogrn',
+        'inn',
         'legal_name',
         'org_form',
         'branch_legal_name',
@@ -61,21 +71,34 @@ class DGisRecordAdmin(admin.ModelAdmin):
         'address',
         'number_of_floors',
         'building_purpose',
-        'phone_area_code',
-        'phones',
+
+        'sh_phone_area_code',
+        'sh_phones',
         'emails',
         'web_alias',
         'web_sites',
         'categories',
-        'inn_ogrn',
-        'inn',
     ]
 
     search_fields = [
         'name',
         'brand',
-        'inn'
+        'inn_ogrn'
     ]
 
     list_filter = [
     ]
+
+    def sh_phone_area_code(self, obj):
+        if obj.phone_area_code:
+            return make_short_text(obj.phone_area_code)
+        return ""
+
+    sh_phone_area_code.short_description = 'Код телефонной зоны'
+
+    def sh_phones(self, obj):
+        if obj.phones:
+            return make_short_text(obj.phones)
+        return ""
+
+    sh_phones.short_description = 'Телефоны'
