@@ -45,3 +45,6 @@ logs/*.log
 
 .server.env
 test/**
+
+*.csv
+*.xlsx
