@@ -72,17 +72,17 @@ class DGisRecord(models.Model):
 
     org_form = models.CharField('ОПФ', max_length=2048)
 
-    branch_legal_name = models.CharField('Юр. название филиала', max_length=2048)
+    branch_legal_name = models.CharField('Юр. название филиала', max_length=2048, null=True, blank=True)
 
-    branch_org_name = models.CharField('ОПФ филиала', max_length=2048)
+    branch_org_name = models.CharField('ОПФ филиала', max_length=2048, null=True, blank=True)
 
     extension = models.CharField('Расширение', max_length=2048)
 
-    extension_addition = models.CharField('Дополнение к расширению', max_length=2048)
+    extension_addition = models.CharField('Дополнение к расширению', max_length=2048, null=True, blank=True)
 
-    division = models.CharField('Подразделение', max_length=2048)
+    division = models.CharField('Подразделение', max_length=2048, null=True, blank=True)
 
-    division_extension = models.CharField('Расширение подразделения', max_length=2048)
+    division_extension = models.CharField('Расширение подразделения', max_length=2048, null=True, blank=True)
 
     project_publications = models.CharField('Проект', max_length=2048)
 
@@ -96,26 +96,26 @@ class DGisRecord(models.Model):
     phones = models.TextField('Телефоны')
     emails = models.TextField('Адреса электронной почты')
 
-    web_alias = models.TextField('Web-Алиас')
-    web_sites = models.TextField('Веб сайты')
+    web_alias = models.TextField('Web-Алиас', null=True, blank=True)
+    web_sites = models.TextField('Веб сайты', null=True, blank=True)
 
-    soc_skype = models.CharField('Skype', max_length=2048)
-    soc_icq = models.CharField('Icq', max_length=2048)
-    soc_vk = models.TextField('ВКонтакте')
-    soc_twitter = models.TextField('Twitter')
-    soc_facebook = models.TextField('Facebook')
-    soc_instagram = models.TextField('Instagram')
-    soc_linkedin = models.TextField('LinkedIn')
-    soc_pinterest = models.TextField('Pinterest')
-    soc_youtube = models.TextField('YouTube')
-    soc_google_plus = models.TextField('GooglePlus')
-    soc_odnoklassniki = models.TextField('Одноклассники')
-    soc_whatsapp = models.TextField('WhatsApp')
-    soc_viber = models.TextField('Viber')
-    soc_telegram = models.TextField('Telegram')
-    soc_work_time = models.TextField('Графики работы')
+    soc_skype = models.CharField('Skype', max_length=2048, null=True, blank=True)
+    soc_icq = models.CharField('Icq', max_length=2048, null=True, blank=True)
+    soc_vk = models.TextField('ВКонтакте', null=True, blank=True)
+    soc_twitter = models.TextField('Twitter', null=True, blank=True)
+    soc_facebook = models.TextField('Facebook', null=True, blank=True)
+    soc_instagram = models.TextField('Instagram', null=True, blank=True)
+    soc_linkedin = models.TextField('LinkedIn', null=True, blank=True)
+    soc_pinterest = models.TextField('Pinterest', null=True, blank=True)
+    soc_youtube = models.TextField('YouTube', null=True, blank=True)
+    soc_google_plus = models.TextField('GooglePlus', null=True, blank=True)
+    soc_odnoklassniki = models.TextField('Одноклассники', null=True, blank=True)
+    soc_whatsapp = models.TextField('WhatsApp', null=True, blank=True)
+    soc_viber = models.TextField('Viber', null=True, blank=True)
+    soc_telegram = models.TextField('Telegram', null=True, blank=True)
+    soc_work_time = models.TextField('Графики работы', null=True, blank=True)
 
-    categories = models.TextField('Рубрики')
+    categories = models.TextField('Рубрики', null=True, blank=True)
 
     inn_ogrn = models.TextField('ИНН/ОГРН')
 
