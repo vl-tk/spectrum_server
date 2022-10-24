@@ -17,6 +17,7 @@ class CHZRecordAdmin(SimpleHistoryAdmin, CursorPaginatorAdmin):
         'product_name',
         'owner_name',
         'inn',
+        'is_edited_manually',
         'prid',
         'gt',
         'pg_name',
@@ -37,7 +38,12 @@ class CHZRecordAdmin(SimpleHistoryAdmin, CursorPaginatorAdmin):
     ]
 
     list_filter = [
+        'is_edited_manually'
     ]
+
+    def save_model(self, request, obj, form, change):
+        obj.is_edited_manually = True
+        super().save_model(request, obj, form, change)
 
 
 def make_short_text(text: str) -> str:
@@ -57,6 +63,7 @@ class DGisRecordAdmin(SimpleHistoryAdmin):
         'name',
         'brand',
         'inn',
+        'is_edited_manually',
         'legal_name',
         'org_form',
         'branch_legal_name',
@@ -90,6 +97,7 @@ class DGisRecordAdmin(SimpleHistoryAdmin):
     ]
 
     list_filter = [
+        'is_edited_manually'
     ]
 
     def sh_phone_area_code(self, obj):
@@ -105,3 +113,7 @@ class DGisRecordAdmin(SimpleHistoryAdmin):
         return ""
 
     sh_phones.short_description = 'Телефоны'
+
+    def save_model(self, request, obj, form, change):
+        obj.is_edited_manually = True
+        super().save_model(request, obj, form, change)
