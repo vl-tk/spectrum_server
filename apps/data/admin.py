@@ -28,7 +28,9 @@ class CHZRecordAdmin(SimpleHistoryAdmin, CursorPaginatorAdmin):
         'out_whosale',
         'out_retail',
         'out_recycle',
-        'date'
+        'date',
+        'updated_at',
+        'created_at'
     ]
 
     search_fields = [

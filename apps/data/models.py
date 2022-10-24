@@ -37,8 +37,8 @@ class CHZRecord(models.Model):
 
     is_edited_manually = models.BooleanField('Редактировано', default=False)
 
-    # created_at = models.DateTimeField(auto_now_add=True, editable=False)
-    # updated_at = models.DateTimeField(auto_now=True, editable=False)
+    created_at = models.DateTimeField(auto_now_add=True, editable=False)
+    updated_at = models.DateTimeField(auto_now=True, editable=False)
 
     history = HistoricalRecords()
 
