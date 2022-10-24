@@ -31,6 +31,7 @@ INSTALLED_APPS = [
     'multiselectfield',
     'debug_toolbar',
     'admin_cursor_paginator',
+    'simple_history',
 
     # User apps
     'apps',
@@ -49,6 +50,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'simple_history.middleware.HistoryRequestMiddleware',
 ]
 
 AUTH_USER_MODEL = 'users.User'

@@ -1,9 +1,7 @@
-from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
-from django.contrib.auth.models import PermissionsMixin
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
-from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
+from simple_history.models import HistoricalRecords
 
 
 class CHZRecord(models.Model):
@@ -40,6 +38,8 @@ class CHZRecord(models.Model):
     # created_at = models.DateTimeField(auto_now_add=True, editable=False)
     # updated_at = models.DateTimeField(auto_now=True, editable=False)
 
+    history = HistoricalRecords()
+
     class Meta:
         verbose_name = 'Запись ЧЗ'
         verbose_name_plural = 'Записи ЧЗ'
@@ -54,7 +54,7 @@ class DGisRecord(models.Model):
     Бристоль, магазин у дома, ООО Альбион-2002       Бристоль      Альбион-2002  ООО                  магазин у дома                            Пенза  Пенза г. (Пенза городской округ, Пензенская обл., Россия)      Антонова      9      9      Жилой дом     (8412)Пенза г. (Пенза городской округ, Пензенская обл., Россия),Заречный г. (ЗАТО Заречный городской округ, Пензенская обл., Россия) 8007071555 [Обработан, Действующий, Контакт организации] 235645 [В архиве, Скрытый, Контакт не принадлежит организации]                     bristol.ru [Обработан, Действующий, Контакт организации]                     bristol_retail [Обработан, Действующий, Контакт организации]   magazinybristol [Обработан, Действующий, Контакт организации]  retail-1617203448558323 [Обработан, Действующий, Контакт организации] bristol_retail [Обработан, Действующий, Контакт организации] magaziny_bristol [В архиве, Скрытый, Контакт больше не функционирует, Контакт временно не функционирует, Контакт организации]                               group/54037646999782 [Обработан, Действующий, Контакт организации]    79108951221 [Обработан, Действующий, Контакт организации]      79108951221 [Обработан, Действующий, Контакт организации]             Пн-Вс 8:00-23:00     Алкогольные напитки Безалкогольные напитки Табачные изделия / Товары для курения Магазины разливного пива Снэковая продукция  5257056036/1025202393677
     """
 
-    name = models.CharField('Наименование организации', max_length=2048)
+    name = models.TextField('Наименование организации')
 
     brand = models.CharField('Бренд', max_length=2048)
 
@@ -120,6 +120,8 @@ class DGisRecord(models.Model):
     # not in table
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     updated_at = models.DateTimeField(auto_now=True, editable=False)
+
+    history = HistoricalRecords()
 
     class Meta:
         verbose_name = 'Запись 2Гис'

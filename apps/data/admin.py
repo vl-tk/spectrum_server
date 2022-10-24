@@ -2,6 +2,7 @@ from admin_cursor_paginator import CursorPaginatorAdmin
 from apps.data.models import CHZRecord, DGisRecord
 from django.contrib import admin
 from django.utils.html import strip_tags
+from simple_history.admin import SimpleHistoryAdmin
 
 # from .admin_opt import OptAdmin
 
@@ -47,7 +48,7 @@ def make_short_text(text: str) -> str:
 
 
 @admin.register(DGisRecord)
-class DGisRecordAdmin(admin.ModelAdmin):
+class DGisRecordAdmin(SimpleHistoryAdmin):
 
     show_full_result_count = False
 

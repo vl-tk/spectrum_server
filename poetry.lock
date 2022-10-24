@@ -354,6 +354,14 @@ python-versions = "*"
 django = ">=1.4"
 
 [[package]]
+name = "django-simple-history"
+version = "3.1.1"
+description = "Store model history and view/revert changes from admin site."
+category = "main"
+optional = false
+python-versions = ">=3.7"
+
+[[package]]
 name = "django-storages"
 version = "1.13.1"
 description = "Support for many storage backends in Django"
@@ -1042,7 +1050,7 @@ testing = ["flake8 (<5)", "func-timeout", "jaraco.functools", "jaraco.itertools"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "31518fc8e753b67454e77491255f4c177b81a209fd16b415f54cde8dfe9bc2b0"
+content-hash = "c9dfdedcad0630e119a6e63d9f40f18b09bcb95024b75b53d053ddef0009be6a"
 
 [metadata.files]
 amqp = [
@@ -1285,6 +1293,9 @@ django-extensions = [
 django-multiselectfield = [
     {file = "django-multiselectfield-0.1.12.tar.gz", hash = "sha256:d0a4c71568fb2332c71478ffac9f8708e01314a35cf923dfd7a191343452f9f9"},
     {file = "django_multiselectfield-0.1.12-py3-none-any.whl", hash = "sha256:c270faa7f80588214c55f2d68cbddb2add525c2aa830c216b8a198de914eb470"},
+]
+django-simple-history = [
+    {file = "django-simple-history-3.1.1.tar.gz", hash = "sha256:eab6dbddb7da756cc5579f7d6f28a32b2e8bb1697a5c37794d96309793ffec38"},
 ]
 django-storages = [
     {file = "django-storages-1.13.1.tar.gz", hash = "sha256:b3d98ecc09f1b1627c2b2cf430964322ce4e08617dbf9b4236c16a32875a1e0b"},
