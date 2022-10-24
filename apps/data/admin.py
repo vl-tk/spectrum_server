@@ -55,7 +55,6 @@ class DGisRecordAdmin(admin.ModelAdmin):
         'pk',
         'name',
         'brand',
-        'inn_ogrn',
         'inn',
         'legal_name',
         'org_form',
@@ -78,12 +77,15 @@ class DGisRecordAdmin(admin.ModelAdmin):
         'web_alias',
         'web_sites',
         'categories',
+        'inn_ogrn',
+        'updated_at',
+        'created_at'
     ]
 
     search_fields = [
         'name',
         'brand',
-        'inn_ogrn'
+        'inn'
     ]
 
     list_filter = [

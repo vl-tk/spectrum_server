@@ -1,5 +1,6 @@
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.models import PermissionsMixin
+from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -57,11 +58,19 @@ class DGisRecord(models.Model):
 
     brand = models.CharField('Бренд', max_length=2048)
 
-    legal_name = models.CharField('Юридическое название', max_length=2048)
+    # not in table
+    inn = ArrayField(
+        models.PositiveBigIntegerField(),
+        verbose_name='ИНН',
+        null=True,
+        blank=True
+    )
+
+    legal_name = models.CharField('Юр. название', max_length=2048)
 
     org_form = models.CharField('ОПФ', max_length=2048)
 
-    branch_legal_name = models.CharField('Юридическое название филиала', max_length=2048)
+    branch_legal_name = models.CharField('Юр. название филиала', max_length=2048)
 
     branch_org_name = models.CharField('ОПФ филиала', max_length=2048)
 
@@ -109,8 +118,6 @@ class DGisRecord(models.Model):
     inn_ogrn = models.TextField('ИНН/ОГРН')
 
     # not in table
-    inn = models.CharField('ИНН', max_length=255)
-
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     updated_at = models.DateTimeField(auto_now=True, editable=False)
 
