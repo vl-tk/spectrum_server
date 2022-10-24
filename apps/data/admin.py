@@ -8,7 +8,7 @@ from simple_history.admin import SimpleHistoryAdmin
 
 
 @admin.register(CHZRecord)
-class CHZRecordAdmin(CursorPaginatorAdmin):
+class CHZRecordAdmin(SimpleHistoryAdmin, CursorPaginatorAdmin):
 
     show_full_result_count = False
 
