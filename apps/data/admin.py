@@ -44,7 +44,9 @@ class CHZRecordAdmin(SimpleHistoryAdmin, CursorPaginatorAdmin):
     ]
 
     def save_model(self, request, obj, form, change):
-        obj.is_edited_manually = True
+        changed_fields = [f for f in form.changed_data if f != 'is_edited_manually']
+        if changed_fields:
+            obj.is_edited_manually = True
         super().save_model(request, obj, form, change)
 
 
@@ -117,5 +119,7 @@ class DGisRecordAdmin(SimpleHistoryAdmin):
     sh_phones.short_description = 'Телефоны'
 
     def save_model(self, request, obj, form, change):
-        obj.is_edited_manually = True
+        changed_fields = [f for f in form.changed_data if f != 'is_edited_manually']
+        if changed_fields:
+            obj.is_edited_manually = True
         super().save_model(request, obj, form, change)
