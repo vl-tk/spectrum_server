@@ -47,7 +47,7 @@ class CHZRecord(models.Model):
         verbose_name_plural = 'Записи ЧЗ'
 
     def __str__(self):
-        return f'#{self.pk} - "{self.owner_name}" - {self.inn}'
+        return f'#{self.pk} - "{self.product_name}" - ИНН: {self.inn}'
 
 
 class DGisRecord(models.Model):
@@ -177,4 +177,4 @@ class DGisRecord(models.Model):
         # ]
 
     def __str__(self):
-        return f'#{self.pk} - "{self.name}"'
+        return f'#{self.pk} - "{self.name}" - ИНН: {self.inn}'

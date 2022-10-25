@@ -40,7 +40,9 @@ class CHZRecordAdmin(SimpleHistoryAdmin, admin.ModelAdmin): # CursorPaginatorAdm
     ]
 
     list_filter = [
-        'is_edited_manually'
+        'is_edited_manually',
+        'created_at',
+        'updated_at'
     ]
 
     def save_model(self, request, obj, form, change):
@@ -101,7 +103,9 @@ class DGisRecordAdmin(SimpleHistoryAdmin):
     ]
 
     list_filter = [
-        'is_edited_manually'
+        'is_edited_manually',
+        'created_at',
+        'updated_at'
     ]
 
     def sh_phone_area_code(self, obj):
