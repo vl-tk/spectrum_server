@@ -45,10 +45,7 @@ urlpatterns = \
         # path('swagger/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
         # path('redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
 
-        # Web API
-        # path('documents/', include(wagtaildocs_urls)),
-        # path('api/v1/', api_router.urls),
-        # path('', include(wagtail_urls)), # CMS pages
+        path('import/', include('apps.importer.urls', namespace='importer')),
 
     ] + static(settings.MEDIA_PATH, document_root=settings.MEDIA_ROOT) \
     + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
