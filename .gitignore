@@ -35,6 +35,7 @@ coverage/**
 companies/**
 estate/**
 feedback/**
+env/
 
 main/settings/local.py
 main/settings/local-tests.py
@@ -48,3 +49,4 @@ test/**
 
 *.csv
 *.xlsx
+
