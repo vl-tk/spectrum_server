@@ -32,11 +32,14 @@ INSTALLED_APPS = [
     'debug_toolbar',
     'admin_cursor_paginator',
     'simple_history',
+    'eav',
 
     # User apps
     'apps',
     'apps.users',
     'apps.data',
+    'apps.events',
+    'apps.importer'
 ]
 
 MIDDLEWARE = [

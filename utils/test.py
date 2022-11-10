@@ -17,3 +17,9 @@ def get_test_document_files() -> list:
         File(open(Path(settings.TEST_FILES_ROOT) / 'file-sample_1MB.docx', mode='rb')),
         File(open(Path(settings.TEST_FILES_ROOT) / 'file-sample_1MB.doc', mode='rb')),
     ]
+
+
+def get_test_excel_file() -> list:
+    return [
+        File(open(Path(settings.TEST_FILES_ROOT) / '2gis_test.xlsx', mode='rb')),
+    ]

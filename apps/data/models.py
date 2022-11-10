@@ -129,8 +129,8 @@ class DGisRecord(models.Model):
     history = HistoricalRecords()
 
     class Meta:
-        verbose_name = 'Запись 2Гис'
-        verbose_name_plural = 'Записи 2Гис'
+        verbose_name = 'Запись 2ГИС'
+        verbose_name_plural = 'Записи 2ГИС'
 
         # only 32 fields are suppported but we need all fields to 100% check if line is unique
         # constraints = [
