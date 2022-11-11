@@ -1,5 +1,6 @@
 import logging
 
+from apps.importer.serializers import ImportSerializer
 from django.conf import settings
 from django.http import Http404
 from django.shortcuts import get_object_or_404
@@ -16,10 +17,27 @@ class ImportExcelView(APIView):
 
     permission_classes = [AllowAny]
 
+    @extend_schema(
+        parameters=[ImportSerializer],
+        # request={'application/json': ImportSerializer},
+        # parameters=[
+        #     OpenApiParameter(name='backend', description="'google-oauth2', 'facebook'", required=True, type=str),
+        # ],
+        # responses={
+        #     status.HTTP_200_OK: ImportSerializer(),
+        #     status.HTTP_403_FORBIDDEN: '',
+        # },
+        summary=""
+    )
     def post(self, request, *args, **kwargs):
 
-        # res = ImportSerializer(s).data
-
-        res = {}
+        serializer = ImportSerializer(
+            data=request.data,
+            context={
+                'request': request,
+            }
+        )
+        serializer.is_valid(raise_exception=True)
+        res = serializer.import_data()
 
         return Response(res, status=status.HTTP_200_OK)

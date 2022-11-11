@@ -36,6 +36,7 @@ companies/**
 estate/**
 feedback/**
 env/
+tmp/
 
 main/settings/local.py
 main/settings/local-tests.py
@@ -43,6 +44,7 @@ main/settings/local-docker.py
 
 dev_preload_code.py
 logs/*.log
+logs/**
 
 .server.env
 test/**

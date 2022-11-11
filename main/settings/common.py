@@ -19,6 +19,7 @@ ALLOWED_HOSTS = ['0.0.0.0', 'localhost', '127.0.0.1', 'main']
 # Application definition
 INSTALLED_APPS = [
     # system apps
+    'eav',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -32,7 +33,6 @@ INSTALLED_APPS = [
     'debug_toolbar',
     'admin_cursor_paginator',
     'simple_history',
-    'eav',
 
     # User apps
     'apps',

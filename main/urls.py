@@ -41,11 +41,12 @@ urlpatterns = \
         path('health', HealthCheckView.as_view(), name='health_check'),
         path('__debug__/', include('debug_toolbar.urls')),
 
-        # path('schema/', SpectacularAPIView.as_view(), name='schema'),
-        # path('swagger/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
-        # path('redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
+        path('schema/', SpectacularAPIView.as_view(), name='schema'),
+        path('swagger/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
+        path('redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
 
         path('import/', include('apps.importer.urls', namespace='importer')),
+        path('events/', include('apps.events.urls', namespace='events')),
 
     ] + static(settings.MEDIA_PATH, document_root=settings.MEDIA_ROOT) \
     + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

@@ -21,5 +21,6 @@ def get_test_document_files() -> list:
 
 def get_test_excel_file() -> list:
     return [
-        File(open(Path(settings.TEST_FILES_ROOT) / '2gis_test.xlsx', mode='rb')),
+        File(open(Path(settings.TEST_FILES_ROOT) / '2gis_test_mini.xlsx', mode='rb')),
+        File(open(Path(settings.TEST_FILES_ROOT) / '2gis_test_big.xlsx', mode='rb'))
     ]
