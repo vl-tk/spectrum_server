@@ -20,7 +20,7 @@ def test_import_excel_file_events(authorized_client, test_file_remove):
     )
 
     assert resp.status_code == status.HTTP_200_OK
-    assert Event.objects.count() == 10
+    assert Event.objects.count() == 33
 
 
 @pytest.mark.django_db
