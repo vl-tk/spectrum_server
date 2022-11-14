@@ -15,10 +15,10 @@ class EventImporter(BaseImporter):
     def create_record(self, row_values: tuple):
 
         try:
-            event = Event.objects.create()
-            event.eav.source_filename = self.filepath.name
+            event = Event.objects.create(
+                eav__source_filename=self.filepath.name
+            )
             # TODO: assign attributes self.values
-            event.save()
         except Exception as e:
             ilogger.exception(e)
             return
