@@ -13,7 +13,6 @@ class EventImporter(BaseImporter):
         self.setup()
 
     def create_record(self, row_values: tuple):
-        # super().create_record(row_values)
 
         try:
             event = Event.objects.create()
