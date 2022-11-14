@@ -40,7 +40,7 @@ class ColumnMatcher:
         return recommendations
 
     def get_existing_columns(self):
-        # todo: get all attributes from EAV
+        # TODO: get all attributes from EAV
         return []
 
 
@@ -120,5 +120,6 @@ class BaseImporter:
         a, _ = Attribute.objects.get_or_create(
            name='Файл импорта',
            slug='source_filename',
-           datatype=Attribute.TYPE_TEXT
+           datatype=Attribute.TYPE_TEXT,
+           required=True
         )
