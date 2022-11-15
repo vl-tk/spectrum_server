@@ -59,13 +59,18 @@ class ExcelImportService:
         ilogger.info('STARTED import "%s" using %s', self.filepath.name,
                      self.importer.__class__.__name__)
 
-        self.create_columns()
+        slugs = self.create_columns()
 
         result = {}
         success = 0
         for i, row in enumerate(self.df.to_records()):
+
             row_values: tuple = [self.preformat_cell(value) for value in row]
-            res = self.importer.create_record(row_values)
+
+            res = self.importer.create_record(
+                columns=slugs,
+                row_values=row_values
+            )
             if res:
                 success +=1
 
@@ -83,14 +88,16 @@ class ExcelImportService:
 
         ilogger.info('STARTED create_columns for "%s"', self.filepath)
 
+        slugs = []
+
         for column in self.df.columns:
 
             try:
                 slug = translit(column.lower(), 'ru', reversed=True)
-                slug = slug.replace(' ', '_')
+                slug = slug.replace(' ', '_').replace('-', '_')
                 converted_slug = ''.join([
                     v for v in slug
-                    if v.isalpha() or v.isnumeric() or v in ['-', '_']
+                    if v.isalpha() or v.isnumeric() or v in ['_']
                 ])
             except Exception as e:
                 ilogger.info('%s, %s, %s', column, slug, converted_slug)
@@ -105,12 +112,14 @@ class ExcelImportService:
                 ilogger.info('%s, %s', column, slug, converted_slug)
                 ilogger.exception(e)
             else:
+                slugs.append(converted_slug)
                 if created:
                     ilogger.info('CREATED column "%s" (%s)', column, converted_slug)
                 else:
                     ilogger.info('FOUND column "%s" (%s)', column, converted_slug)
 
         ilogger.info('FINISHED create_columns for "%s"', self.filepath)
+        return slugs
 
 
 class BaseImporter:
