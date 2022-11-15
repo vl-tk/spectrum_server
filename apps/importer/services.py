@@ -104,10 +104,12 @@ class ExcelImportService:
                 ilogger.exception(e)
 
             try:
-                a, created = Attribute.objects.get_or_create(
+                attr, created = Attribute.objects.get_or_create(
                     name=column,
                     slug=converted_slug,
-                    datatype=Attribute.TYPE_TEXT)
+                    datatype=Attribute.TYPE_TEXT
+                )
+                attr.entity_ct.set([self.importer.content_type])
             except Exception as e:
                 ilogger.info('%s, %s', column, slug, converted_slug)
                 ilogger.exception(e)

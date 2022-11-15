@@ -2,6 +2,7 @@ from pathlib import Path
 
 from apps.events.models import Event
 from apps.importer.services import BaseImporter
+from django.contrib.contenttypes.models import ContentType
 from eav.models import Attribute
 from utils.logger import ilogger
 
@@ -11,6 +12,13 @@ class EventImporter(BaseImporter):
     def __init__(self, filepath: Path):
         self.filepath = filepath
         self.setup()
+        self.content_type = ContentType.objects.get(
+            app_label='events',
+            model='event'
+        )
+
+    def get_content_type(self):
+        return ContentType.objects.get_for_model(obj)
 
     def create_record(self, columns, row_values):
 
