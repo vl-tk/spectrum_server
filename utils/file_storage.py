@@ -19,6 +19,14 @@ def delete_image(image):
     return image.delete(True)
 
 
+def avatar_thumbnail_path(instance, filename):
+    return get_storage_path_static(
+        instance.pk,
+        get_filename_by_hash(instance.avatar, filename),
+        'avatars_thumbnail'
+    )
+
+
 def get_storage_path_unique(instance, filename, directory):
     filename_hash = get_filename_by_hash(get_file(instance, 'sample'), filename)
     return f"{directory}/{filename_hash[0:10]}/{filename_hash[10:]}"

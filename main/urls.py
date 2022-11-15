@@ -45,6 +45,7 @@ urlpatterns = \
         path('swagger/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
         path('redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
 
+        path('users/', include('apps.users.urls', namespace='users')),
         path('import/', include('apps.importer.urls', namespace='importer')),
         path('events/', include('apps.events.urls', namespace='events')),
 
