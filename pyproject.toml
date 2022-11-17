@@ -33,6 +33,7 @@ werkzeug = "^2.2.2"
 django-eav2 = "^1.2.3"
 requests = "^2.28.1"
 transliterate = "^1.10.2"
+mimesis = "^6.1.1"
 
 [tool.poetry.dev-dependencies]
 vcrpy = "^4.1.1"

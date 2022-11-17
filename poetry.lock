@@ -626,6 +626,14 @@ optional = false
 python-versions = ">=3.6"
 
 [[package]]
+name = "mimesis"
+version = "6.1.1"
+description = "Mimesis: Fake Data Generator."
+category = "main"
+optional = false
+python-versions = ">=3.8,<4.0"
+
+[[package]]
 name = "multidict"
 version = "6.0.2"
 description = "multidict implementation"
@@ -1159,7 +1167,7 @@ testing = ["flake8 (<5)", "func-timeout", "jaraco.functools", "jaraco.itertools"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "37a907de5cdeb59c63f0c18ba79dd22bda62d0f484324b8cc25e92b1e365df11"
+content-hash = "4664aea18547ac1f763418abaad6204e0bb01aca170f86928544675375707746"
 
 [metadata.files]
 amqp = [
@@ -1558,6 +1566,10 @@ markupsafe = [
 mccabe = [
     {file = "mccabe-0.7.0-py2.py3-none-any.whl", hash = "sha256:6c2d30ab6be0e4a46919781807b4f0d834ebdd6c6e3dca0bda5a15f863427b6e"},
     {file = "mccabe-0.7.0.tar.gz", hash = "sha256:348e0240c33b60bbdf4e523192ef919f28cb2c3d7d5c7794f74009290f236325"},
+]
+mimesis = [
+    {file = "mimesis-6.1.1-py3-none-any.whl", hash = "sha256:eabe41d7afa23b01dffb51ebd9e10837df6417fef02fa9841989ca886e479790"},
+    {file = "mimesis-6.1.1.tar.gz", hash = "sha256:044ac378c61db0e06832ff722548fd6e604881d36bc938002e0bd5b85eeb6a98"},
 ]
 multidict = [
     {file = "multidict-6.0.2-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:0b9e95a740109c6047602f4db4da9949e6c5945cefbad34a1299775ddc9a62e2"},
