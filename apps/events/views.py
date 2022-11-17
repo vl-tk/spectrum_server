@@ -56,10 +56,23 @@ class EventListView(ListAPIView):
 class EventUpdateView(APIView):
 
     permission_classes = [IsAuthenticated]
+    serializer_class = EventSerializer
+    queryset = Event.objects.all()
+
+    def get_object(self):
+        event_id = self.kwargs.get('id')
+        try:
+            obj = self.queryset.get(pk=event_id)
+        except Event.DoesNotExist:
+            raise Http404
+        return obj
 
     @extend_schema(
         tags=['events']
     )
     def patch(self, request, *args, **kwargs):
-        res = {}
-        return Response(res, status=status.HTTP_200_OK)
+        event = self.get_object()
+        serializer = EventSerializer(event, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(status=status.HTTP_202_ACCEPTED)
