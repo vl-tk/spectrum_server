@@ -2,10 +2,12 @@ from pathlib import Path
 
 import pytest
 from apps.users.models import User
+from apps.users.tokens.serializers import TokenObtainPairSerializer
 from django.conf import settings
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient, APITestCase
+from utils.test import UserFactoryMixin
 
 
 @pytest.fixture
@@ -26,7 +28,11 @@ def unauthorized_client(user):
 @pytest.fixture
 @pytest.mark.django_db
 def authorized_client(user):
+    user = UserFactoryMixin().create_random_user()
+    token = TokenObtainPairSerializer.get_token(user)
+    # TODO:
     client = APIClient()
+    client.credentials(HTTP_AUTHORIZATION='Bearer %s' % token.access_token)
     return client
 
 

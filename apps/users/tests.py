@@ -41,6 +41,7 @@ class TokenTestCase(AuthClientTestCase):
         response = self.client.post(reverse('token_verify'), {'token': tokens['access']})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.client.credentials(HTTP_AUTHORIZATION='Bearer %s' % tokens['access'])
+
         auth_client = self.client_class()
         auth_client.credentials(HTTP_AUTHORIZATION='Bearer %s' % tokens['access'])
         response = auth_client.post(reverse('token_check_auth'))
@@ -91,10 +92,10 @@ class TokenTestCase(AuthClientTestCase):
         response = anonymous_client.post(reverse('token_verify'), {
                                     'token': tokens['access']})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
         anonymous_client.credentials(
             HTTP_AUTHORIZATION='Bearer %s' % tokens['access'])
-        response = anonymous_client.post(
-            reverse('token_check_auth'))
+        response = anonymous_client.post(reverse('token_check_auth'))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 

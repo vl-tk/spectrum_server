@@ -52,3 +52,4 @@ test/**
 *.csv
 *.xlsx
 
+*.log
