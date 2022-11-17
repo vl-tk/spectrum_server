@@ -93,7 +93,7 @@ class ExcelImportService:
         for column in self.df.columns:
 
             try:
-                slug = translit(column.lower(), 'ru', reversed=True)
+                slug = translit(column, 'ru', reversed=True)
                 slug = slug.replace(' ', '_').replace('-', '_')
                 converted_slug = ''.join([
                     v for v in slug
@@ -118,9 +118,9 @@ class ExcelImportService:
                 if created:
                     ilogger.info('CREATED column "%s" (%s)', column, converted_slug)
                 else:
-                    ilogger.info('FOUND column "%s" (%s)', column, converted_slug)
+                    ilogger.info('EXIST column "%s" (%s)', column, converted_slug)
 
-        ilogger.info('FINISHED create_columns for "%s"', self.filepath)
+        ilogger.info('FINISHED create_columns for "%s". Status: OK', self.filepath)
         return slugs
 
 

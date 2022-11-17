@@ -13,6 +13,9 @@ Including another URLConf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+from apps.users.tokens.views import (LoginCheckView, TokenObtainPairView,
+                                     TokenRefreshView, TokenVerifyView)
+from apps.users.views import OAuthRegistrationView
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
@@ -45,9 +48,17 @@ urlpatterns = \
         path('swagger/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
         path('redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
 
-        path('users/', include('apps.users.urls', namespace='users')),
-        path('import/', include('apps.importer.urls', namespace='importer')),
-        path('events/', include('apps.events.urls', namespace='events')),
+        # Web API Authentication
+        path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+        path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+        path('token/verify/', TokenVerifyView.as_view(), name='token_verify'),
+        path('token/check/', LoginCheckView.as_view(), name='token_check_auth'),
+        path('token/social', OAuthRegistrationView.as_view(), name='token_obtain_pair_by_social'),
+        # path('social/', include('social_django.urls', namespace='social')),
+
+        path('api/v1/users/', include('apps.users.urls', namespace='users')),
+        path('api/v1/import/', include('apps.importer.urls', namespace='importer')),
+        path('api/v1/events/', include('apps.events.urls', namespace='events')),
 
     ] + static(settings.MEDIA_PATH, document_root=settings.MEDIA_ROOT) \
     + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

@@ -167,7 +167,7 @@ EMAIL_FROM = os.environ.get('EMAIL_FROM', 'info@gmail.com')
 # https://www.django-rest-framework.org/api-guide/permissions/#setting-the-permission-policy
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        # 'users.tokens.authentication.JWTAuthentication', # TODO
+        'apps.users.tokens.authentication.JWTAuthentication',
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.BasicAuthentication',
     ],
