@@ -73,14 +73,16 @@ class FilterMixin:
             if field.startswith('field_'):
                 filter_params[field[6:]] = query_params[field]
 
+        logger.info('FILTER BEFORE REMOVING UNKNOWN FIELDS: %s', filter_params)
+
         filter_params = {
             k: v
             for k, v in filter_params.items()
             if k in self.entity_fields.keys()
         }
 
-        logger.info(self.entity_fields)
-        logger.info(filter_params)
+        logger.info('ENTITY FIELDS: %s', self.entity_fields)
+        logger.info('FILTER: %s', filter_params)
 
         return filter_params
 
@@ -116,13 +118,14 @@ class EAVDataProvider(PaginationMixin, FilterMixin):
             data = {
                 'slug': attr[1],
                 'type': attr[2],
-                'name': attr[3]
+                'name': attr[3],
+                'id': attr[0]
             }
 
             if attr[1] == 'source_filename':
                 data['is_hidden'] = True
 
-            self.entity_fields[attr[0]] = data
+            self.entity_fields[attr[1]] = data
 
         logger.info(self.entity_fields)
 
@@ -158,7 +161,7 @@ class EAVDataProvider(PaginationMixin, FilterMixin):
             for k, v in filter_params.items():
 
                 sql_part = "(ev.value_text LIKE '%{}%' AND ev.attribute_id = {}) ".format(
-                    v, self.entity_fields[k]['slug'])
+                    v, self.entity_fields[k]['id'])
 
                 sql_parts.append(sql_part)
 
@@ -173,7 +176,7 @@ class EAVDataProvider(PaginationMixin, FilterMixin):
 
     def get_entity_ids(self, query_params: dict) -> List[str]:
 
-        logger.info(query_params)
+        logger.info('QUERY PARAMS: %s', query_params)
 
         filter_params = self.create_filter(query_params)
 
@@ -244,7 +247,7 @@ class EAVDataProvider(PaginationMixin, FilterMixin):
             res = {}
             res['id'] = event_id
             res['fields'] = {}
-            for field in [v['slug'] for k, v in self.entity_fields.items()]:
+            for field in self.entity_fields.keys():
                 if field not in entity_dict.keys():
                     res['fields'][field] = None
                 else:
