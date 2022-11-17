@@ -31,16 +31,16 @@ class EventAdmin(BaseEntityAdmin):
     ]
 
     def field_naimenovanie_organizatsii(self, obj):
-        return obj.eav.naimenovanie_organizatsii
+        return obj.eav.Naimenovanie_organizatsii
 
     def field_brend(self, obj):
-        return obj.eav.brend
+        return obj.eav.Brend
 
     def field_juridicheskoe_nazvanie(self, obj):
-        return obj.eav.juridicheskoe_nazvanie
+        return obj.eav.Juridicheskoe_nazvanie
 
     def field_organizatsionno_pravovaja_forma(self, obj):
-        return obj.eav.organizatsionno_pravovaja_forma
+        return obj.eav.Organizatsionno_pravovaja_forma
 
     def field_source_filename(self, obj):
         return obj.eav.source_filename

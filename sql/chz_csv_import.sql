@@ -2,7 +2,8 @@
 -- FROM /home/file-7f95eb97-1302-420f-bc38-d35d7e0cdbbd.csv
 -- DELIMITER ,
 -- CSV HEADER;
-
--- CREATE INDEX inn_idx ON data_chzrecord(inn);
+ -- CREATE INDEX inn_idx ON data_chzrecord(inn);
 -- CREATE INDEX product_name_idx ON data_chzrecord(product_name);
 -- CREATE INDEX owner_name_idx ON data_chzrecord(owner_name);
+
+
