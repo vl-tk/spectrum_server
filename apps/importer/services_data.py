@@ -99,16 +99,34 @@ class EAVDataProvider(PaginationMixin, FilterMixin):
         except TypeError:
             self.page = 1
 
+        self.entity_id = entity_id
+
         self.cursor = connection.cursor()
 
-        self.entity_fields = {
-            v[1]: v[0]
-            for v in Attribute.objects.filter(
-                Q(entity_ct__id=entity_id)|Q(slug='source_filename')
-            ).values_list('id', 'slug')
-        }
+        self.get_columns_info()
+
+    def get_columns_info(self):
+
+        self.entity_fields = {}
+
+        for attr in Attribute.objects.filter(
+                Q(entity_ct__id=self.entity_id)|Q(slug='source_filename')
+            ).values_list('id', 'slug', 'datatype', 'name').order_by('display_order'):
+
+            data = {
+                'slug': attr[1],
+                'type': attr[2],
+                'name': attr[3]
+            }
+
+            if attr[1] == 'source_filename':
+                data['is_hidden'] = True
+
+            self.entity_fields[attr[0]] = data
 
         logger.info(self.entity_fields)
+
+        self.columns = [v for k,v in self.entity_fields.items()]
 
     def _create_get_entity_ids_sql(self, filter_params=None, limit=None, offset=None):
 
@@ -140,7 +158,7 @@ class EAVDataProvider(PaginationMixin, FilterMixin):
             for k, v in filter_params.items():
 
                 sql_part = "(ev.value_text LIKE '%{}%' AND ev.attribute_id = {}) ".format(
-                    v, self.entity_fields[k])
+                    v, self.entity_fields[k]['slug'])
 
                 sql_parts.append(sql_part)
 
@@ -216,6 +234,8 @@ class EAVDataProvider(PaginationMixin, FilterMixin):
             if row[0] not in results:
                 results[row[0]] = {}
             results[row[0]][row[1]] = row[2]  # results[id][eav_attribute] = [eav_value]
+            results[row[0]]['created_at'] = row[-2].isoformat().replace('T', ' ')
+            results[row[0]]['updated_at'] = row[-1].isoformat().replace('T', ' ')
 
         # 2. упаковка в flat dicts для вывода в API
 
@@ -224,9 +244,13 @@ class EAVDataProvider(PaginationMixin, FilterMixin):
             res = {}
             res['id'] = event_id
             res['fields'] = {}
-            for field in self.entity_fields:
+            for field in [v['slug'] for k, v in self.entity_fields.items()]:
                 if field not in entity_dict.keys():
                     res['fields'][field] = None
+                else:
+                    res['fields'][field] = entity_dict[field]
+            res['created_at'] = entity_dict['created_at']
+            res['updated_at'] = entity_dict['updated_at']
             entities.append(res)
 
         logger.info(sql)
@@ -235,7 +259,8 @@ class EAVDataProvider(PaginationMixin, FilterMixin):
             "count": self.get_count(),
             "next": self.get_next_page(),
             "previous": self.get_previous_page(),
-            "results": entities
+            "results": entities,
+            "columns": self.columns
         }
 
         return result

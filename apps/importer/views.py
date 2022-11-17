@@ -15,7 +15,7 @@ logger = logging.getLogger('django')
 
 class ImportExcelView(APIView):
 
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     @extend_schema(
         parameters=[ImportSerializer],

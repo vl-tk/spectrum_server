@@ -90,7 +90,7 @@ class ExcelImportService:
 
         slugs = []
 
-        for column in self.df.columns:
+        for index, column in enumerate(self.df.columns, start=1):
 
             try:
                 slug = translit(column, 'ru', reversed=True)
@@ -107,7 +107,8 @@ class ExcelImportService:
                 attr, created = Attribute.objects.get_or_create(
                     name=column,
                     slug=converted_slug,
-                    datatype=Attribute.TYPE_TEXT
+                    datatype=Attribute.TYPE_TEXT,
+                    display_order=index
                 )
                 attr.entity_ct.set([self.importer.content_type])
             except Exception as e:
@@ -132,5 +133,6 @@ class BaseImporter:
            name='Файл импорта',
            slug='source_filename',
            datatype=Attribute.TYPE_TEXT,
-           required=True
+           required=True,
+           display_order=500
         )
