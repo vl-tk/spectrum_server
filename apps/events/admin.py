@@ -25,7 +25,7 @@ class EventAdmin(BaseEntityAdmin):
         'field_juridicheskoe_nazvanie',
         'field_organizatsionno_pravovaja_forma',
         'field_source_filename',
-        'field_test',
+        # 'field_test',
         'created_at',
         'updated_at'
     ]
@@ -45,5 +45,8 @@ class EventAdmin(BaseEntityAdmin):
     def field_source_filename(self, obj):
         return obj.eav.source_filename
 
-    def field_test(self, obj):
-        return obj.eav.test
+    # def field_test(self, obj):
+    #     try:
+    #         return obj.eav.test
+    #     except AttributeError:
+    #         pass

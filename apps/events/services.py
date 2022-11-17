@@ -17,9 +17,6 @@ class EventImporter(BaseImporter):
             model='event'
         )
 
-    def get_content_type(self):
-        return ContentType.objects.get_for_model(obj)
-
     def create_record(self, columns, row_values):
 
         row_values = row_values[1:]  # except for line number
@@ -36,5 +33,7 @@ class EventImporter(BaseImporter):
             ilogger.exception(e)
             return
 
-        ilogger.info(f'{event} CREATED')
+        from pprint import pprint
+
+        ilogger.info(f'{event} CREATED with values: {pprint(values)}')
         return True

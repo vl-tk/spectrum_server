@@ -64,11 +64,15 @@ def send_contacts_request_mail(emails: list, data: dict) -> None:
     )
 
 
-def send_confirmation_email(emails: list) -> None:
-    return __send_mail(
-        plaintext=get_template('emails/new_call/confirmation.txt'),
-        html=get_template('emails/new_call/confirmation.html'),
-        context={},
-        subject=SUBJECT_CONFIRMATION,
+def send_confirm_email(emails: list, code: str, user: 'User'):
+    __send_mail(
+        plaintext=get_template('emails/users/confirm/content.txt'),
+        html=get_template('emails/users/confirm/content.html'),
+        context={
+            'url': '%s%s' % (settings.BASE_CLIENT_URL, '/confirm/email/%s' % code),
+            'user': user,
+            'email_from': settings.EMAIL_FROM
+        },
+        subject=SEND_CONFIRM_EMAIL_SUBJECT,
         to_emails=emails
     )

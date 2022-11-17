@@ -5,7 +5,7 @@ from django.utils.translation import gettext_lazy as _
 
 class Event(models.Model):
 
-    # historical records - with who changed
+    # TODO: historical records - with who changed
 
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     updated_at = models.DateTimeField(auto_now=True, editable=False)
