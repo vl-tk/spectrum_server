@@ -5,7 +5,7 @@ from django.utils.translation import gettext_lazy as _
 
 class Event(models.Model):
 
-    # TODO: historical records - with who changed
+    # TODO: historical records - with changes by whom
 
     sort = models.IntegerField(null=True, blank=True)
 

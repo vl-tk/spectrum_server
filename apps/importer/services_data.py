@@ -105,8 +105,18 @@ class FilterMixin:
 
 
 class EAVDataProvider(PaginationMixin, FilterMixin):
+    """
+    Класс получения из БД полей и их значений для сущностей, атрибуты которых стали хранить при помощи схемы EAV
+    (чтобы столбцы можно было гибко менять)
 
-    def __init__(self, entity_id, page=None, page_size=None, query_params=None):
+    Сущности:
+    - Events (Акции)
+    - но могут быть и другие сущности которые импортируем через xlsx таблицы
+
+    Вывод в формате привычном для DRF (с пагинацией)
+    """
+
+    def __init__(self, entity_id, query_params=None, page=None, page_size=None):
 
         try:
             self.page_size = int(page_size)
@@ -119,7 +129,6 @@ class EAVDataProvider(PaginationMixin, FilterMixin):
             self.page = 1
 
         self.entity_id = entity_id
-        self.cursor = connection.cursor()
 
         logger.info('QUERY PARAMS: %s', query_params)
 
@@ -127,7 +136,45 @@ class EAVDataProvider(PaginationMixin, FilterMixin):
 
         self.filter_params = self.get_filter(query_params)
 
+        self.cursor = connection.cursor()
+
     def get_columns_info(self):
+        """
+        Сохранение для данной сущности в self.entity_fields расширенной информации о ее полях
+        (колонках импортированной таблицы) для составления запросов:
+
+        Формат:
+        {
+            'inn': {
+                'slug': 'inn',
+                'type': 'text',
+                'name': 'ИНН',
+                'id': 123
+            },
+            'brand': {
+                'slug': 'brand',
+                'type': 'text',
+                'name': 'Брэнд',
+                'id': 124
+            }
+        }
+
+        self.columns_output - для вывода в json-ответе
+        [
+            {
+                'slug': 'inn',
+                'type': 'text',
+                'name': 'ИНН',
+                'id': 123
+            },
+            {
+                'slug': 'brand',
+                'type': 'text',
+                'name': 'Брэнд',
+                'id': 124
+            }
+        ]
+        """
 
         self.entity_fields = {}
 
@@ -149,9 +196,19 @@ class EAVDataProvider(PaginationMixin, FilterMixin):
 
         logger.info(self.entity_fields)
 
-        self.columns = [v for k,v in self.entity_fields.items()]
+        self.columns_output = [v for k,v in self.entity_fields.items()]
 
     def _get_entity_ids_sql(self, limit=None, offset=None):
+        """
+        Вспомогательный метод составления SQL для получения списка ID entities
+        1) без фильтра
+        2) или по заданным параметрам фильтра
+
+        Используется в двух случаях:
+        1) как первый этап выборки entities (сначала нам нужны ID постранично,
+        потом к ним довыберем данные из attribute и value таблиц)
+        2) для подсчета count для постранички (полученный SQL выборки ID оборачивается в COUNT)
+        """
 
         page_size = limit if limit is not None else self.page_size
         offset = offset if offset is not None else self.page_size * (self.page - 1)
@@ -172,20 +229,25 @@ class EAVDataProvider(PaginationMixin, FilterMixin):
             """
             desired result:
 
-            WITH first_ids AS
+            WITH
+
+                first_ids AS
+
               (SELECT ev.entity_id
                FROM eav_value AS ev
                WHERE ev.value_text LIKE '%торг%'
                  AND ev.attribute_id = 269),
-                  second_ids AS
+
+                second_ids AS
+
               (SELECT ev.entity_id
                FROM eav_value AS ev
                WHERE ev.value_text LIKE '%ООО%'
                  AND ev.attribute_id = 272 )
-            SELECT *
-            FROM first_ids INTERSECT
-            SELECT *
-            FROM second_ids;
+
+            SELECT * FROM first_ids
+            INTERSECT
+            SELECT * FROM second_ids;
 
             i.e.:
 
@@ -225,6 +287,12 @@ class EAVDataProvider(PaginationMixin, FilterMixin):
         return sql
 
     def get_entity_ids(self) -> List[str]:
+        """
+        Метод получения IDs
+
+        Фильтр задается заранее в EAVDataProvider
+        Результат с учетом переданных параметров в EAVDataProvider постранички
+        """
 
         sql = self._get_entity_ids_sql()
 
@@ -244,6 +312,9 @@ class EAVDataProvider(PaginationMixin, FilterMixin):
         return ids
 
     def get_entities(self, query_params: dict = None):
+        """
+        Метод получения всех field:value для полученных ранее entity ID
+        """
 
         # 1. фильтрация по всем values сущностей и получение ID entity (постранично)
 
@@ -260,12 +331,16 @@ class EAVDataProvider(PaginationMixin, FilterMixin):
                    ev.value_text AS value,
                    ev.attribute_id AS field_id,
                    ev.id AS value_id,
-                   e.created_at,
-                   e.updated_at
+                   et.sort,
+                   et.created_at,
+                   et.updated_at
             FROM eav_value AS ev
-            INNER JOIN events_event AS e ON e.id = ev.entity_id
+            INNER JOIN {entity_table} AS et ON et.id = ev.entity_id
             WHERE ev.entity_id IN ({ids});
-        """.format(ids=','.join(ids))
+        """.format(
+            entity_table='events_event',
+            ids=','.join(ids)
+        )
 
         logger.info(sql)
 
@@ -276,7 +351,7 @@ class EAVDataProvider(PaginationMixin, FilterMixin):
             self.cursor.close
             raise e
 
-        # 2. упаковка для вывода в API
+        # 2. вывода в API в нужном формате
 
         results = {}
         for row in res2:
@@ -285,6 +360,7 @@ class EAVDataProvider(PaginationMixin, FilterMixin):
             results[row[0]][row[1]] = row[2]  # results[id][eav_attribute] = [eav_value]
             results[row[0]]['created_at'] = row[-2].isoformat().replace('T', ' ').split('.')[0]
             results[row[0]]['updated_at'] = row[-1].isoformat().replace('T', ' ').split('.')[0]
+            results[row[0]]['sort'] = row[-3]
 
         entities = []
         for event_id, entity_dict in results.items():
@@ -296,6 +372,7 @@ class EAVDataProvider(PaginationMixin, FilterMixin):
                     res['fields'][field] = None
                 else:
                     res['fields'][field] = entity_dict[field]
+            res['sort'] = entity_dict['sort']
             res['created_at'] = entity_dict['created_at']
             res['updated_at'] = entity_dict['updated_at']
             entities.append(res)
@@ -307,7 +384,7 @@ class EAVDataProvider(PaginationMixin, FilterMixin):
             "next": self.get_next_page(),
             "previous": self.get_previous_page(),
             "results": entities,
-            "columns": self.columns
+            "columns": self.columns_output
         }
 
         return result
