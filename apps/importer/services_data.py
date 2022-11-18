@@ -283,8 +283,8 @@ class EAVDataProvider(PaginationMixin, FilterMixin):
             if row[0] not in results:
                 results[row[0]] = {}
             results[row[0]][row[1]] = row[2]  # results[id][eav_attribute] = [eav_value]
-            results[row[0]]['created_at'] = row[-2].isoformat().replace('T', ' ')
-            results[row[0]]['updated_at'] = row[-1].isoformat().replace('T', ' ')
+            results[row[0]]['created_at'] = row[-2].isoformat().replace('T', ' ').split('.')[0]
+            results[row[0]]['updated_at'] = row[-1].isoformat().replace('T', ' ').split('.')[0]
 
         entities = []
         for event_id, entity_dict in results.items():

@@ -61,7 +61,7 @@ def test_list_events_filter(authorized_client, imported_events, test_file_remove
     )
     assert resp.status_code == status.HTTP_200_OK
     assert len(resp.data['results']) == 1
-    assert resp.data['count'] == 66
+    assert resp.data['count'] == 1
 
 
 @pytest.mark.django_db
