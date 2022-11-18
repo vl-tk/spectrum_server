@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import *
 
 from apps.events.models import Event
 from apps.importer.services import BaseImporter
@@ -17,7 +18,7 @@ class EventImporter(BaseImporter):
             model='event'
         )
 
-    def create_record(self, columns, row_values):
+    def create_record(self, columns, row_values: List[str], sort: int = 0):
 
         row_values = row_values[1:]  # except for line number
 
@@ -25,7 +26,9 @@ class EventImporter(BaseImporter):
 
         columns = [f'eav__{c}' for c in columns]
         values = dict(zip(columns, row_values))
+
         values['eav__source_filename'] = self.filepath.name
+        values['sort'] = sort
 
         try:
             event = Event.objects.create(**values)

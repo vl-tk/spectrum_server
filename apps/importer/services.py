@@ -63,13 +63,14 @@ class ExcelImportService:
 
         result = {}
         success = 0
-        for i, row in enumerate(self.df.to_records()):
+        for i, row in enumerate(self.df.to_records(), start=1):
 
-            row_values: tuple = [self.preformat_cell(value) for value in row]
+            row_values: list = [self.preformat_cell(value) for value in row]
 
             res = self.importer.create_record(
                 columns=slugs,
-                row_values=row_values
+                row_values=row_values,
+                sort=i
             )
             if res:
                 success +=1
@@ -81,8 +82,8 @@ class ExcelImportService:
             len(self.df.to_records())  # TODO: method?
         )
 
-    def preformat_cell(self, i) -> str:
-        return str(i) if str(i) != 'nan' else ''
+    def preformat_cell(self, value) -> str:
+        return str(value) if str(value) != 'nan' else ''
 
     def create_columns(self):
 
