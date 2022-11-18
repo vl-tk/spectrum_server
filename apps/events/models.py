@@ -7,6 +7,8 @@ class Event(models.Model):
 
     # TODO: historical records - with who changed
 
+    sort = models.IntegerField(null=True, blank=True)
+
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     updated_at = models.DateTimeField(auto_now=True, editable=False)
 

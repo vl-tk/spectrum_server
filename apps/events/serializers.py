@@ -16,6 +16,7 @@ class EventSerializer(serializers.ModelSerializer):
         fields = [
             'pk',
             'fields',
+            'sort',
             'created_at',
             'updated_at'
         ]

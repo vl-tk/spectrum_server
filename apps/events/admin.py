@@ -26,6 +26,7 @@ class EventAdmin(BaseEntityAdmin):
         'field_organizatsionno_pravovaja_forma',
         'field_source_filename',
         # 'field_test',
+        'sort',
         'created_at',
         'updated_at'
     ]
