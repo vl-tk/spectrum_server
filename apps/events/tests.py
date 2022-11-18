@@ -35,7 +35,7 @@ def test_list_events(authorized_client, imported_events, test_file_remove):
 
 
 @pytest.mark.django_db
-def test_list_events_filter(authorized_client, imported_events, test_file_remove):
+def test_list_events_single_filter(authorized_client, imported_events, test_file_remove):
 
     # 2nd file after the 1st (with other columns)
 
@@ -112,7 +112,7 @@ def test_list_events_pagination(authorized_client, imported_events, test_file_re
 
 
 @pytest.mark.django_db
-def test_list_events_multifilter(authorized_client, imported_events, test_file_remove):
+def test_list_events_multi_filter(authorized_client, imported_events, test_file_remove):
 
     assert Event.objects.count() == 33
 
@@ -145,7 +145,7 @@ def test_list_events_multifilter(authorized_client, imported_events, test_file_r
 
 
 @pytest.mark.django_db
-def test_list_events_multifilter_pagination(authorized_client, imported_events, test_file_remove):
+def test_list_events_multi_filter_pagination(authorized_client, imported_events, test_file_remove):
 
     assert Event.objects.count() == 33
 

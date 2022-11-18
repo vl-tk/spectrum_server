@@ -94,7 +94,7 @@ class ExcelImportService:
         for index, column in enumerate(self.df.columns, start=1):
 
             try:
-                slug = translit(column, 'ru', reversed=True)
+                slug = translit(column.lower(), 'ru', reversed=True)
                 slug = slug.replace(' ', '_').replace('-', '_')
                 converted_slug = ''.join([
                     v for v in slug

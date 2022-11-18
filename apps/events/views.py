@@ -44,6 +44,7 @@ class EventListView(ListAPIView):
 
         events = EAVDataProvider(
             entity_id=event_ct.pk,
+            entity_table='events_event',
             query_params=self.request.query_params,
             page_size=self.request.query_params.get('page_size'),
             page=self.request.query_params.get('page'),
