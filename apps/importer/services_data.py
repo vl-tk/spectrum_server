@@ -17,11 +17,12 @@ from rest_framework.generics import ListAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
-logger = logging.getLogger('django')
+from utils.logger import sqllogger as logger
 
 
 class PaginationMixin:
+
+    MAX_PAGE_SIZE = 250
 
     def get_count(self):
 
@@ -29,13 +30,14 @@ class PaginationMixin:
 
         if self.filter_params:
 
-            count_sql = """WITH ids AS ({}) SELECT COUNT(*) FROM ids;""".format(sql.replace(';', ''))
+            count_sql = """WITH ids AS ({}) SELECT COUNT(*) FROM ids;""".format(
+                sql.replace(';', '')
+            )
 
         else:
 
-            count_sql = sql.replace(
-                'SELECT DISTINCT ev.entity_id AS id',
-                'SELECT COUNT (DISTINCT ev.entity_id) AS count'
+            count_sql = """WITH ids AS ({}) SELECT COUNT(*) FROM ids;""".format(
+                sql.replace(';', '')
             )
 
         logger.info('COUNT SQL: %s', count_sql)
@@ -116,11 +118,14 @@ class EAVDataProvider(PaginationMixin, FilterMixin):
     Вывод в формате привычном для DRF (с пагинацией)
     """
 
-    def __init__(self, entity_id, query_params=None, page=None, page_size=None):
+    def __init__(self, entity_id: int, entity_table: str, query_params=None, page=None, page_size=None):
 
         try:
             self.page_size = int(page_size)
         except TypeError:
+            self.page_size = 20
+
+        if self.page_size > self.MAX_PAGE_SIZE:
             self.page_size = 20
 
         try:
@@ -129,8 +134,9 @@ class EAVDataProvider(PaginationMixin, FilterMixin):
             self.page = 1
 
         self.entity_id = entity_id
+        self.entity_table = entity_table
 
-        logger.info('QUERY PARAMS: %s', query_params)
+        # logger.info('QUERY PARAMS: %s', query_params)
 
         self.get_columns_info()
 
@@ -216,10 +222,13 @@ class EAVDataProvider(PaginationMixin, FilterMixin):
         if not self.filter_params:
 
             sql = """
-                SELECT DISTINCT ev.entity_id AS id
+                SELECT DISTINCT ev.entity_id AS id, et.sort
                 FROM eav_value AS ev
+                INNER JOIN {entity_table} AS et ON et.id = ev.entity_id
+                ORDER BY et.sort ASC
                 LIMIT {page_size} OFFSET {offset};
             """.format(
+                entity_table=self.entity_table,
                 page_size=page_size,
                 offset=offset
             )
@@ -276,6 +285,11 @@ class EAVDataProvider(PaginationMixin, FilterMixin):
             sql = f'WITH {sql_block1}'
 
             sql += ' INTERSECT '.join([f'SELECT * FROM {cond_name}' for cond_name in cond_names])
+
+            sql + """
+            INNER JOIN {entity_table} AS et ON et.id = ev.entity_id
+            ORDER BY et.sort ASC
+            """.format(entity_table=self.entity_table)
 
             sql += " LIMIT {page_size} OFFSET {offset};".format(
                 page_size=page_size,
@@ -336,9 +350,10 @@ class EAVDataProvider(PaginationMixin, FilterMixin):
                    et.updated_at
             FROM eav_value AS ev
             INNER JOIN {entity_table} AS et ON et.id = ev.entity_id
-            WHERE ev.entity_id IN ({ids});
+            WHERE ev.entity_id IN ({ids})
+            ;
         """.format(
-            entity_table='events_event',
+            entity_table=self.entity_table,
             ids=','.join(ids)
         )
 

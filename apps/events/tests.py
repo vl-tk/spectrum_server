@@ -56,7 +56,7 @@ def test_list_events_single_filter(authorized_client, imported_events, test_file
     resp = authorized_client.get(
         reverse('events:list_events'),
         {
-            'field_TEST': 'test10'
+            'field_test': 'test10'
         }
     )
     assert resp.status_code == status.HTTP_200_OK
@@ -136,7 +136,7 @@ def test_list_events_multi_filter(authorized_client, imported_events, test_file_
         reverse('events:list_events'),
         {
             'field_source_filename': '2gis_test_mini_ext.xlsx',
-            'field_Organizatsionno_pravovaja_forma': 'ООО',
+            'field_organizatsionno_pravovaja_forma': 'ООО',
         }
     )
     assert resp.status_code == status.HTTP_200_OK
@@ -214,17 +214,17 @@ def test_list_events_multi_filter_pagination(authorized_client, imported_events,
 def test_update_event(authorized_client, imported_events, test_file_remove):
 
     event = Event.objects.first()
-    assert event.eav.Ulitsa == 'Люстдорфская дорога'
+    assert event.eav.ulitsa == 'Люстдорфская дорога'
 
     resp = authorized_client.patch(
         reverse('events:update_event', args=(event.pk,)),
         {
             'fields': {
-                'Ulitsa': 'Ивановская'
+                'ulitsa': 'Ивановская'
             }
         },
         format='json'
     )
 
     event2 = Event.objects.get(pk=event.pk)
-    assert event.eav.Ulitsa == 'Ивановская'
+    assert event.eav.ulitsa == 'Ивановская'
