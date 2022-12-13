@@ -290,3 +290,7 @@ FROM_EMAIL = ''
 
 # django4
 CSRF_TRUSTED_ORIGINS = ['https://*.goodbit.dev']
+
+# Emails triggers
+SEND_ACTIVATION_EMAIL = False
+CHECK_EMAIL_ACTIVATION = False
