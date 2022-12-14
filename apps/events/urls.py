@@ -1,4 +1,4 @@
-from apps.events.views import EventListView, EventUpdateView
+from apps.events.views import EventExportView, EventListView, EventUpdateView
 from django.urls import path
 from rest_framework import routers
 
@@ -8,7 +8,8 @@ router = routers.SimpleRouter()
 
 urlpatterns = [
     path('', EventListView.as_view(), name='list_events'),
-    path('<int:id>', EventUpdateView.as_view(), name='update_event')
+    path('<int:id>', EventUpdateView.as_view(), name='update_event'),
+    path('export/', EventExportView.as_view(), name='export_events')
 ]
 
 urlpatterns += router.urls

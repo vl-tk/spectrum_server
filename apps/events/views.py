@@ -3,12 +3,13 @@ from typing import *
 
 from apps.events.models import Event
 from apps.events.serializers import EventSerializer
+from apps.events.services import EventExporter
 from apps.importer.services_data import EAVDataProvider
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.db import connection
 from django.db.models import Q
-from django.http import Http404
+from django.http import FileResponse, Http404, HttpResponse
 from django.shortcuts import get_object_or_404, render
 from drf_spectacular.utils import OpenApiParameter, extend_schema
 from eav.models import Attribute
@@ -24,7 +25,7 @@ logger = logging.getLogger('django')
 
 class EventListView(ListAPIView):
 
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
     @extend_schema(
         parameters=[
@@ -37,10 +38,7 @@ class EventListView(ListAPIView):
     )
     def get(self, request, *args, **kwargs):
 
-        event_ct = ContentType.objects.get(
-            app_label='events',
-            model='event'
-        )
+        event_ct = ContentType.objects.get(app_label='events', model='event')
 
         events = EAVDataProvider(
             entity_id=event_ct.pk,
@@ -76,3 +74,49 @@ class EventUpdateView(APIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(status=status.HTTP_202_ACCEPTED)
+
+
+class EventExportView(APIView):
+
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(
+        parameters=[
+        ],
+        tags=['events'],
+        summary='Экспорт в xlsx',
+    )
+    def get(self, request, *args, **kwargs):
+
+        # ids = self.request.query_params.get('ids')
+
+        # entity_ids = []
+        # for id in ids.split(','):
+        #     try:
+        #         i = int(id)
+        #     except ValueError:
+        #         pass
+        #     else:
+        #         entity_ids.append(i)
+
+        event_ct = ContentType.objects.get(app_label='events', model='event')
+
+        events = EAVDataProvider(
+            entity_id=event_ct.pk,
+            entity_table='events_event',
+            query_params=self.request.query_params,
+        ).get_entities()
+
+        if events:
+            ee = EventExporter(events=events)
+            file, name = ee.export_to_excel()
+            return FileResponse(file, as_attachment=True, filename=f'{name}')
+
+        data = {
+            'status': 'no events found'
+        }
+
+        return Response(data, status=status.HTTP_400_BAD_REQUEST)
+
+        # response = HttpResponse(content_type='application/vnd.ms-excel')
+        # response['Content-Disposition'] = f'attachment; filename=excel_filename.xlsx'

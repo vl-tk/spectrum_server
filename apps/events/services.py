@@ -1,6 +1,9 @@
+import io
+import tempfile
 from pathlib import Path
 from typing import *
 
+import xlsxwriter
 from apps.events.models import Event
 from apps.importer.services import BaseImporter
 from django.contrib.contenttypes.models import ContentType
@@ -40,3 +43,58 @@ class EventImporter(BaseImporter):
 
         ilogger.info(f'{event} CREATED with values: {pprint(values)}')
         return True
+
+
+class EventExporter:
+
+    def __init__(self, events):
+        self.events = events
+
+        self.data = self.events.get('results', [])
+        self.columns = self.events.get('columns', [])
+        self.column_names = [c['name'] for c in self.events.get('columns', []) if not c.get('is_hidden')]
+        self.column_slugs = [c['slug'] for c in self.events.get('columns', []) if not c.get('is_hidden')]
+
+        self.filename = None
+
+    def get_row_values(self, row) -> list:
+
+        values = []
+        for slug in self.column_slugs:
+            values.append(row['fields'].get(slug, ''))
+
+        ilogger.info(self.column_names)
+        ilogger.info(f'{values}')
+
+        return values
+
+    def export_to_excel(self):
+        """
+        # df = pd.read_excel("excel_filename.xlsx")
+        # response = HttpResponse(content_type='application/vnd.ms-excel')
+        # response['Content-Disposition'] = f'attachment; filename=excel_filename.xlsx'
+        # df.to_excel(response, index=False)
+        # temp = tempfile.NamedTemporaryFile()
+        """
+
+        # temp = tempfile.NamedTemporaryFile()
+
+        buffer = io.BytesIO()
+        workbook = xlsxwriter.Workbook(buffer)
+
+        worksheet = workbook.add_worksheet()
+
+        # worksheet.write_row('A1', self.column_names)
+
+        for i, row in enumerate(self.data, start=1):
+
+            if self.filename is None:
+                self.filename = row['fields']['source_filename']
+
+            worksheet.write_row(f'A{i}', self.get_row_values(row))
+
+        workbook.close()
+
+        buffer.seek(0)
+
+        return buffer, self.filename

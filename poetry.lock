@@ -1141,6 +1141,14 @@ optional = false
 python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,>=2.7"
 
 [[package]]
+name = "xlsxwriter"
+version = "3.0.3"
+description = "A Python module for creating Excel XLSX files."
+category = "main"
+optional = false
+python-versions = ">=3.4"
+
+[[package]]
 name = "yarl"
 version = "1.8.1"
 description = "Yet another URL library"
@@ -1167,7 +1175,7 @@ testing = ["flake8 (<5)", "func-timeout", "jaraco.functools", "jaraco.itertools"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "4664aea18547ac1f763418abaad6204e0bb01aca170f86928544675375707746"
+content-hash = "a8180bf99e29597fefa985b610c6ffba88019e4a0eb3b3f2f6220814e3c9d491"
 
 [metadata.files]
 amqp = [
@@ -1429,6 +1437,7 @@ django-multiselectfield = [
 ]
 django-simple-history = [
     {file = "django-simple-history-3.1.1.tar.gz", hash = "sha256:eab6dbddb7da756cc5579f7d6f28a32b2e8bb1697a5c37794d96309793ffec38"},
+    {file = "django_simple_history-3.1.1-py3-none-any.whl", hash = "sha256:5f1568e7325644c4384a6a7ebd2ac01380f09bc9b353f5961b04910c70fb92f2"},
 ]
 django-storages = [
     {file = "django-storages-1.13.1.tar.gz", hash = "sha256:b3d98ecc09f1b1627c2b2cf430964322ce4e08617dbf9b4236c16a32875a1e0b"},
@@ -2098,6 +2107,10 @@ wrapt = [
     {file = "wrapt-1.14.1-cp39-cp39-win32.whl", hash = "sha256:dee0ce50c6a2dd9056c20db781e9c1cfd33e77d2d569f5d1d9321c641bb903d5"},
     {file = "wrapt-1.14.1-cp39-cp39-win_amd64.whl", hash = "sha256:dee60e1de1898bde3b238f18340eec6148986da0455d8ba7848d50470a7a32fb"},
     {file = "wrapt-1.14.1.tar.gz", hash = "sha256:380a85cf89e0e69b7cfbe2ea9f765f004ff419f34194018a6827ac0e3edfed4d"},
+]
+xlsxwriter = [
+    {file = "XlsxWriter-3.0.3-py3-none-any.whl", hash = "sha256:df0aefe5137478d206847eccf9f114715e42aaea077e6a48d0e8a2152e983010"},
+    {file = "XlsxWriter-3.0.3.tar.gz", hash = "sha256:e89f4a1d2fa2c9ea15cde77de95cd3fd8b0345d0efb3964623f395c8c4988b7f"},
 ]
 yarl = [
     {file = "yarl-1.8.1-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:abc06b97407868ef38f3d172762f4069323de52f2b70d133d096a48d72215d28"},

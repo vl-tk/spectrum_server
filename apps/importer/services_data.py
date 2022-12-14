@@ -186,7 +186,7 @@ class EAVDataProvider(PaginationMixin, FilterMixin):
 
         for attr in Attribute.objects.filter(
                 Q(entity_ct__id=self.entity_id)|Q(slug='source_filename')
-            ).values_list('id', 'slug', 'datatype', 'name').order_by('display_order'):
+            ).values_list('id', 'slug', 'datatype', 'name', 'display_order').order_by('display_order'):
 
             data = {
                 'slug': attr[1],
@@ -325,14 +325,15 @@ class EAVDataProvider(PaginationMixin, FilterMixin):
 
         return ids
 
-    def get_entities(self, query_params: dict = None):
+    def get_entities(self, ids: list = None):
         """
         Метод получения всех field:value для полученных ранее entity ID
         """
 
         # 1. фильтрация по всем values сущностей и получение ID entity (постранично)
 
-        ids = self.get_entity_ids()
+        if not ids:
+            ids = self.get_entity_ids()
 
         if not ids:
             return []

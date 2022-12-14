@@ -228,3 +228,19 @@ def test_update_event(authorized_client, imported_events, test_file_remove):
 
     event2 = Event.objects.get(pk=event.pk)
     assert event.eav.ulitsa == 'Ивановская'
+
+
+@pytest.mark.django_db
+def test_export_events(authorized_client, imported_events, test_file_remove):
+
+    assert Event.objects.count() == 33
+
+    # 2. test retrieval
+
+    resp = authorized_client.get(
+        reverse('events:export_events'),
+        {
+            'field_source_filename': '2gis_test_mini.xlsx',
+        }
+    )
+    assert resp.status_code == status.HTTP_200_OK
