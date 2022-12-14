@@ -24,11 +24,11 @@ class PaginationMixin:
 
     MAX_PAGE_SIZE = 250
 
-    def get_count(self):
+    def get_count(self, filter_params=None):
 
-        sql = self._get_entity_ids_sql(limit='NULL', offset=0)
+        sql = self._get_entities_ids_sql(filter_params=filter_params, limit='NULL', offset=0)
 
-        if self.filter_params:
+        if filter_params:
 
             count_sql = """WITH ids AS ({}) SELECT COUNT(*) FROM ids;""".format(
                 sql.replace(';', '')
@@ -68,6 +68,8 @@ class PaginationMixin:
 
 class FilterMixin:
 
+    MAX_FILTERS_NUM = 3
+
     def get_filter(self, query_params: dict) -> dict:
         """
         1) remove 'field_' prefix from keys:
@@ -77,16 +79,22 @@ class FilterMixin:
         """
 
         filter_params = {}
+        index = 0
         for field in query_params.keys():
             if field.startswith('field_'):
+                index += 1
+                if index > self.MAX_FILTERS_NUM:
+                    continue
                 filter_params[field[6:]] = query_params[field]
+            elif field == 'search':
+                filter_params['search'] = query_params[field]
 
         logger.info('FILTER BEFORE REMOVING UNKNOWN FIELDS: %s', filter_params)
 
         filter_params = {
             k: v
             for k, v in filter_params.items()
-            if k in self.entity_fields.keys()
+            if (k in self.entity_fields.keys() or k == 'search')
         }
 
         logger.info('ENTITY FIELDS: %s', self.entity_fields)
@@ -96,19 +104,36 @@ class FilterMixin:
 
     def get_single_filter_sql(self, value: str, attr_id: int) -> str:
 
-        sql = """
-        (SELECT ev.entity_id
-        FROM eav_value AS ev
-        WHERE ev.value_text LIKE '%{}%'
-          AND ev.attribute_id = {})
-        """.format(value, attr_id)
+        if attr_id is None:
+
+            sql = """
+            (
+            SELECT ev.entity_id
+            FROM eav_value AS ev
+            WHERE
+            ev.value_text LIKE '%{}%'
+            )
+            """.format(value)
+
+        else:
+
+            sql = """
+            (
+            SELECT ev.entity_id
+            FROM eav_value AS ev
+            WHERE
+            ev.value_text LIKE '%{}%'
+            AND
+            ev.attribute_id = {}
+            )
+            """.format(value, attr_id)
 
         return sql
 
 
 class EAVDataProvider(PaginationMixin, FilterMixin):
     """
-    Класс получения из БД полей и их значений для сущностей, атрибуты которых стали хранить при помощи схемы EAV
+    Класс получения из БД сущностей, атрибуты которых стали хранить при помощи схемы EAV
     (чтобы столбцы можно было гибко менять)
 
     Сущности:
@@ -204,11 +229,11 @@ class EAVDataProvider(PaginationMixin, FilterMixin):
 
         self.columns_output = [v for k,v in self.entity_fields.items()]
 
-    def _get_entity_ids_sql(self, limit=None, offset=None):
+    def _get_entities_ids_sql(self, filter_params=None, limit=None, offset=None):
         """
         Вспомогательный метод составления SQL для получения списка ID entities
         1) без фильтра
-        2) или по заданным параметрам фильтра
+        2) по заданным параметрам фильтра
 
         Используется в двух случаях:
         1) как первый этап выборки entities (сначала нам нужны ID постранично,
@@ -219,7 +244,7 @@ class EAVDataProvider(PaginationMixin, FilterMixin):
         page_size = limit if limit is not None else self.page_size
         offset = offset if offset is not None else self.page_size * (self.page - 1)
 
-        if not self.filter_params:
+        if not filter_params:
 
             sql = """
                 SELECT DISTINCT ev.entity_id AS id, et.sort
@@ -236,7 +261,17 @@ class EAVDataProvider(PaginationMixin, FilterMixin):
         else:
 
             """
-            desired result:
+            общая схема:
+
+            WITH {cond1} AS (sql_filter_code),
+                  {cond2} AS (sql_filter_code),
+                   {cond3} AS (sql_filter_code),
+            SELECT * FROM {cond1}
+            INTERSECT SELECT * FROM {cond2}
+            INTERSECT SELECT * FROM {cond3};
+
+
+            пример запроса:
 
             WITH
 
@@ -257,33 +292,25 @@ class EAVDataProvider(PaginationMixin, FilterMixin):
             SELECT * FROM first_ids
             INTERSECT
             SELECT * FROM second_ids;
-
-            i.e.:
-
-            WITH {cond1} AS (sql_filter),
-                  {cond2} AS (sql_filter)
-            SELECT * FROM {cond1}
-            INTERSECT SELECT * FROM {cond2};
             """
 
-            logger.info(self.filter_params)
+            logger.info(filter_params)
 
-            cond_names = [f'cond{i}' for i in range(len(self.filter_params))]
+            cond_names = [f'cond{i}' for i in range(len(filter_params))]
 
             sql_filters = []
-            for k, v in self.filter_params.items():
+            for field_name, v in filter_params.items():
 
                 sql_filter = self.get_single_filter_sql(
                     value=v,
-                    attr_id=self.entity_fields[k]['id']
+                    attr_id=self.entity_fields.get(field_name, {}).get('id')
                 )
 
                 sql_filters.append(sql_filter)
 
-            sql_block1 = ', '.join([f'{cond_names[i]} AS {sql_filters[i]}' for i in range(len(self.filter_params))])
+            sql_block1 = ', '.join([f'{cond_names[i]} AS {sql_filters[i]}' for i in range(len(filter_params))])
 
             sql = f'WITH {sql_block1}'
-
             sql += ' INTERSECT '.join([f'SELECT * FROM {cond_name}' for cond_name in cond_names])
 
             sql + """
@@ -300,7 +327,7 @@ class EAVDataProvider(PaginationMixin, FilterMixin):
 
         return sql
 
-    def get_entity_ids(self) -> List[str]:
+    def get_entities_ids(self, filter_params=None) -> List[str]:
         """
         Метод получения IDs
 
@@ -308,7 +335,7 @@ class EAVDataProvider(PaginationMixin, FilterMixin):
         Результат с учетом переданных параметров в EAVDataProvider постранички
         """
 
-        sql = self._get_entity_ids_sql()
+        sql = self._get_entities_ids_sql(filter_params=filter_params)
 
         logger.info('ENTITY IDS SQL: %s', sql)
 
@@ -321,19 +348,17 @@ class EAVDataProvider(PaginationMixin, FilterMixin):
 
         ids = [str(v[0]) for v in ids_tuples]
 
-        logger.info('ENTITY IDS: %s', ids)
-
         return ids
 
     def get_entities(self, ids: list = None):
         """
-        Метод получения всех field:value для полученных ранее entity ID
+        Метод получения всех атрибутов field:value для полученных ранее entity ID
         """
 
         # 1. фильтрация по всем values сущностей и получение ID entity (постранично)
 
         if not ids:
-            ids = self.get_entity_ids()
+            ids = self.get_entities_ids(filter_params=self.filter_params)
 
         if not ids:
             return []
@@ -358,7 +383,7 @@ class EAVDataProvider(PaginationMixin, FilterMixin):
             ids=','.join(ids)
         )
 
-        logger.info(sql)
+        logger.info('get_entities SQL: %s', sql)
 
         try:
             self.cursor.execute(sql)
@@ -396,7 +421,7 @@ class EAVDataProvider(PaginationMixin, FilterMixin):
         logger.info(sql)
 
         result = {
-            "count": self.get_count(),
+            "count": self.get_count(filter_params=self.filter_params),
             "next": self.get_next_page(),
             "previous": self.get_previous_page(),
             "results": entities,

@@ -7,7 +7,7 @@ from django.conf import settings
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient, APITestCase
-from utils.test import UserFactoryMixin
+from utils.test import UserFactoryMixin, get_test_excel_file
 
 
 @pytest.fixture
@@ -30,7 +30,6 @@ def unauthorized_client(user):
 def authorized_client(user):
     user = UserFactoryMixin().create_random_user()
     token = TokenObtainPairSerializer.get_token(user)
-    # TODO:
     client = APIClient()
     client.credentials(HTTP_AUTHORIZATION='Bearer %s' % token.access_token)
     return client
@@ -43,3 +42,19 @@ def test_file_remove():
         if file.is_file():
             if '_test_' in file.name:
                 file.unlink()
+
+
+@pytest.fixture
+@pytest.mark.django_db
+def imported_events(authorized_client):
+
+    resp = authorized_client.post(
+        reverse('importer:import_file'),
+        {
+            'data_type': 'event',
+            'file': get_test_excel_file()[0]
+        },
+        format='multipart'
+    )
+
+    yield

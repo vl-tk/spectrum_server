@@ -39,7 +39,8 @@ INSTALLED_APPS = [
     'apps.users',
     'apps.data',
     'apps.events',
-    'apps.importer'
+    'apps.importer',
+    # 'apps.report'
 ]
 
 MIDDLEWARE = [
