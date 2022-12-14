@@ -257,7 +257,7 @@ def test_list_events_search_2(authorized_client, imported_events, test_file_remo
     assert len(resp.data['results']) == 2
     assert resp.data['count'] == 2
 
-    # 2. test list filtered
+    # 2. 500 twice in one line: 7 found in 6 lines
 
     resp = authorized_client.get(
         reverse('events:list_events'),
@@ -266,8 +266,8 @@ def test_list_events_search_2(authorized_client, imported_events, test_file_remo
         }
     )
     assert resp.status_code == status.HTTP_200_OK
-    assert len(resp.data['results']) == 7  # TODO: fix
-    assert resp.data['count'] == 7
+    assert len(resp.data['results']) == 6
+    assert resp.data['count'] == 7  # TODO: bug
 
 
 @pytest.mark.django_db
@@ -293,14 +293,14 @@ def test_update_event(authorized_client, imported_events, test_file_remove):
 @pytest.mark.django_db
 def test_export_events(authorized_client, imported_events, test_file_remove):
 
-    assert Event.objects.count() == 33
+    assert Event.objects.count() == 42
 
     # 2. test retrieval
 
     resp = authorized_client.get(
         reverse('events:export_events'),
         {
-            'field_source_filename': '2gis_test_mini.xlsx',
+            'field_source_filename': 'events_test_mini.xlsx',
         }
     )
     assert resp.status_code == status.HTTP_200_OK
