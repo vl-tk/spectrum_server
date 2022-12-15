@@ -45,7 +45,7 @@ steps:
       DOCKER_HUB_PASSWORD:
         from_secret: DOCKER_HUB_PASSWORD # from org secrets (common for all)
       MAIN_IMAGE: goodbitdev/builds:build-spectrum-stage-${DRONE_COMMIT_SHA:0:7}
-      DJANGO_SETTINGS_MODULE: main.settings.prod
+      DJANGO_SETTINGS_MODULE: main.settings.stage
     volumes:
       - name: docker_sock
         path: /var/run/docker.sock
