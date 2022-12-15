@@ -69,21 +69,21 @@ steps:
       branch: [development]
       # event: tag # in case of new git tag
 
-  - name: test
-    image: goodbitdev/builds:build-spectrum-stage-${DRONE_COMMIT_SHA:0:7}
-    environment:
-      DJANGO_SETTINGS_MODULE: main.settings.test
-      DB_HOST: spectrum-postgres
-      DB_USER: main
-      DB_PORT: 5432
-    volumes:
-      - name: docker_sock
-        path: /var/run/docker.sock
-    commands:
-      - pytest --cov=.
-    when:
-      event: [push, pull_request]
-      branch: [development]
+  # - name: test
+  #   image: goodbitdev/builds:build-spectrum-stage-${DRONE_COMMIT_SHA:0:7}
+  #   environment:
+  #     DJANGO_SETTINGS_MODULE: main.settings.test
+  #     DB_HOST: spectrum-postgres
+  #     DB_USER: main
+  #     DB_PORT: 5432
+  #   volumes:
+  #     - name: docker_sock
+  #       path: /var/run/docker.sock
+  #   commands:
+  #     - pytest --cov=.
+  #   when:
+  #     event: [push, pull_request]
+  #     branch: [development]
 
   - name: notify_after_build
     image: appleboy/drone-discord
