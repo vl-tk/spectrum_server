@@ -40,7 +40,7 @@ INSTALLED_APPS = [
     'apps.data',
     'apps.events',
     'apps.importer',
-    # 'apps.report'
+    'apps.report'
 ]
 
 MIDDLEWARE = [
@@ -146,7 +146,7 @@ WSGI_APPLICATION = 'main.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'HOST': os.environ.get('DB_HOST', 'localhost,spectrum-postgres'),
+        'HOST': os.environ.get('DB_HOST', 'localhost,server-postgres'),
         'NAME': os.environ.get('DB_NAME', 'main'),
         'USER': os.environ.get('DB_USER', 'main'),
         'PASSWORD': os.environ.get('DB_PASSWORD', 's50XgW4'),

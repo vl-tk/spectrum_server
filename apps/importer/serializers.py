@@ -3,12 +3,13 @@ import logging
 from pathlib import Path
 from typing import *
 
-from apps.events.services import EventImporter
-from apps.importer.services import ExcelImportService
 from django.conf import settings
 from django.core.files.storage import FileSystemStorage
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
+
+from apps.events.services import EventImporter
+from apps.importer.services import ExcelImportService
 
 logger = logging.getLogger('django')
 

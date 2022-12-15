@@ -2,9 +2,11 @@ import logging
 from typing import *
 
 from apps.events.models import Event
+from apps.events.reports import EventReportBuilder
 from apps.events.serializers import EventSerializer
 from apps.events.services import EventExporter
 from apps.importer.services_data import EAVDataProvider
+from apps.report.services import ReportBuilder
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.db import connection
@@ -88,6 +90,7 @@ class EventExportView(APIView):
     )
     def get(self, request, *args, **kwargs):
 
+        # TODO:
         # ids = self.request.query_params.get('ids')
 
         # entity_ids = []
@@ -120,3 +123,55 @@ class EventExportView(APIView):
 
         # response = HttpResponse(content_type='application/vnd.ms-excel')
         # response['Content-Disposition'] = f'attachment; filename=excel_filename.xlsx'
+
+
+class EventReportView(APIView):
+
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(
+        parameters=[
+        ],
+        tags=['events'],
+    )
+    def get(self, request, *args, **kwargs):
+
+        event_ct = ContentType.objects.get(app_label='events', model='event')
+
+        data = EAVDataProvider(
+            entity_id=event_ct.pk,
+            entity_table='events_event',
+            query_params=self.request.query_params,
+            page_size=50  # TODO: max
+        ).get_entities()
+
+        res = []
+
+        if request.query_params.get('type') == 'avg_budget_per_month':
+
+            res = EventReportBuilder(
+                data=data.get('results', [])
+            ).report_avg_per_month(
+                param='bjudzhet',
+                date_field='data_nachala'
+            )
+
+        elif request.query_params.get('type') == 'avg_budget_per_day':
+
+            res = EventReportBuilder(
+                data=data.get('results', [])
+            ).report_avg_per_day(
+                param='bjudzhet',
+                date_field='data_nachala'
+            )
+
+        elif request.query_params.get('type') == 'sum_budget_per_day':
+
+            res = EventReportBuilder(
+                data=data.get('results', [])
+            ).report_sum_per_month(
+                param='bjudzhet',
+                date_field='data_nachala'
+            )
+
+        return Response(res, status=status.HTTP_200_OK)
