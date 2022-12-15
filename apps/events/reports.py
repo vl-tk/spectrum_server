@@ -19,70 +19,57 @@ class EventReportBuilder(ReportBuilder):
 
             self.rows.append(fields)
 
-    def report_avg_per_day(self, value_field, date_field):
+        self.df = pd.DataFrame.from_records(self.rows)
 
-        df = pd.DataFrame.from_records(self.rows)
-
-        df.index = pd.to_datetime(df[date_field])  # format
-
-        df[value_field] = df[value_field].astype(float)
-
+    def report(self, groupby, value_field):
         try:
-            result = df.groupby(by=[df.index.day, df.index.month, df.index.year])[value_field].mean()
+            result = self.df.groupby(by=groupby)[value_field].mean()
         except KeyError as e:
-            print(df.columns)
+            print(self.df.columns)
             ilogger.exception(e)
             return
-
         return result.to_json()
+
+    def report_avg_per_day(self, value_field, date_field):
+
+        self.df.index = pd.to_datetime(self.df[date_field])  # format
+
+        self.df[value_field] = self.df[value_field].astype(float)
+
+        return self.report(
+            groupby=[self.df.index.day, self.df.index.month, self.df.index.year],
+            value_field=value_field
+        )
 
     def report_avg_per_month(self, value_field, date_field):
 
-        df = pd.DataFrame.from_records(self.rows)
+        self.df.index = pd.to_datetime(self.df[date_field])  # format
 
-        df.index = pd.to_datetime(df[date_field])  # format
+        self.df[value_field] = self.df[value_field].astype(float)
 
-        df[value_field] = df[value_field].astype(float)
-
-        try:
-            result = df.groupby(by=[df.index.month, df.index.year])[value_field].mean()
-        except KeyError as e:
-            print(df.columns)
-            ilogger.exception(e)
-            return
-
-        return result.to_json()
+        return self.report(
+            groupby=[self.df.index.month, self.df.index.year],
+            value_field=value_field
+        )
 
     def report_sum_per_month(self, value_field, date_field):
 
-        df = pd.DataFrame.from_records(self.rows)
+        self.df.index = pd.to_datetime(self.df[date_field])  # format
 
-        df.index = pd.to_datetime(df[date_field])  # format
+        self.df[value_field] = self.df[value_field].astype(float)
 
-        df[value_field] = df[value_field].astype(float)
-
-        try:
-            result = df.groupby(by=[df.index.month, df.index.year])[value_field].sum()
-        except KeyError as e:
-            print(df.columns)
-            ilogger.exception(e)
-            return
-
-        return result.to_json()
+        return self.report(
+            groupby=[self.df.index.month, self.df.index.year],
+            value_field=value_field
+        )
 
     def report_sum_per_day(self, value_field, date_field):
 
-        df = pd.DataFrame.from_records(self.rows)
+        self.df.index = pd.to_datetime(self.df[date_field])  # format
 
-        df.index = pd.to_datetime(df[date_field])  # format
+        self.df[value_field] = self.df[value_field].astype(float)
 
-        df[value_field] = df[value_field].astype(float)
-
-        try:
-            result = df.groupby(by=[df.index.day, df.index.month, df.index.year])[value_field].sum()
-        except KeyError as e:
-            print(df.columns)
-            ilogger.exception(e)
-            return
-
-        return result.to_json()
+        return self.report(
+            groupby=[self.df.index.day, self.df.index.month, self.df.index.year],
+            value_field=value_field
+        )
