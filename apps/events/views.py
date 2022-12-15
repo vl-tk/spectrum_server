@@ -1,12 +1,6 @@
 import logging
 from typing import *
 
-from apps.events.models import Event
-from apps.events.reports import EventReportBuilder
-from apps.events.serializers import EventSerializer
-from apps.events.services import EventExporter
-from apps.importer.services_data import EAVDataProvider
-from apps.report.services import ReportBuilder
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.db import connection
@@ -15,12 +9,19 @@ from django.http import FileResponse, Http404, HttpResponse
 from django.shortcuts import get_object_or_404, render
 from drf_spectacular.utils import OpenApiParameter, extend_schema
 from eav.models import Attribute
-from main.pagination import StandardResultsSetPagination
 from rest_framework import status
 from rest_framework.generics import ListAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+
+from apps.events.models import Event
+from apps.events.reports import EventReportBuilder
+from apps.events.serializers import EventSerializer
+from apps.events.services import EventExporter
+from apps.importer.services_data import EAVDataProvider
+from apps.report.services import ReportBuilder
+from main.pagination import StandardResultsSetPagination
 
 logger = logging.getLogger('django')
 
@@ -131,6 +132,9 @@ class EventReportView(APIView):
 
     @extend_schema(
         parameters=[
+            OpenApiParameter(name='type', required=True, type=str, description='Тип отчета: avg_per_month, avg_per_day, total_per_month, total_per_day'),
+            OpenApiParameter(name='value_field', required=True, type=str, description='Поле значения по которому строится отчет, например: bjudzhet'),
+            OpenApiParameter(name='date_field', required=True, type=str, description='Поле даты, например: data_nachala'),
         ],
         tags=['events'],
     )
@@ -145,33 +149,52 @@ class EventReportView(APIView):
             page_size=50  # TODO: max
         ).get_entities()
 
-        res = []
+        value_field = request.query_params.get('value_field')
+        date_field = request.query_params.get('date_field')
 
-        if request.query_params.get('type') == 'avg_budget_per_month':
+        columns = [c['slug'] for c in data['columns']]
 
-            res = EventReportBuilder(
-                data=data.get('results', [])
-            ).report_avg_per_month(
-                param='bjudzhet',
-                date_field='data_nachala'
-            )
+        if value_field not in columns or date_field not in columns:
 
-        elif request.query_params.get('type') == 'avg_budget_per_day':
+            fields = ','.join(columns)
+            res = {'msg': f'Incorrect report query: field not found. Possible fields: {fields}'}
+            res['params'] = self.request.query_params.copy()
 
-            res = EventReportBuilder(
-                data=data.get('results', [])
-            ).report_avg_per_day(
-                param='bjudzhet',
-                date_field='data_nachala'
-            )
+            return Response(res, status=status.HTTP_400_BAD_REQUEST)
 
-        elif request.query_params.get('type') == 'sum_budget_per_day':
+        if request.query_params.get('type') == 'avg_per_month':
 
             res = EventReportBuilder(
                 data=data.get('results', [])
-            ).report_sum_per_month(
-                param='bjudzhet',
-                date_field='data_nachala'
-            )
+            ).report_avg_per_month(value_field, date_field)
 
-        return Response(res, status=status.HTTP_200_OK)
+            return Response(res, status=status.HTTP_200_OK)
+
+        elif request.query_params.get('type') == 'avg_per_day':
+
+            res = EventReportBuilder(
+                data=data.get('results', [])
+            ).report_avg_per_day(value_field, date_field)
+
+            return Response(res, status=status.HTTP_200_OK)
+
+        elif request.query_params.get('type') == 'total_per_month':
+
+            res = EventReportBuilder(
+                data=data.get('results', [])
+            ).report_sum_per_month(value_field, date_field)
+
+            return Response(res, status=status.HTTP_200_OK)
+
+        elif request.query_params.get('type') == 'total_per_day':
+
+            res = EventReportBuilder(
+                data=data.get('results', [])
+            ).report_sum_per_day(value_field, date_field)
+
+            return Response(res, status=status.HTTP_200_OK)
+
+        res = {'msg': 'Incorrect report query'}
+        res['params'] = self.request.query_params.copy()
+
+        return Response(res, status=status.HTTP_400_BAD_REQUEST)

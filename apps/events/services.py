@@ -4,10 +4,11 @@ from pathlib import Path
 from typing import *
 
 import xlsxwriter
-from apps.events.models import Event
-from apps.importer.services import BaseImporter
 from django.contrib.contenttypes.models import ContentType
 from eav.models import Attribute
+
+from apps.events.models import Event
+from apps.importer.services import BaseImporter
 from utils.logger import ilogger
 
 
@@ -76,8 +77,6 @@ class EventExporter:
         # df.to_excel(response, index=False)
         # temp = tempfile.NamedTemporaryFile()
         """
-
-        # temp = tempfile.NamedTemporaryFile()
 
         buffer = io.BytesIO()
         workbook = xlsxwriter.Workbook(buffer)
