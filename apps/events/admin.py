@@ -20,7 +20,7 @@ class EventAdmin(BaseEntityAdmin):
 
     list_display = [
         'pk',
-        'field_naimenovanie_organizatsii',
+        # 'field_naimenovanie_organizatsii',
         # 'field_brend',
         # 'field_juridicheskoe_nazvanie',
         # 'field_organizatsionno_pravovaja_forma',
