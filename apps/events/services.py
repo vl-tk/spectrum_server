@@ -76,13 +76,6 @@ class EventExporter:
         return filename
 
     def export_to_excel(self):
-        """
-        # df = pd.read_excel("excel_filename.xlsx")
-        # response = HttpResponse(content_type='application/vnd.ms-excel')
-        # response['Content-Disposition'] = f'attachment; filename=excel_filename.xlsx'
-        # df.to_excel(response, index=False)
-        # temp = tempfile.NamedTemporaryFile()
-        """
 
         buffer = io.BytesIO()
         workbook = xlsxwriter.Workbook(buffer)
