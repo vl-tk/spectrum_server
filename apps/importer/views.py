@@ -20,7 +20,7 @@ class ImportExcelView(APIView):
     @extend_schema(
         parameters=[ImportSerializer],
         tags=['import'],
-        summary=""
+        summary="Импорт"
     )
     def post(self, request, *args, **kwargs):
 

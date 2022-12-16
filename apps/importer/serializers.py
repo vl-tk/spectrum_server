@@ -3,6 +3,7 @@ import logging
 from pathlib import Path
 from typing import *
 
+from apps.events.models import Event
 from apps.events.services import EventImporter
 from apps.importer.services import ExcelImportService
 from django.conf import settings
@@ -23,6 +24,39 @@ class ImportSerializer(serializers.Serializer):
     file = serializers.FileField(required=True)
 
     force_insert = serializers.BooleanField(default=False, required=False)
+
+    def validate(self, attrs):
+
+        in_memory_file_obj = attrs['file']
+
+        location = Path(settings.PROJECT_DIR) / "media_files"
+
+        filename = FileSystemStorage(location=location).save(
+            in_memory_file_obj.name,
+            in_memory_file_obj
+        )
+
+        file = location / filename
+
+        is_file_loaded = Event.objects.filter(
+            eav__source_filename__startswith=filename  # TODO:
+        ).exists()
+
+        if is_file_loaded and not attrs.get('force_insert'):
+            raise ValidationError(
+                {'file_loaded': "File is already loaded."})  # TODO: add ago
+
+        if not self.is_excel_file(file):
+            file.unlink()
+            raise ValidationError(
+                {'file': "Incorrect file. Excel file (xls/xlsx) is expected"})
+        else:
+            attrs['file'] = file
+
+        if attrs.get('data_type') not in self.VALID_IMPORT_DATA_TYPES:
+            raise ValidationError({'data_type': "Unknown data type"})
+
+        return super().validate(attrs)
 
     def is_excel_file(self, file):
         """
@@ -46,31 +80,6 @@ class ImportSerializer(serializers.Serializer):
                 if bytes == sig:
                     return True
         return False
-
-    def validate(self, attrs):
-
-        in_memory_file_obj = attrs['file']
-
-        location = Path(settings.PROJECT_DIR) / "media_files"
-
-        filename = FileSystemStorage(location=location).save(
-            in_memory_file_obj.name,
-            in_memory_file_obj
-        )
-
-        file = location / filename
-
-        if not self.is_excel_file(file):
-            file.unlink()
-            raise ValidationError(
-                {'file': "Incorrect file. Excel file (xls/xlsx) is expected"})
-        else:
-            attrs['file'] = file
-
-        if attrs.get('data_type') not in self.VALID_IMPORT_DATA_TYPES:
-            raise ValidationError({'data_type': "Unknown data type"})
-
-        return super().validate(attrs)
 
     def import_data(self):
 
