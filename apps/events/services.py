@@ -69,6 +69,12 @@ class EventExporter:
 
         return values
 
+    def get_filename(self, data):
+        filename = data[-1]['fields']['source_filename']
+        if filename[-8] == '_':
+            filename = filename[0:-8]
+        return filename
+
     def export_to_excel(self):
         """
         # df = pd.read_excel("excel_filename.xlsx")
@@ -85,7 +91,7 @@ class EventExporter:
 
         # TODO: worksheet.write_row('A1', self.column_names)
 
-        self.filename = self.data[-1]['fields']['source_filename']
+        self.filename = self.get_filename(self.data)
 
         for i, row in enumerate(self.data, start=1):
             worksheet.write_row(f'A{i}', self.get_row_values(row))
