@@ -4,11 +4,10 @@ from pathlib import Path
 from typing import *
 
 import xlsxwriter
-from django.contrib.contenttypes.models import ContentType
-from eav.models import Attribute
-
 from apps.events.models import Event
 from apps.importer.services import BaseImporter
+from django.contrib.contenttypes.models import ContentType
+from eav.models import Attribute
 from utils.logger import ilogger
 
 
@@ -22,7 +21,7 @@ class EventImporter(BaseImporter):
             model='event'
         )
 
-    def create_record(self, columns, row_values: List[str], sort: int = 0):
+    def create_record(self, columns, row_values: List[str], sort: int = 0, importer_user = None):
 
         row_values = row_values[1:]  # except for line number
 
@@ -33,6 +32,7 @@ class EventImporter(BaseImporter):
 
         values['eav__source_filename'] = self.filepath.name
         values['sort'] = sort
+        values['importer_user'] = importer_user
 
         try:
             event = Event.objects.create(**values)

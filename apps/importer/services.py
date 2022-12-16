@@ -46,10 +46,11 @@ class ColumnMatcher:
 
 class ExcelImportService:
 
-    def __init__(self, filepath: Path, importer):
+    def __init__(self, filepath: Path, importer, importer_user):
         self.df = pd.read_excel(filepath)
         self.filepath = filepath
         self.importer = importer
+        self.importer_user = importer_user
 
         # if rename columns
         # df.columns = KEYS
@@ -70,7 +71,8 @@ class ExcelImportService:
             res = self.importer.create_record(
                 columns=slugs,
                 row_values=row_values,
-                sort=i
+                sort=i,
+                importer_user=self.importer_user
             )
             if res:
                 success +=1

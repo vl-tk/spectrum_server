@@ -15,20 +15,11 @@ logger = logging.getLogger('django')
 
 class ImportExcelView(APIView):
 
-    permission_classes = [AllowAny]
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     @extend_schema(
         parameters=[ImportSerializer],
         tags=['import'],
-        # request={'application/json': ImportSerializer},
-        # parameters=[
-        #     OpenApiParameter(name='backend', description="'google-oauth2', 'facebook'", required=True, type=str),
-        # ],
-        # responses={
-        #     status.HTTP_200_OK: ImportSerializer(),
-        #     status.HTTP_403_FORBIDDEN: '',
-        # },
         summary=""
     )
     def post(self, request, *args, **kwargs):
