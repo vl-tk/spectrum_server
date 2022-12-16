@@ -53,3 +53,4 @@ test/**
 *.xlsx
 
 *.log
+media_files/
