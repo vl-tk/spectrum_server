@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import List
 
 import pandas as pd
+from apps.log_app.models import LogRecord
 from eav.models import Attribute
 from transliterate import translit
 from utils.logger import ilogger
@@ -76,6 +77,12 @@ class ExcelImportService:
             )
             if res:
                 success +=1
+
+        LogRecord.objects.create(
+            user=self.importer_user,
+            message=f'Imported {success} records',
+            content_type=self.importer.content_type
+        )
 
         ilogger.info(
             'FINISHED import "%s" (%d imported to db/%d in file)',

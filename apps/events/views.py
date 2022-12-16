@@ -96,7 +96,7 @@ class EventExportView(APIView):
             entity_id=event_ct.pk,
             entity_table='events_event',
             query_params=self.request.query_params,  # filter
-            page_size=1000  # estimate. should be enough
+            page_size=2000  # estimate. should be enough
         ).get_entities()
 
         if events:
@@ -109,9 +109,6 @@ class EventExportView(APIView):
         }
 
         return Response(data, status=status.HTTP_400_BAD_REQUEST)
-
-        # response = HttpResponse(content_type='application/vnd.ms-excel')
-        # response['Content-Disposition'] = f'attachment; filename=excel_filename.xlsx'
 
 
 class EventReportView(APIView):

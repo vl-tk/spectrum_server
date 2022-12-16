@@ -22,6 +22,8 @@ class ImportSerializer(serializers.Serializer):
     data_type = serializers.CharField(required=True)
     file = serializers.FileField(required=True)
 
+    force_insert = serializers.BooleanField(default=False, required=False)
+
     def is_excel_file(self, file):
         """
         source: https://stackoverflow.com/questions/23515791/how-to-check-the-uploaded-file-is-csv-or-xls-in-python

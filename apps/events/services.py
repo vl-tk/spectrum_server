@@ -83,17 +83,15 @@ class EventExporter:
 
         worksheet = workbook.add_worksheet()
 
-        # worksheet.write_row('A1', self.column_names)
+        # TODO: worksheet.write_row('A1', self.column_names)
+
+        self.filename = self.data[-1]['fields']['source_filename']
 
         for i, row in enumerate(self.data, start=1):
-
-            if self.filename is None:
-                self.filename = row['fields']['source_filename']
-
             worksheet.write_row(f'A{i}', self.get_row_values(row))
 
         workbook.close()
 
         buffer.seek(0)
 
-        return buffer, self.filename
+        return buffer, f'{self.filename}.xlsx'

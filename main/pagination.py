@@ -1,10 +1,10 @@
-from rest_framework.pagination import PageNumberPagination, BasePagination
+from rest_framework.pagination import BasePagination, PageNumberPagination
 
 
 class StandardResultsSetPagination(PageNumberPagination):
     page_size = 10
     page_size_query_param = 'page_size'
-    max_page_size = 1000
+    max_page_size = 2000
 
     def get_next_link(self):
         if not self.page.has_next():
