@@ -1,8 +1,6 @@
 import logging
 from typing import *
 
-from apps.events.models import Event
-from apps.events.serializers import EventSerializer
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.db import connection
@@ -11,18 +9,21 @@ from django.http import Http404
 from django.shortcuts import get_object_or_404, render
 from drf_spectacular.utils import OpenApiParameter, extend_schema
 from eav.models import Attribute
-from main.pagination import StandardResultsSetPagination
 from rest_framework import status
 from rest_framework.generics import ListAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+
+from apps.events.models import Event
+from apps.events.serializers import EventSerializer
+from main.pagination import StandardResultsSetPagination
 from utils.logger import sqllogger as logger
 
 
 class PaginationMixin:
 
-    MAX_PAGE_SIZE = 250
+    MAX_PAGE_SIZE = 1000
 
     def get_count(self, filter_params=None):
 

@@ -1,6 +1,7 @@
 from django.contrib import admin
 from eav.admin import BaseEntityAdmin
 from eav.forms import BaseDynamicEntityForm
+from simple_history.admin import SimpleHistoryAdmin
 
 from .models import Event
 
@@ -12,7 +13,7 @@ class EventAdminForm(BaseDynamicEntityForm):
 
 
 @admin.register(Event)
-class EventAdmin(BaseEntityAdmin):
+class EventAdmin(BaseEntityAdmin, SimpleHistoryAdmin):
 
     form = EventAdminForm
 

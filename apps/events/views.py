@@ -91,24 +91,13 @@ class EventExportView(APIView):
     )
     def get(self, request, *args, **kwargs):
 
-        # TODO:
-        # ids = self.request.query_params.get('ids')
-
-        # entity_ids = []
-        # for id in ids.split(','):
-        #     try:
-        #         i = int(id)
-        #     except ValueError:
-        #         pass
-        #     else:
-        #         entity_ids.append(i)
-
         event_ct = ContentType.objects.get(app_label='events', model='event')
 
         events = EAVDataProvider(
             entity_id=event_ct.pk,
             entity_table='events_event',
-            query_params=self.request.query_params,
+            query_params=self.request.query_params,  # filter
+            page_size=1000  # estimate. should be enough
         ).get_entities()
 
         if events:

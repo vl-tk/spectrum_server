@@ -10,7 +10,7 @@ networks:
 services:
   postgres:
     image: postgres:14.5
-    container_name: spectrum-postgres
+    container_name: server-postgres
     environment:
       POSTGRES_USER: main
       POSTGRES_PASSWORD: s50XgW4
