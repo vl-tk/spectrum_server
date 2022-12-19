@@ -59,6 +59,7 @@ urlpatterns = \
         path('api/v1/users/', include('apps.users.urls', namespace='users')),
         path('api/v1/import/', include('apps.importer.urls', namespace='importer')),
         path('api/v1/events/', include('apps.events.urls', namespace='events')),
+        path('api/v1/logs/', include('apps.log_app.urls', namespace='logs')),
 
     ] + static(settings.MEDIA_PATH, document_root=settings.MEDIA_ROOT) \
     + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
