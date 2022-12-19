@@ -7,7 +7,7 @@ app_name = 'Logs API'
 router = routers.SimpleRouter()
 
 urlpatterns = [
-    path('', LogListCreateView.as_view(), name='list_events'),
+    path('', LogListCreateView.as_view(), name='list_logs'),
 ]
 
 urlpatterns += router.urls
