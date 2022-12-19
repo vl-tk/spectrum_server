@@ -68,7 +68,7 @@ class PaginationMixin:
 
 class FilterMixin:
 
-    MAX_FILTERS_NUM = 3
+    MAX_FILTERS_NUM = 10
 
     def get_filter(self, query_params: dict) -> dict:
         """
