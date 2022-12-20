@@ -1,3 +1,4 @@
+import copy
 import logging
 from typing import *
 
@@ -42,3 +43,15 @@ class LogListCreateView(ListCreateAPIView):
     )
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
+
+    def create(self, request, *args, **kwargs):
+
+        data = copy.deepcopy(request.data)
+
+        data['user'] = request.user
+
+        serializer = self.get_serializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        lr = serializer.save()
+
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
