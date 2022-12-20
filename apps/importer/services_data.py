@@ -111,7 +111,7 @@ class FilterMixin:
             SELECT ev.entity_id
             FROM eav_value AS ev
             WHERE
-            ev.value_text LIKE '%{}%'
+            ev.value_text ILIKE '%{}%'
             )
             """.format(value)
 
@@ -122,7 +122,7 @@ class FilterMixin:
             SELECT ev.entity_id
             FROM eav_value AS ev
             WHERE
-            ev.value_text LIKE '%{}%'
+            ev.value_text ILIKE '%{}%'
             AND
             ev.attribute_id = {}
             )
