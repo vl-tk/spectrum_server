@@ -360,65 +360,68 @@ class EAVDataProvider(PaginationMixin, FilterMixin):
         if not ids:
             ids = self.get_entities_ids(filter_params=self.filter_params)
 
-        if not ids:
-            return []
+        if ids:
 
-        # получение field:value найденных entity
+            # получение field:value найденных entity
 
-        sql = """
-            SELECT ev.entity_id AS id,
-                    (select slug from eav_attribute AS attr where attr.id = ev.attribute_id) AS field,
-                   ev.value_text AS value,
-                   ev.attribute_id AS field_id,
-                   ev.id AS value_id,
-                   et.sort,
-                   et.created_at,
-                   et.updated_at
-            FROM eav_value AS ev
-            INNER JOIN {entity_table} AS et ON et.id = ev.entity_id
-            WHERE ev.entity_id IN ({ids})
-            ;
-        """.format(
-            entity_table=self.entity_table,
-            ids=','.join(ids)
-        )
+            sql = """
+                SELECT ev.entity_id AS id,
+                        (select slug from eav_attribute AS attr where attr.id = ev.attribute_id) AS field,
+                       ev.value_text AS value,
+                       ev.attribute_id AS field_id,
+                       ev.id AS value_id,
+                       et.sort,
+                       et.created_at,
+                       et.updated_at
+                FROM eav_value AS ev
+                INNER JOIN {entity_table} AS et ON et.id = ev.entity_id
+                WHERE ev.entity_id IN ({ids})
+                ;
+            """.format(
+                entity_table=self.entity_table,
+                ids=','.join(ids)
+            )
 
-        logger.info('get_entities SQL: %s', sql)
+            logger.info('get_entities SQL: %s', sql)
 
-        try:
-            self.cursor.execute(sql)
-            res2 = self.cursor.fetchall()
-        except Exception as e:
-            self.cursor.close
-            raise e
+            try:
+                self.cursor.execute(sql)
+                res2 = self.cursor.fetchall()
+            except Exception as e:
+                self.cursor.close
+                raise e
 
-        # 2. вывода в API в нужном формате
+            # 2. вывода в API в нужном формате
 
-        results = {}
-        for row in res2:
-            if row[0] not in results:
-                results[row[0]] = {}
-            results[row[0]][row[1]] = row[2]  # results[id][eav_attribute] = [eav_value]
-            results[row[0]]['created_at'] = row[-2].isoformat().replace('T', ' ').split('.')[0]
-            results[row[0]]['updated_at'] = row[-1].isoformat().replace('T', ' ').split('.')[0]
-            results[row[0]]['sort'] = row[-3]
+            results = {}
+            for row in res2:
+                if row[0] not in results:
+                    results[row[0]] = {}
+                results[row[0]][row[1]] = row[2]  # results[id][eav_attribute] = [eav_value]
+                results[row[0]]['created_at'] = row[-2].isoformat().replace('T', ' ').split('.')[0]
+                results[row[0]]['updated_at'] = row[-1].isoformat().replace('T', ' ').split('.')[0]
+                results[row[0]]['sort'] = row[-3]
 
-        entities = []
-        for event_id, entity_dict in results.items():
-            res = {}
-            res['id'] = event_id
-            res['fields'] = {}
-            for field in self.entity_fields.keys():
-                if field not in entity_dict.keys():
-                    res['fields'][field] = None
-                else:
-                    res['fields'][field] = entity_dict[field]
-            res['sort'] = entity_dict['sort']
-            res['created_at'] = entity_dict['created_at']
-            res['updated_at'] = entity_dict['updated_at']
-            entities.append(res)
+            entities = []
+            for event_id, entity_dict in results.items():
+                res = {}
+                res['id'] = event_id
+                res['fields'] = {}
+                for field in self.entity_fields.keys():
+                    if field not in entity_dict.keys():
+                        res['fields'][field] = None
+                    else:
+                        res['fields'][field] = entity_dict[field]
+                res['sort'] = entity_dict['sort']
+                res['created_at'] = entity_dict['created_at']
+                res['updated_at'] = entity_dict['updated_at']
+                entities.append(res)
 
-        logger.info(sql)
+            logger.info(sql)
+
+        else:
+
+            entities = []
 
         result = {
             "count": self.get_count(filter_params=self.filter_params),
