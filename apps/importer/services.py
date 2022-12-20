@@ -80,7 +80,7 @@ class ExcelImportService:
 
         LogRecord.objects.create(
             user=self.importer_user,
-            message=f'Imported {success} records',
+            message=f'Импортировано {success} записей',
             content_type=self.importer.content_type
         )
 

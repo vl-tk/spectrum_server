@@ -7,6 +7,8 @@ from simple_history.models import HistoricalRecords
 
 class Event(models.Model):
 
+    EVENT_CONTENT_TYPE = 16
+
     sort = models.IntegerField(null=True, blank=True)
 
     importer_user = models.ForeignKey(

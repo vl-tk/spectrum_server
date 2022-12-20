@@ -75,6 +75,13 @@ class EventUpdateView(APIView):
         serializer = EventSerializer(event, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         serializer.save()
+
+        LogRecord.objects.create(
+            user=self.request.user,
+            message=f'Акция {event.pk} обновлена',
+            content_type=Event.EVENT_CONTENT_TYPE
+        )
+
         return Response(status=status.HTTP_202_ACCEPTED)
 
 
