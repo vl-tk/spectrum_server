@@ -72,7 +72,7 @@ class EventExporter:
 
     def get_filename(self, data):
         filename = data[-1]['fields'].get('source_filename', '')
-        if filename and filename[-8] == '_':
+        if len(filename) >= 8 and filename[-8] == '_':
             filename = filename[0:-8]
         if not filename:
             filename = 'table_{}'.format(datetime.datetime.now().strftime('%H%M%S_%d%m%Y'))
