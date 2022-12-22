@@ -14,7 +14,7 @@ from django.db.models import Q
 from django.http import FileResponse, Http404, HttpResponse
 from django.shortcuts import get_object_or_404, render
 from drf_spectacular.utils import OpenApiParameter, extend_schema
-from eav.models import Attribute
+from eav.models import Attribute, Value
 from main.pagination import StandardResultsSetPagination
 from rest_framework import status
 from rest_framework.generics import ListAPIView
@@ -204,7 +204,21 @@ class EventFilterView(APIView):
     )
     def get(self, request, *args, **kwargs):
 
-        data = {
-        }
+        event_ct = ContentType.objects.get(app_label='events', model='event')
 
-        return Response(data, status=status.HTTP_400_BAD_REQUEST)
+        data = EAVDataProvider(
+            entity_id=event_ct.pk,
+            entity_table='events_event',
+            page_size=50  # TODO: max
+        ).get_columns_info()
+
+        slugs = [d['slug'] for d in data]
+
+        res = {}
+        for slug in slugs:
+
+            values = Value.objects.filter(attribute__slug=slug).distinct().values_list('value_text', flat=True)
+
+            res[slug] = sorted(values)
+
+        return Response(res, status=status.HTTP_200_OK)

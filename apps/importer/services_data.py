@@ -70,13 +70,16 @@ class FilterMixin:
 
     MAX_FILTERS_NUM = 10
 
-    def get_filter(self, query_params: dict) -> dict:
+    def get_filter(self, query_params: dict = None) -> dict:
         """
         1) remove 'field_' prefix from keys:
         >>> {filter_number_of_people:5} => {number_of_people:5}
 
         2) remove keys not in entity fields (table columns)
         """
+
+        if query_params is None:
+            query_params = {}
 
         filter_params = {}
         index = 0
@@ -228,6 +231,8 @@ class EAVDataProvider(PaginationMixin, FilterMixin):
         logger.info(self.entity_fields)
 
         self.columns_output = [v for k,v in self.entity_fields.items()]
+
+        return self.columns_output
 
     def _get_entities_ids_sql(self, filter_params=None, limit=None, offset=None):
         """
