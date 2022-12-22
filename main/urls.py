@@ -56,6 +56,7 @@ urlpatterns = \
         path('token/social', OAuthRegistrationView.as_view(), name='token_obtain_pair_by_social'),
         # path('social/', include('social_django.urls', namespace='social')),
 
+        path('api/v1/data/', include('apps.data.urls', namespace='data')),
         path('api/v1/users/', include('apps.users.urls', namespace='users')),
         path('api/v1/import/', include('apps.importer.urls', namespace='importer')),
         path('api/v1/events/', include('apps.events.urls', namespace='events')),

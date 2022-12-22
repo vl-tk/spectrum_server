@@ -190,3 +190,21 @@ class EventReportView(APIView):
         res['params'] = self.request.query_params.copy()
 
         return Response(res, status=status.HTTP_400_BAD_REQUEST)
+
+
+class EventFilterView(APIView):
+
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(
+        parameters=[
+        ],
+        tags=['events'],
+        summary='Фильтры',
+    )
+    def get(self, request, *args, **kwargs):
+
+        data = {
+        }
+
+        return Response(data, status=status.HTTP_400_BAD_REQUEST)
