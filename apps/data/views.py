@@ -3,7 +3,7 @@ import operator
 from typing import *
 
 from apps.data.models import CHZRecord, DGisRecord
-from apps.data.serializers import CHZRecordSerializer
+from apps.data.serializers import CHZRecordSerializer, DGisRecordSerializer
 from django_filters.rest_framework import FilterSet
 from django_filters.rest_framework.filters import CharFilter
 from main.pagination import StandardResultsSetPagination
@@ -30,3 +30,20 @@ class CHZListView(ListAPIView):
     queryset = CHZRecord.objects.all()
     pagination_class = StandardResultsSetPagination
     filterset_class = CHZRecordFilterSet
+
+
+class DGisRecordFilterSet(FilterSet):
+
+    class Meta:
+        model = DGisRecord
+        fields = '__all__'
+        exclude = ['inn']
+
+
+class DGisRecordListView(ListAPIView):
+
+    permission_classes = [AllowAny]
+    serializer_class = DGisRecordSerializer
+    queryset = DGisRecord.objects.all()
+    pagination_class = StandardResultsSetPagination
+    filterset_class = DGisRecordFilterSet

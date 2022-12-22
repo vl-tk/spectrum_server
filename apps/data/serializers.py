@@ -9,3 +9,11 @@ class CHZRecordSerializer(serializers.ModelSerializer):
         model = CHZRecord
         fields = '__all__'
         read_only_fields = ['pk']
+
+
+class DGisRecordSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = DGisRecord
+        fields = '__all__'
+        read_only_fields = ['pk']
