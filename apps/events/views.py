@@ -212,13 +212,14 @@ class EventFilterView(APIView):
             page_size=50  # TODO: max
         ).get_columns_info()
 
-        slugs = [d['slug'] for d in data]
+        columns = [{'slug': d['slug'], 'name': d['name']} for d in data]
 
-        res = {}
-        for slug in slugs:
+        res = []
+        for column in columns:
 
-            values = Value.objects.filter(attribute__slug=slug).distinct().values_list('value_text', flat=True)
+            values = Value.objects.filter(attribute__slug=column['slug']).distinct().values_list('value_text', flat=True)
 
-            res[slug] = sorted(values)
+            column['values'] = sorted(values)
+            res.append(column)
 
         return Response(res, status=status.HTTP_200_OK)
