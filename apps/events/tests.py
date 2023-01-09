@@ -169,16 +169,16 @@ def test_list_events_filter_datetime(authorized_client, imported_events, test_fi
 
     assert Event.objects.count() == 42
 
-    # resp = authorized_client.get(
-    #     reverse('events:list_events'),
-    #     {
-    #         'field_source_filename': 'events_test_mini.xlsx',
-    #         'field_data_nachala': '2022-01-04',
-    #     }
-    # )
-    # assert resp.status_code == status.HTTP_200_OK
-    # assert resp.data['count'] == 1
-    # assert len(resp.data['results']) == 1
+    resp = authorized_client.get(
+        reverse('events:list_events'),
+        {
+            'field_source_filename': 'events_test_mini.xlsx',
+            'field_data_nachala': '2022-01-04',
+        }
+    )
+    assert resp.status_code == status.HTTP_200_OK
+    assert resp.data['count'] == 1
+    assert len(resp.data['results']) == 1
 
     resp = authorized_client.get(
         reverse('events:list_events'),
