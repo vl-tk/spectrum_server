@@ -1,6 +1,7 @@
 import pytest
 from apps.events.models import Event
 from django.urls import reverse
+from eav.models import Attribute, Value
 from rest_framework import status
 from rest_framework.test import APIClient, APITestCase
 from utils.test import get_test_excel_file
@@ -142,6 +143,54 @@ def test_list_events_multi_filter(authorized_client, imported_events, test_file_
     assert resp.status_code == status.HTTP_200_OK
     assert resp.data['count'] == 4
     assert len(resp.data['results']) == 4
+
+
+
+# @pytest.mark.django_db
+# def test_list_events_filter_same_field_for_checkbox(authorized_client, imported_events, test_file_remove):
+
+#     assert Event.objects.count() == 42
+
+#     resp = authorized_client.get(
+#         reverse('events:list_events'),
+#         {
+#             'field_source_filename': 'events_test_mini_2.xlsx',
+#             'field_bjudzhet': '500',
+#             'field_bjudzhet': '1100'
+#         }
+#     )
+#     assert resp.status_code == status.HTTP_200_OK
+#     assert resp.data['count'] == 2
+#     assert len(resp.data['results']) == 7
+
+
+@pytest.mark.django_db
+def test_list_events_filter_datetime(authorized_client, imported_events, test_file_remove):
+
+    assert Event.objects.count() == 42
+
+    # resp = authorized_client.get(
+    #     reverse('events:list_events'),
+    #     {
+    #         'field_source_filename': 'events_test_mini.xlsx',
+    #         'field_data_nachala': '2022-01-04',
+    #     }
+    # )
+    # assert resp.status_code == status.HTTP_200_OK
+    # assert resp.data['count'] == 1
+    # assert len(resp.data['results']) == 1
+
+    resp = authorized_client.get(
+        reverse('events:list_events'),
+        {
+            'field_source_filename': 'events_test_mini.xlsx',
+            'field_data_nachala__gt': '2022-01-04',
+            'field_data_okonchanija__lte': '2022-02-14'
+        }
+    )
+    assert resp.status_code == status.HTTP_200_OK
+    assert resp.data['count'] == 10
+    assert len(resp.data['results']) == 10
 
 
 @pytest.mark.django_db

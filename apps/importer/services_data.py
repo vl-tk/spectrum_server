@@ -78,26 +78,37 @@ class FilterMixin:
         2) remove keys not in entity fields (table columns)
         """
 
+        def _get_op(key):
+            if '__' in key:
+                return key.split('__')[-1]
+
+        def _get_key_without_op(key):
+            if '__' in key:
+                return key.split('__')[0]
+            return key
+
         if query_params is None:
             query_params = {}
 
         filter_params = {}
         index = 0
-        for field in query_params.keys():
-            if field.startswith('field_'):
+        for key in query_params.keys():
+
+            if key.startswith('field_'):
                 index += 1
                 if index > self.MAX_FILTERS_NUM:
                     continue
-                filter_params[field[6:]] = query_params[field]
-            elif field == 'search':
-                filter_params['search'] = query_params[field]
+                filter_params[key[6:]] = {'value': query_params[key], 'op': _get_op(key[6:])}
+
+            elif key == 'search':
+                filter_params['search'] = {'value': query_params[key]}
 
         logger.info('FILTER BEFORE REMOVING UNKNOWN FIELDS: %s', filter_params)
 
         filter_params = {
-            k: v
+            _get_key_without_op(k): v
             for k, v in filter_params.items()
-            if (k in self.entity_fields.keys() or k == 'search')
+            if (_get_key_without_op(k) in self.entity_fields.keys() or k == 'search')
         }
 
         logger.info('ENTITY FIELDS: %s', self.entity_fields)
@@ -105,33 +116,35 @@ class FilterMixin:
 
         return filter_params
 
-    def get_single_filter_sql(self, value: str, attr_id: int) -> str:
+    def get_single_filter_sql(self, value: str, attr_id: int, column_type: str, op:str = None) -> str:
 
-        if attr_id is None:
+        sql = """
+        SELECT ev.entity_id
+        FROM eav_value AS ev
+        WHERE
+        """
 
-            sql = """
-            (
-            SELECT ev.entity_id
-            FROM eav_value AS ev
-            WHERE
-            ev.value_text ILIKE '%{}%'
-            )
-            """.format(value)
-
+        if op == 'gt':
+            op = '>'
+        elif op == 'gte':
+            op = '>='
+        elif op == 'lt':
+            op = '<'
+        elif op == 'lte':
+            op = '<='
         else:
+            op = '='
 
-            sql = """
-            (
-            SELECT ev.entity_id
-            FROM eav_value AS ev
-            WHERE
-            ev.value_text ILIKE '%{}%'
-            AND
-            ev.attribute_id = {}
-            )
-            """.format(value, attr_id)
+        if column_type == 'date':
+            sql += "ev.value_date::date {} '{}'::date".format(op, value)
+        else:
+            sql += "ev.value_text ILIKE '%{}%'".format(value)
 
-        return sql
+        if attr_id is not None:
+
+            sql += f"\nAND ev.attribute_id = {attr_id}"
+
+        return f'({sql})'
 
 
 class EAVDataProvider(PaginationMixin, FilterMixin):
@@ -304,11 +317,13 @@ class EAVDataProvider(PaginationMixin, FilterMixin):
             cond_names = [f'cond{i}' for i in range(len(filter_params))]
 
             sql_filters = []
-            for field_name, v in filter_params.items():
+            for field_name, data in filter_params.items():
 
                 sql_filter = self.get_single_filter_sql(
-                    value=v,
-                    attr_id=self.entity_fields.get(field_name, {}).get('id')
+                    value=data['value'],
+                    attr_id=self.entity_fields.get(field_name, {}).get('id'),
+                    column_type=self.entity_fields.get(field_name, {}).get('type'),
+                    op=data.get('op')
                 )
 
                 sql_filters.append(sql_filter)

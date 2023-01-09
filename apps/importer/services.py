@@ -1,6 +1,8 @@
+import datetime
 import difflib
 import logging
 import os
+from collections import OrderedDict
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
 from typing import List
@@ -8,6 +10,7 @@ from typing import List
 import pandas as pd
 from apps.log_app.models import LogRecord
 from eav.models import Attribute
+from pandas import Timestamp
 from transliterate import translit
 from utils.logger import ilogger
 
@@ -52,9 +55,50 @@ class ExcelImportService:
         self.filepath = filepath
         self.importer = importer
         self.importer_user = importer_user
+        self.columns = self.get_columns()
 
         # if rename columns
         # df.columns = KEYS
+
+    def get_columns(self):
+
+        data = OrderedDict([])
+
+        def _is_date(values):
+            for v in values:
+                if not isinstance(v, Timestamp):
+                    return False
+            return True
+
+        def _is_int(values):
+            for v in values:
+                if not isinstance(v, int):
+                    return False
+            return True
+
+        def _is_float(values):
+            for v in values:
+                if not isinstance(v, float):
+                    return False
+            return True
+
+        for column_name in self.df.columns:
+
+            values = self.df[column_name].tolist()
+
+            if _is_date(values):
+                data[column_name] = Attribute.TYPE_DATE
+
+            # if _is_int(values):
+                # return Attribute.TYPE_INT
+
+            # if _is_float(values):
+                # return Attribute.TYPE_FLOAT
+
+            else:
+                data[column_name] = Attribute.TYPE_TEXT
+
+        return data
 
     def load_file(self):
 
@@ -67,7 +111,7 @@ class ExcelImportService:
         success = 0
         for i, row in enumerate(self.df.to_records(), start=1):
 
-            row_values: list = [self.preformat_cell(value) for value in row]
+            row_values: list = [self.preformat_cell(value, j) for j, value in enumerate(row)]
 
             res = self.importer.create_record(
                 columns=slugs,
@@ -91,7 +135,17 @@ class ExcelImportService:
             len(self.df.to_records())  # TODO: method?
         )
 
-    def preformat_cell(self, value) -> str:
+    def preformat_cell(self, value, i) -> str:
+
+        column = list(self.columns.keys())[i - 1]
+        column_type = self.columns[column]
+
+        if column_type == 'date':
+            dt = datetime.datetime.utcfromtimestamp(value.tolist() / 1e9)
+            return dt
+
+        # TODO: int, float
+
         return str(value) if str(value) != 'nan' else ''
 
     def create_columns(self):
@@ -117,7 +171,7 @@ class ExcelImportService:
                 attr, created = Attribute.objects.get_or_create(
                     name=column,
                     slug=converted_slug,
-                    datatype=Attribute.TYPE_TEXT,
+                    datatype=self.columns[column],
                     display_order=index
                 )
                 attr.entity_ct.set([self.importer.content_type])

@@ -28,8 +28,8 @@ class EventImporter(BaseImporter):
 
         assert len(columns) == len(row_values), f'{len(columns)}, {";".join(columns)}, {len(row_values)}, {";".join(row_values)}'
 
-        columns = [f'eav__{c}' for c in columns]
-        values = dict(zip(columns, row_values))
+        column_names = [f'eav__{c}' for c in columns]
+        values = dict(zip(column_names, row_values))
 
         values['eav__source_filename'] = self.filepath.name
         values['sort'] = sort
@@ -42,7 +42,6 @@ class EventImporter(BaseImporter):
             return
 
         from pprint import pprint
-
         ilogger.info(f'{event} CREATED with values: {pprint(values)}')
         return True
 
