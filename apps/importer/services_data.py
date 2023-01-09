@@ -138,7 +138,10 @@ class FilterMixin:
         if column_type == 'date':
             sql += "ev.value_date::date {} '{}'::date".format(op, value)
         else:
-            sql += "ev.value_text ILIKE '%{}%'".format(value)
+            if '||' in value:
+                sql += "ev.value_text IN ({})".format(','.join([f'\'{v}\'' for v in value.split('||')]))
+            else:
+                sql += "ev.value_text ILIKE '%{}%'".format(value)
 
         if attr_id is not None:
 

@@ -145,23 +145,21 @@ def test_list_events_multi_filter(authorized_client, imported_events, test_file_
     assert len(resp.data['results']) == 4
 
 
+@pytest.mark.django_db
+def test_list_events_filter_same_field_for_checkbox(authorized_client, imported_events, test_file_remove):
 
-# @pytest.mark.django_db
-# def test_list_events_filter_same_field_for_checkbox(authorized_client, imported_events, test_file_remove):
+    assert Event.objects.count() == 42
 
-#     assert Event.objects.count() == 42
-
-#     resp = authorized_client.get(
-#         reverse('events:list_events'),
-#         {
-#             'field_source_filename': 'events_test_mini_2.xlsx',
-#             'field_bjudzhet': '500',
-#             'field_bjudzhet': '1100'
-#         }
-#     )
-#     assert resp.status_code == status.HTTP_200_OK
-#     assert resp.data['count'] == 2
-#     assert len(resp.data['results']) == 7
+    resp = authorized_client.get(
+        reverse('events:list_events'),
+        {
+            'field_source_filename': 'events_test_mini.xlsx',
+            'field_bjudzhet': '500||1100'
+        }
+    )
+    assert resp.status_code == status.HTTP_200_OK
+    assert resp.data['count'] == 7
+    assert len(resp.data['results']) == 7
 
 
 @pytest.mark.django_db
