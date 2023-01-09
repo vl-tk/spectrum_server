@@ -13,7 +13,7 @@ urlpatterns = [
     path('export/', EventExportView.as_view(), name='export_events'),
     path('filters/', EventFilterView.as_view(), name='filter_events'),
     path('reports', EventReportView.as_view(), name='event_report'),
-    path('reports', EventReportView.as_view(), name='event_report'),
+    # path('reports', EventReportView.as_view(), name='event_report'),
 ]
 
 urlpatterns += router.urls
