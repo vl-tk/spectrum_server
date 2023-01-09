@@ -85,7 +85,7 @@ def test_import_incorrect_file_events(authorized_client, test_file_remove):
     assert resp.status_code == status.HTTP_400_BAD_REQUEST
 
 
-def test_max_filter_test():
+def test_max_filter_num_test():
     from apps.importer.services_data import FilterMixin
     f = FilterMixin()
 
@@ -119,6 +119,36 @@ def test_max_filter_test():
             'type': 'text',
             'name': 'ИНН',
             'id': 123
+        },
+        'inn6': {
+            'slug': 'inn',
+            'type': 'text',
+            'name': 'ИНН',
+            'id': 123
+        },
+        'inn7': {
+            'slug': 'inn',
+            'type': 'text',
+            'name': 'ИНН',
+            'id': 123
+        },
+        'inn8': {
+            'slug': 'inn',
+            'type': 'text',
+            'name': 'ИНН',
+            'id': 123
+        },
+        'inn9': {
+            'slug': 'inn',
+            'type': 'text',
+            'name': 'ИНН',
+            'id': 123
+        },
+        'inn10': {
+            'slug': 'inn',
+            'type': 'text',
+            'name': 'ИНН',
+            'id': 123
         }
     }
 
@@ -129,15 +159,19 @@ def test_max_filter_test():
         'field_inn2': 'test',
         'field_inn3': 'test',
         'field_inn4': 'test',
-        'field_inn5': 'test'
+        'field_inn5': 'test',
+        'field_inn6': 'test',
+        'field_inn7': 'test',
+        'field_inn8': 'test',
+        'field_inn9': 'test',
+        'field_inn10': 'test',
+        'field_inn11': 'test',
+        'field_inn12': 'test',
+        'field_inn13': 'test',
+        'field_inn14': 'test',
+        'field_inn15': 'test'
     }
 
     filter_params = f.get_filter(query_params)
 
-    res = {
-        'inn1': 'test',
-        'inn2': 'test',
-        'inn3': 'test'
-    }
-
-    assert filter_params == res
+    assert len(filter_params) == FilterMixin.MAX_FILTERS_NUM
