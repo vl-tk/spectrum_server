@@ -8,8 +8,11 @@ from apps.events.services import EventImporter
 from apps.importer.services import ExcelImportService
 from django.conf import settings
 from django.core.files.storage import FileSystemStorage
+from django.utils import timezone
+from eav.models import Attribute
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
+from utils.text_format import strfdelta
 
 logger = logging.getLogger('django')
 
@@ -38,13 +41,28 @@ class ImportSerializer(serializers.Serializer):
 
         file = location / filename
 
-        is_file_loaded = Event.objects.filter(
-            eav__source_filename__startswith=filename  # TODO:
-        ).exists()
+        try:
+            Attribute.objects.get(slug='source_filename')
+        except Attribute.DoesNotExist:
+            pass
+        else:
 
-        if is_file_loaded and not attrs.get('force_insert'):
-            raise ValidationError(
-                {'file_loaded': "File is already loaded."})  # TODO: add ago
+            is_file_loaded = Event.objects.filter(
+                eav__source_filename__startswith=in_memory_file_obj.name
+            ).exists()
+
+            if is_file_loaded and not attrs.get('force_insert'):
+
+                event = Event.objects.filter(
+                    eav__source_filename__startswith=in_memory_file_obj.name
+                ).order_by('-created_at').first()
+
+                timedelta_ago = timezone.now() - event.created_at
+
+                timedelta = strfdelta(timedelta_ago, '%H:%M:%S')
+
+                raise ValidationError(
+                    {'file_loaded': f"File is already loaded ({timedelta} ago)."})
 
         if not self.is_excel_file(file):
             file.unlink()

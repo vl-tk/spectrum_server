@@ -1,3 +1,5 @@
+from time import sleep
+
 import pytest
 from apps.events.models import Event
 from django.urls import reverse
@@ -34,6 +36,38 @@ def test_import_excel_file_events(authorized_client, test_file_remove):
 
     assert resp.status_code == status.HTTP_200_OK
     assert Event.objects.count() == 84
+
+
+@pytest.mark.django_db
+def test_import_excel_file_events_same_file(authorized_client, test_file_remove):
+
+    resp = authorized_client.post(
+        reverse('importer:import_file'),
+        {
+            'data_type': 'event',
+            'file': get_test_excel_file()[0]
+        },
+        format='multipart'
+    )
+
+    assert resp.status_code == status.HTTP_200_OK
+    assert Event.objects.count() == 42
+
+    sleep(1)
+
+    # 2nd time - with error
+
+    resp = authorized_client.post(
+        reverse('importer:import_file'),
+        {
+            'data_type': 'event',
+            'file': get_test_excel_file()[0]
+        },
+        format='multipart'
+    )
+
+    assert resp.status_code == status.HTTP_400_BAD_REQUEST
+    assert Event.objects.count() == 42
 
 
 @pytest.mark.django_db
