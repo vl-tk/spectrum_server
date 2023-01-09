@@ -6,6 +6,7 @@ from apps.events.reports import EventReportBuilder
 from apps.events.serializers import EventSerializer
 from apps.events.services import EventExporter
 from apps.importer.services_data import EAVDataProvider
+from apps.log_app.models import LogRecord
 from apps.report.services import ReportBuilder
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
@@ -79,7 +80,7 @@ class EventUpdateView(APIView):
         LogRecord.objects.create(
             user=self.request.user,
             message=f'Акция {event.pk} обновлена',
-            content_type=Event.EVENT_CONTENT_TYPE
+            content_type_id=Event.EVENT_CONTENT_TYPE
         )
 
         return Response(status=status.HTTP_202_ACCEPTED)
