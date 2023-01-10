@@ -321,7 +321,7 @@ def test_list_events_search_2(authorized_client, imported_events, test_file_remo
 def test_update_event(authorized_client, imported_events, test_file_remove):
 
     event = Event.objects.first()
-    assert event.eav.primechanie == 'коробка для Евгения Горелова'
+    assert event.eav.primechanie == 'коробка для Аркадия Горелова'
 
     resp = authorized_client.patch(
         reverse('events:update_event', args=(event.pk,)),

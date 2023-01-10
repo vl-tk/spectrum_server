@@ -172,6 +172,6 @@ def test_max_filter_num_test():
         'field_inn15': 'test'
     }
 
-    filter_params = f.get_filter(query_params)
+    filter_params = f.prepare_filter(query_params)
 
     assert len(filter_params) == FilterMixin.MAX_FILTERS_NUM

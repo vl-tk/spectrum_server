@@ -70,12 +70,14 @@ class FilterMixin:
 
     MAX_FILTERS_NUM = 10
 
-    def get_filter(self, query_params: dict = None) -> dict:
+    def prepare_filter(self, query_params: dict = None) -> dict:
         """
-        1) remove 'field_' prefix from keys:
-        >>> {filter_number_of_people:5} => {number_of_people:5}
+        1) убрать 'field_' префикс из ключа:
+        {filter_number_of_people:5}
+        =>
+        {number_of_people:5}
 
-        2) remove keys not in entity fields (table columns)
+        2) убрать ключи не из столбцов таблицы
         """
 
         def _get_op(key):
@@ -117,6 +119,20 @@ class FilterMixin:
         return filter_params
 
     def get_single_filter_sql(self, value: str, attr_id: int, column_type: str, op:str = None) -> str:
+        """
+        Получить SQL условие по одному из фильтров
+
+        Например, из запроса приходит:
+        query_params = {"field_name": "Тест"}
+
+        filter_params = {"name": "Тест"}
+
+        Для генерации SQL нужно:
+        value = "Тест"
+        attr_id - это attribute_id поля name в таблице eav_attribute
+        column_type = text
+        op - это возможный оператор сравнения
+        """
 
         sql = """
         SELECT ev.entity_id
@@ -153,13 +169,21 @@ class FilterMixin:
 class EAVDataProvider(PaginationMixin, FilterMixin):
     """
     Класс получения из БД сущностей, атрибуты которых стали хранить при помощи схемы EAV
-    (чтобы столбцы можно было гибко менять)
 
-    Сущности:
-    - Events (Акции)
-    - но могут быть и другие сущности которые импортируем через xlsx таблицы
+    (Основной смысл: заранее не известно с какими таблицами будет работать
+    клиент, нет ясности форматов.
 
-    Вывод в формате привычном для DRF (с пагинацией)
+    Поэтому приходится закладывать гибкость работы со столбцами на уровне
+    прослойки работы с БД вместо стандартных моделей, с большей трудоемкостью
+    изменений
+
+    Сущности с которыми изначально работаем (=таблицы клиента):
+    - Акции (Events)
+
+    (возможность других сущностей которые начнем импортировать через
+    xlsx таблицы тоже поддерживаем)
+
+    Ответ формируем в формате как в DRF (с пагинацией)
     """
 
     def __init__(self, entity_id: int, entity_table: str, query_params=None, page=None, page_size=None):
@@ -184,16 +208,16 @@ class EAVDataProvider(PaginationMixin, FilterMixin):
 
         self.get_columns_info()
 
-        self.filter_params = self.get_filter(query_params)
+        self.filter_params = self.prepare_filter(query_params)
 
         self.cursor = connection.cursor()
 
     def get_columns_info(self):
         """
-        Сохранение для данной сущности в self.entity_fields расширенной информации о ее полях
-        (колонках импортированной таблицы) для составления запросов:
+        Сохранение в поле self.entity_fields расширенной информации о полях сущности
+        (колонках импортированной таблицы) для составления запросов и для выдачи фронтэнду
 
-        Формат:
+        Формат self.entity_fields:
         {
             'inn': {
                 'slug': 'inn',
@@ -209,7 +233,7 @@ class EAVDataProvider(PaginationMixin, FilterMixin):
             }
         }
 
-        self.columns_output - для вывода в json-ответе
+        Формат self.columns_output - для вывода в json-ответе фронтэнду
         [
             {
                 'slug': 'inn',
@@ -252,14 +276,14 @@ class EAVDataProvider(PaginationMixin, FilterMixin):
 
     def _get_entities_ids_sql(self, filter_params=None, limit=None, offset=None):
         """
-        Вспомогательный метод составления SQL для получения списка ID entities
+        Базовый метод составления SQL для получения списка ID entities
         1) без фильтра
-        2) по заданным параметрам фильтра
+        2) с заданными параметрами фильтра
 
         Используется в двух случаях:
-        1) как первый этап выборки entities (сначала нам нужны ID постранично,
-        потом к ним довыберем данные из attribute и value таблиц)
-        2) для подсчета count для постранички (полученный SQL выборки ID оборачивается в COUNT)
+        1) как первый этап выборки entities (сначала здесь берем нужны ID постранично,
+        ниже в методе к ним довыберем данные из attribute и value таблиц)
+        2) для подсчета count для постранички (полученный из п.1 SQL оборачивается в COUNT)
         """
 
         page_size = limit if limit is not None else self.page_size
@@ -288,8 +312,10 @@ class EAVDataProvider(PaginationMixin, FilterMixin):
                   {cond2} AS (sql_filter_code),
                    {cond3} AS (sql_filter_code),
             SELECT * FROM {cond1}
-            INTERSECT SELECT * FROM {cond2}
-            INTERSECT SELECT * FROM {cond3};
+            INTERSECT
+            SELECT * FROM {cond2}
+            INTERSECT
+            SELECT * FROM {cond3};
 
 
             пример запроса:
@@ -352,10 +378,11 @@ class EAVDataProvider(PaginationMixin, FilterMixin):
 
     def get_entities_ids(self, filter_params=None) -> List[str]:
         """
-        Метод получения IDs
+        Метод получения entity IDs
 
-        Фильтр задается заранее в EAVDataProvider
-        Результат с учетом переданных параметров в EAVDataProvider постранички
+        Фильтр задается заранее (при инициализации EAVDataProvider)
+
+        Результат с учетом переданных параметров постранички
         """
 
         sql = self._get_entities_ids_sql(filter_params=filter_params)
@@ -375,17 +402,18 @@ class EAVDataProvider(PaginationMixin, FilterMixin):
 
     def get_entities(self, ids: list = None):
         """
-        Метод получения всех атрибутов field:value для полученных ранее entity ID
+        Метод получения всех атрибутов attribute:value для получаемых ранее entity ID
         """
 
-        # 1. фильтрация по всем values сущностей и получение ID entity (постранично)
+        # 1. фильтрация по всем values сущностей и получение ID отфильтрованных из них (постранично)
 
         if not ids:
+
             ids = self.get_entities_ids(filter_params=self.filter_params)
 
         if ids:
 
-            # получение field:value найденных entity
+            # выборка attribute:value для найденных ранее entity ids
 
             sql = """
                 SELECT ev.entity_id AS id,
@@ -414,7 +442,7 @@ class EAVDataProvider(PaginationMixin, FilterMixin):
                 self.cursor.close
                 raise e
 
-            # 2. вывода в API в нужном формате
+            # 2. формирование вывода в нужном формате, ожидаемом от API
 
             results = {}
             for row in res2:

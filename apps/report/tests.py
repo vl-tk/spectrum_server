@@ -1,9 +1,8 @@
 import pytest
+from apps.events.models import Event
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient, APITestCase
-
-from apps.events.models import Event
 from utils.test import get_test_document_files, get_test_excel_file
 
 
