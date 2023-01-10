@@ -26,10 +26,10 @@ class EventImporter(BaseImporter):
 
         row_values = row_values[1:]  # except for line number
 
-        print(f'{len(columns)}')
-        print(f'{len(row_values)}')
-        print(f'{"; ".join(columns)}')
-        print(f'{";".join([str(i) for i in row_values])}')
+        # print(f'{len(columns)}')
+        # print(f'{len(row_values)}')
+        # print(f'{"; ".join(columns)}')
+        # print(f'{";".join([str(i) for i in row_values])}')
 
         assert len(columns) == len(row_values), f'{len(columns)}, {len(row_values)}, {";".join(columns)}, {";".join([str(i) for i in row_values])}'
 

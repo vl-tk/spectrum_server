@@ -1,5 +1,4 @@
 import pandas as pd
-
 from apps.report.services import ReportBuilder
 
 

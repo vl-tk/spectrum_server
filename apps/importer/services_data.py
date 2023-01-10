@@ -418,9 +418,9 @@ class EAVDataProvider(PaginationMixin, FilterMixin):
             sql = """
                 SELECT ev.entity_id AS id,
                         (select slug from eav_attribute AS attr where attr.id = ev.attribute_id) AS field,
-                       ev.value_text AS value,
-                       ev.attribute_id AS field_id,
+                       (select COALESCE(value_date::text, value_text) from eav_value as ev2 where ev2.id = ev.id) AS value,
                        ev.id AS value_id,
+                       ev.attribute_id AS field_id,
                        et.sort,
                        et.created_at,
                        et.updated_at
