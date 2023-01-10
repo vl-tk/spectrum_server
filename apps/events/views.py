@@ -125,8 +125,8 @@ class EventReportView(APIView):
 
     @extend_schema(
         parameters=[
-            OpenApiParameter(name='value_field', required=True, type=str, description='Поле значения по которому строится отчет, например: bjudzhet'),
-            OpenApiParameter(name='date_field', required=True, type=str, description='Поле даты, например: data_nachala'),
+            OpenApiParameter(name='date_field', required=True, type=str, description='Поле "дата", например: data_nachala'),
+            OpenApiParameter(name='value_field', required=True, type=str, description='Поле "значение", по которому строится отчет, например: bjudzhet'),
             OpenApiParameter(name='type', required=True, type=str, description='Тип отчета: avg_per_month, avg_per_day, total_per_month, total_per_day'),
         ],
         tags=['events'],
