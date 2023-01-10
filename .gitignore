@@ -54,3 +54,5 @@ test/**
 
 *.log
 media_files/
+
+sql/test.sql
