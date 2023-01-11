@@ -4,6 +4,7 @@ from apps.importer.serializers import ImportSerializer
 from django.conf import settings
 from django.http import Http404
 from django.shortcuts import get_object_or_404
+from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework import status
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -18,7 +19,11 @@ class ImportExcelView(APIView):
     permission_classes = [IsAuthenticated]
 
     @extend_schema(
-        parameters=[ImportSerializer],
+        parameters=[
+            OpenApiParameter(name='data_type', required=True, type=str),
+            OpenApiParameter(name='file', required=True, type=OpenApiTypes.BINARY), # TODO:
+            OpenApiParameter(name='force_insert', required=False, type=str)
+        ],
         tags=['import'],
         summary="Импорт"
     )
