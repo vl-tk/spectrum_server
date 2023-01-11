@@ -1,6 +1,8 @@
 import logging
+from datetime import datetime
 from typing import *
 
+import pytz
 from apps.events.models import Event
 from apps.events.reports import EventReportBuilder
 from apps.events.serializers import EventSerializer
@@ -8,12 +10,15 @@ from apps.events.services import EventExporter
 from apps.importer.services_data import EAVDataProvider
 from apps.log_app.models import LogRecord
 from apps.report.services import ReportBuilder
+from dateutil.parser import parse
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.db import connection
 from django.db.models import Q
 from django.http import FileResponse, Http404, HttpResponse
 from django.shortcuts import get_object_or_404, render
+from django.utils import timezone
+from django.utils.timezone import make_aware
 from drf_spectacular.utils import OpenApiParameter, extend_schema
 from eav.models import Attribute, Value
 from main.pagination import StandardResultsSetPagination
@@ -51,7 +56,19 @@ class EventListView(ListAPIView):
             page=self.request.query_params.get('page'),
         ).get_entities()
 
-        return Response(events, status=status.HTTP_200_OK)
+        # TODO: hack. переместить
+
+        res = events
+
+        results = []
+        for r in events['results']:
+            dt = parse(r['fields']['data_nachala'].split('+')[0])
+            r['fields']['status'] = 'Запланирована' if dt > timezone.now() else 'Проведена'
+            results.append(r)
+
+        res['results'] = results
+
+        return Response(res, status=status.HTTP_200_OK)
 
 
 class EventUpdateView(APIView):
