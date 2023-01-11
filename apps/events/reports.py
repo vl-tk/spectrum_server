@@ -44,6 +44,7 @@ class EventReportBuilder(ReportBuilder):
             ilogger.exception(e)
 
         # format values
+        # TODO:
 
         res_with_dates = {}
         for k, v in result.to_dict().items():
