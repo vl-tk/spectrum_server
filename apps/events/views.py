@@ -197,6 +197,11 @@ class EventFilterView(APIView):
 
     permission_classes = [IsAuthenticated]
 
+    def _get_value(self, value):
+        if value[0] is not None:
+            return value[0]
+        return value[1]
+
     @extend_schema(
         parameters=[
         ],
@@ -218,7 +223,11 @@ class EventFilterView(APIView):
         res = []
         for column in columns:
 
-            values = Value.objects.filter(attribute__slug=column['slug']).distinct().values_list('value_text', flat=True)
+            values = Value.objects.filter(
+                attribute__slug=column['slug']
+            ).distinct().values_list('value_text', 'value_date')
+
+            values = [self._get_value(v) for v in values]
 
             column['values'] = sorted(values)
             res.append(column)
