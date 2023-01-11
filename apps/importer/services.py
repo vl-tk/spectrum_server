@@ -66,7 +66,7 @@ class ExcelImportService:
 
         def _is_date(values):
             for v in values:
-                if not isinstance(v, Timestamp):
+                if not isinstance(v, Timestamp) or str(v).isalpha():
                     return False
             return True
 
