@@ -382,7 +382,7 @@ class EAVDataProvider(PaginationMixin, FilterMixin):
                 offset=offset
             )
 
-            logger.info('MULTI FILTER SQL: %s', sql)
+            logger.info('>>> MULTI FILTER SQL: %s', sql)
 
         return sql
 

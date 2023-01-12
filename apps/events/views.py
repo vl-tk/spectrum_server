@@ -246,7 +246,7 @@ class EventFilterView(APIView):
                 attribute__slug=column['slug']
             ).distinct().values_list('value_text', 'value_date')
 
-            values = [self._get_value(v) for v in values]
+            values = [self._get_value(v) for v in values if (v[0] is not None or v[1] is not None)]
 
             column['values'] = sorted(values)
             res.append(column)
@@ -273,7 +273,42 @@ class EventRegionGraphView(APIView):
         events = EAVDataProvider(
             entity_id=event_ct.pk,
             entity_table='events_event',
-            query_params=self.request.query_params,  # filter
+            query_params=self.request.query_params,
+            page_size=2000  # estimate. should be enough
+        ).get_entities()
+
+        data = {'-': []}
+
+        for k, v in REGION.items():
+            data[v] = []
+
+        for event in events['results']:
+            region_code = get_region(event['fields']['gorod'])
+            data[region_code].append(event)
+
+        return Response(data, status=status.HTTP_200_OK)
+
+
+class EventMapGraphView(APIView):
+
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(name='data_nachala', required=True, type=str, description='data_nachala'),
+            OpenApiParameter(name='data_okonchania', required=True, type=str, description='data_okonchania')
+        ],
+        tags=['events'],
+        summary='Карта',
+    )
+    def get(self, request, *args, **kwargs):
+
+        event_ct = ContentType.objects.get(app_label='events', model='event')
+
+        events = EAVDataProvider(
+            entity_id=event_ct.pk,
+            entity_table='events_event',
+            query_params=self.request.query_params,
             page_size=2000  # estimate. should be enough
         ).get_entities()
 
