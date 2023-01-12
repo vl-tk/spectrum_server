@@ -182,7 +182,7 @@ class DGisRecord(models.Model):
 
 class CityRecord(models.Model):
 
-    city = models.CharField('Город', max_length=2048, unique=True)
+    city = models.CharField('Город', max_length=2048)
 
     region = models.CharField('Регион', max_length=512, null=True, blank=True)
 
@@ -195,6 +195,8 @@ class CityRecord(models.Model):
     class Meta:
         verbose_name = 'Город'
         verbose_name_plural = 'Города'
+
+        unique_together = ("city", "region")
 
     def __str__(self):
         return f'#{self.pk} - "{self.city}" - {self.clat}:{self.clong}'
