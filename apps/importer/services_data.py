@@ -272,6 +272,16 @@ class EAVDataProvider(PaginationMixin, FilterMixin):
 
         self.columns_output = [v for k,v in self.entity_fields.items()]
 
+        # TODO: hack. подумать что делать со статусами
+
+        # status
+        self.columns_output.append({
+            'slug': 'status',
+            'type': 'text',
+            'name': 'Статус',
+            'id': 1
+        })
+
         return self.columns_output
 
     def _get_entities_ids_sql(self, filter_params=None, limit=None, offset=None):
