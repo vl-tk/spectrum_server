@@ -182,7 +182,7 @@ class DGisRecord(models.Model):
 
 class CityRecord(models.Model):
 
-    city = models.CharField('Город', max_length=2048)
+    city = models.CharField('Город', max_length=2048, unique=True)
 
     region = models.CharField('Регион', max_length=512, null=True, blank=True)
 
@@ -206,4 +206,5 @@ def get_region(city: str) -> str:
         c = CityRecord.objects.get(city=city)
     except CityRecord.DoesNotExist:
         return '-'
+
     return REGION.get(c.region, '-')

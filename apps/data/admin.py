@@ -1,5 +1,5 @@
 from admin_cursor_paginator import CursorPaginatorAdmin
-from apps.data.models import CHZRecord, DGisRecord
+from apps.data.models import CHZRecord, CityRecord, DGisRecord
 from django.contrib import admin
 from django.utils.html import strip_tags
 from simple_history.admin import SimpleHistoryAdmin
@@ -127,3 +127,27 @@ class DGisRecordAdmin(SimpleHistoryAdmin):
         if changed_fields:
             obj.is_edited_manually = True
         super().save_model(request, obj, form, change)
+
+
+@admin.register(CityRecord)
+class CityRecord(admin.ModelAdmin):
+
+    list_display = [
+        'pk',
+        'city',
+        'region',
+        'clat',
+        'clong',
+        'updated_at',
+        'created_at'
+    ]
+
+    search_fields = [
+        'city',
+        'region'
+    ]
+
+    list_filter = [
+        'created_at',
+        'updated_at'
+    ]
