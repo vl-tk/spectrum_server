@@ -178,3 +178,32 @@ class DGisRecord(models.Model):
 
     def __str__(self):
         return f'#{self.pk} - "{self.name}" - ИНН: {self.inn}'
+
+
+class CityRecord(models.Model):
+
+    city = models.CharField('Город', max_length=2048)
+
+    region = models.CharField('Регион', max_length=512, null=True, blank=True)
+
+    clat = models.FloatField('Широта', null=True, blank=True)
+    clong = models.FloatField('Долгота', null=True, blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True, editable=False)
+    updated_at = models.DateTimeField(auto_now=True, editable=False)
+
+    class Meta:
+        verbose_name = 'Город'
+        verbose_name_plural = 'Города'
+
+    def __str__(self):
+        return f'#{self.pk} - "{self.city}" - {self.clat}:{self.clong}'
+
+
+def get_region(city: str) -> str:
+    from utils.info import REGION
+    try:
+        c = CityRecord.objects.get(city=city)
+    except CityRecord.DoesNotExist:
+        return '-'
+    return REGION.get(c.region, '-')

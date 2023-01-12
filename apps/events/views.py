@@ -3,6 +3,7 @@ from datetime import datetime
 from typing import *
 
 import pytz
+from apps.data.models import get_region
 from apps.events.models import Event
 from apps.events.reports import EventReportBuilder
 from apps.events.serializers import EventSerializer
@@ -27,6 +28,7 @@ from rest_framework.generics import ListAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from utils.info import REGION
 
 logger = logging.getLogger('django')
 
@@ -250,3 +252,38 @@ class EventFilterView(APIView):
             res.append(column)
 
         return Response(res, status=status.HTTP_200_OK)
+
+
+class EventRegionGraphView(APIView):
+
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(name='data_nachala', required=True, type=str, description='data_nachala'),
+            OpenApiParameter(name='data_okonchania', required=True, type=str, description='data_okonchania')
+        ],
+        tags=['events'],
+        summary='График по регионам',
+    )
+    def get(self, request, *args, **kwargs):
+
+        event_ct = ContentType.objects.get(app_label='events', model='event')
+
+        events = EAVDataProvider(
+            entity_id=event_ct.pk,
+            entity_table='events_event',
+            query_params=self.request.query_params,  # filter
+            page_size=2000  # estimate. should be enough
+        ).get_entities()
+
+        data = {'-': []}
+
+        for k, v in REGION.items():
+            data[v] = []
+
+        for event in events['results']:
+            region_code = get_region(event['fields']['gorod'])
+            data[region_code].append(event)
+
+        return Response(data, status=status.HTTP_200_OK)

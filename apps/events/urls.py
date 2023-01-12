@@ -1,5 +1,6 @@
 from apps.events.views import (EventExportView, EventFilterView, EventListView,
-                               EventReportView, EventUpdateView)
+                               EventRegionGraphView, EventReportView,
+                               EventUpdateView)
 from django.urls import path
 from rest_framework import routers
 
@@ -13,6 +14,7 @@ urlpatterns = [
     path('export/', EventExportView.as_view(), name='export_events'),
     path('filters/', EventFilterView.as_view(), name='filter_events'),
     path('reports', EventReportView.as_view(), name='event_report'),
+    path('graph/regions', EventRegionGraphView.as_view(), name='event_region_graph'),
 ]
 
 urlpatterns += router.urls
