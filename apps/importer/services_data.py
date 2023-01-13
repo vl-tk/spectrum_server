@@ -425,12 +425,15 @@ class EAVDataProvider(PaginationMixin, FilterMixin):
 
             # выборка attribute:value для найденных ранее entity ids
 
+            # TODO: clat не универсально для всех сущностей
             sql = """
                 SELECT ev.entity_id AS id,
                         (select slug from eav_attribute AS attr where attr.id = ev.attribute_id) AS field,
                        (select COALESCE(value_date::text, value_text) from eav_value as ev2 where ev2.id = ev.id) AS value,
                        ev.id AS value_id,
                        ev.attribute_id AS field_id,
+                       et.clat,
+                       et.clong,
                        et.sort,
                        et.created_at,
                        et.updated_at
@@ -463,6 +466,9 @@ class EAVDataProvider(PaginationMixin, FilterMixin):
                 results[row[0]]['updated_at'] = row[-1].isoformat().replace('T', ' ').split('.')[0]
                 results[row[0]]['sort'] = row[-3]
 
+                results[row[0]]['clat'] = row[-5] # not universal
+                results[row[0]]['clong'] = row[-4]
+
             entities = []
             for event_id, entity_dict in results.items():
                 res = {}
@@ -476,6 +482,8 @@ class EAVDataProvider(PaginationMixin, FilterMixin):
                 res['sort'] = entity_dict['sort']
                 res['created_at'] = entity_dict['created_at']
                 res['updated_at'] = entity_dict['updated_at']
+                res['clat'] = entity_dict['clat']  # not universal
+                res['clong'] = entity_dict['clong']
                 entities.append(res)
 
             logger.info(sql)

@@ -119,6 +119,11 @@ class DGisRecord(models.Model):
 
     inn_ogrn = models.TextField('ИНН/ОГРН')
 
+    # additional data NOT from the imported database but
+
+    clat = models.FloatField('Широта', null=True, blank=True)
+    clong = models.FloatField('Долгота', null=True, blank=True)
+
     # not in table
 
     is_edited_manually = models.BooleanField('Редактировано', default=False)

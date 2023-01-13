@@ -28,6 +28,8 @@ class EventAdmin(BaseEntityAdmin, SimpleHistoryAdmin):
         # 'field_source_filename',
         # 'field_test',
         'importer_user',
+        'clat',
+        'clong',
         'sort',
         'created_at',
         'updated_at'

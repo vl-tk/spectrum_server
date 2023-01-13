@@ -312,13 +312,4 @@ class EventMapGraphView(APIView):
             page_size=2000  # estimate. should be enough
         ).get_entities()
 
-        data = {'-': []}
-
-        for k, v in REGION.items():
-            data[v] = []
-
-        for event in events['results']:
-            region_code = get_region(event['fields']['gorod'])
-            data[region_code].append(event)
-
-        return Response(data, status=status.HTTP_200_OK)
+        return Response(events, status=status.HTTP_200_OK)

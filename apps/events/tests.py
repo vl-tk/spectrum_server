@@ -351,3 +351,19 @@ def test_export_events(authorized_client, imported_events, test_file_remove):
         }
     )
     assert resp.status_code == status.HTTP_200_OK
+
+
+@pytest.mark.django_db
+def test_get_coords_in_map_graph(authorized_client, test_file_remove):
+
+    resp = authorized_client.post(
+        reverse('importer:import_file'),
+        {
+            'data_type': 'event',
+            'file': get_test_excel_file()[0]
+        },
+        format='multipart'
+    )
+
+    assert resp.status_code == status.HTTP_200_OK
+    assert Event.objects.count() == 42

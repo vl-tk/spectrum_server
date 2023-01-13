@@ -92,6 +92,10 @@ class DGisRecordAdmin(SimpleHistoryAdmin):
         'web_sites',
         'categories',
         'inn_ogrn',
+
+        'clat',
+        'clong',
+
         'updated_at',
         'created_at'
     ]

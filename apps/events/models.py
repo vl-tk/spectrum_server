@@ -18,6 +18,11 @@ class Event(models.Model):
         blank=True
     )
 
+    # связанные с eav-атрибутами поля, но не выводимые для редактированием польователем явно
+
+    clat = models.FloatField('Широта', null=True, blank=True)  # могут заполняться от точки или если не найдено - от города из базы городов. какие точне доступны
+    clong = models.FloatField('Долгота', null=True, blank=True)
+
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     updated_at = models.DateTimeField(auto_now=True, editable=False)
 
