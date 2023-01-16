@@ -231,11 +231,16 @@ class EventFilterView(APIView):
 
         event_ct = ContentType.objects.get(app_label='events', model='event')
 
-        data = EAVDataProvider(
+        dp = EAVDataProvider(
             entity_id=event_ct.pk,
             entity_table='events_event',
-            page_size=50  # TODO: max
-        ).get_columns_info()
+            query_params=self.request.query_params,
+            page_size=2000  # TODO: max
+        )
+
+        ids = dp.get_entities_ids(filter_params=dp.filter_params)
+
+        data = dp.get_columns_info()
 
         columns = [{'slug': d['slug'], 'name': d['name']} for d in data]
 
@@ -243,7 +248,8 @@ class EventFilterView(APIView):
         for column in columns:
 
             values = Value.objects.filter(
-                attribute__slug=column['slug']
+                attribute__slug=column['slug'],
+                entity_id__in=ids
             ).distinct().values_list('value_text', 'value_date')
 
             values = [self._get_value(v) for v in values if (v[0] is not None or v[1] is not None)]

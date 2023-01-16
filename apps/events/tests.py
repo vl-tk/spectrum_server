@@ -1,3 +1,4 @@
+import datetime
 from pathlib import Path
 
 import pytest
@@ -398,3 +399,159 @@ def test_import_force_insert(authorized_client, imported_events_5, test_file_rem
 
     for e in Event.objects.all():
         assert e.eav.source_filename == 'events_test_mini_5.xlsx'
+
+
+@pytest.mark.django_db
+def test_filter_events(authorized_client, imported_events_5, test_file_remove):
+
+    resp = authorized_client.get(
+        reverse('events:filter_events'),
+        {
+        }
+    )
+    assert resp.status_code == status.HTTP_200_OK
+
+    assert resp.data == [
+        {
+            'slug': 'period',
+            'name': 'Период',
+            'values': [
+                'Январь'
+            ]
+        },
+        {
+            'slug': 'gorod',
+            'name': 'Город',
+            'values': [
+                'Калининград',
+                'Москва',
+                'Самара, Тольятти',
+                'Санкт-Петербург',
+                'Саратов'
+            ]
+        },
+        {
+            'slug': 'strana',
+            'name': 'Страна',
+            'values': [
+                'Россия'
+            ]
+        },
+        {
+            'slug': 'postavschik',
+            'name': 'Поставщик',
+            'values': [
+                'ДЮС'
+            ]
+        },
+        {
+            'slug': 'adresid_tochki',
+            'name': 'Адрес/ID точки',
+            'values': ['152984', 'ул Генделя 5', 'ул Пионерская 35']
+        },
+        {
+            'slug': 'data_nachala',
+            'name': 'Дата начала',
+            'values': [
+                datetime.datetime(2022, 1, 1, 0, 0),
+                datetime.datetime(2022, 1, 2, 0, 0),
+                datetime.datetime(2022, 1, 3, 0, 0),
+                datetime.datetime(2022, 1, 4, 0, 0)
+            ]
+        },
+        {
+            'slug': 'data_okonchanija',
+            'name': 'Дата окончания',
+            'values': [
+                datetime.datetime(2022, 2, 1, 0, 0),
+                datetime.datetime(2022, 2, 2, 0, 0),
+                datetime.datetime(2022, 2, 3, 0, 0),
+                datetime.datetime(2022, 2, 4, 0, 0)
+            ]
+        },
+        {
+            'slug': 'tip_meroprijatija',
+            'name': 'Тип мероприятия',
+            'values': []
+        },
+        {
+            'slug': 'nazvanie_meroprijatija',
+            'name': 'Название мероприятия',
+            'values': []
+        },
+        {
+            'slug': 'obuchenie',
+            'name': 'Обучение',
+            'values': ['да']
+        },
+        {
+            'slug': 'mehanika',
+            'name': 'Механика',
+            'values': [
+                'Акция на прирост 5 призовых мест. Первое место - 8000, 2 место - 6000, 3 - 4000, 4 - 3000, 5 — 2000'
+            ]
+        },
+        {
+            'slug': 'chto_otpravljaem',
+            'name': 'Что отправляем',
+            'values': [
+                'Значки 350 шт, мундштуки 150 шт, сумка поясная 20 шт, панама 10 шт, щипцы 10 шт'
+            ]
+        },
+        {
+            'slug': 'data_dobavlenija_k_zakazu',
+            'name': 'Дата добавления к заказу',
+            'values': [
+                datetime.datetime(2022, 1, 15, 0, 0)
+            ]
+        },
+        {
+            'slug': 'sposob_otpravki',
+            'name': 'Способ отправки',
+            'values': []
+        },
+        {
+            'slug': 'opisanie',
+            'name': 'Описание',
+            'values': []
+        },
+        {
+            'slug': 'bjudzhet',
+            'name': 'Бюджет',
+            'values': ['100']
+        },
+        {
+            'slug': 'primechanie',
+            'name': 'Примечание',
+            'values': ['коробка для Аркадия Горелова']
+        },
+        {
+            'slug': 'kol_vo_vzaimodejstvujuschih',
+            'name': 'Кол-во взаимодействующих',
+            'values': ['1', '2', '3', '4']
+        },
+        {
+            'slug': 'source_filename',
+            'name': 'Файл импорта',
+            'values': [
+                'events_test_mini_5.xlsx'
+            ]
+        },
+        {
+            'slug': 'status',
+            'name': 'Статус',
+            'values': []
+        }
+    ]
+
+    resp = authorized_client.get(
+        reverse('events:filter_events'),
+        {
+            'field_adresid_tochki': '152984'
+        }
+    )
+    assert resp.status_code == status.HTTP_200_OK
+
+    cities_limited = {'slug': 'gorod', 'name': 'Город', 'values': ['Москва', 'Санкт-Петербург', 'Саратов']}
+
+    assert cities_limited in resp.data
