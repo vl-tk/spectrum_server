@@ -58,3 +58,19 @@ def imported_events(authorized_client):
     )
 
     yield
+
+
+@pytest.fixture
+@pytest.mark.django_db
+def imported_events_5(authorized_client):
+
+    resp = authorized_client.post(
+        reverse('importer:import_file'),
+        {
+            'data_type': 'event',
+            'file': get_test_excel_file()[2]
+        },
+        format='multipart'
+    )
+
+    yield

@@ -37,6 +37,7 @@ def get_test_excel_file() -> list:
     return [
         File(open(Path(settings.TEST_FILES_ROOT) / 'events_test_mini.xlsx', mode='rb')),
         File(open(Path(settings.TEST_FILES_ROOT) / 'events_test_mini_2.xlsx', mode='rb')),
+        File(open(Path(settings.TEST_FILES_ROOT) / 'events_test_mini_5.xlsx', mode='rb')),
         # File(open(Path(settings.TEST_FILES_ROOT) / '2gis_test_big.xlsx', mode='rb'))
     ]
 

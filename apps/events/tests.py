@@ -8,35 +8,18 @@ from utils.test import get_test_excel_file
 
 
 @pytest.mark.django_db
-def test_list_events(authorized_client, imported_events, test_file_remove):
+def test_list_events(authorized_client, imported_events_5, test_file_remove):
 
-    assert Event.objects.count() == 42
-
-    # 2. test retrieval
+    assert Event.objects.count() == 5
 
     resp = authorized_client.get(
         reverse('events:list_events')
     )
     assert resp.status_code == status.HTTP_200_OK
-    assert len(resp.data['results']) == 20  # default page size
 
 
 @pytest.mark.django_db
-def test_list_events(authorized_client, imported_events, test_file_remove):
-
-    assert Event.objects.count() == 42
-
-    # 2. test list
-
-    resp = authorized_client.get(
-        reverse('events:list_events')
-    )
-    assert resp.status_code == status.HTTP_200_OK
-    assert len(resp.data['results']) == 20  # default page size
-
-
-@pytest.mark.django_db
-def test_list_events_single_filter(authorized_client, imported_events, test_file_remove):
+def test_list_events_single_filter(authorized_client, imported_events_5, test_file_remove):
 
     # 2nd file after the 1st (with other columns)
 
@@ -50,7 +33,7 @@ def test_list_events_single_filter(authorized_client, imported_events, test_file
     )
 
     assert resp.status_code == status.HTTP_200_OK
-    assert Event.objects.count() == 84
+    assert Event.objects.count() == 47
 
     # 2. test list filtered
 
@@ -61,8 +44,8 @@ def test_list_events_single_filter(authorized_client, imported_events, test_file
         }
     )
     assert resp.status_code == status.HTTP_200_OK
-    assert len(resp.data['results']) == 20
-    assert resp.data['count'] == 26
+    assert len(resp.data['results']) == 18
+    assert resp.data['count'] == 18
 
 
 @pytest.mark.django_db
@@ -314,7 +297,7 @@ def test_list_events_search_2(authorized_client, imported_events, test_file_remo
     )
     assert resp.status_code == status.HTTP_200_OK
     assert len(resp.data['results']) == 6
-    assert resp.data['count'] == 7  # TODO: bug
+    assert resp.data['count'] == 6
 
 
 @pytest.mark.django_db
@@ -353,17 +336,16 @@ def test_export_events(authorized_client, imported_events, test_file_remove):
     assert resp.status_code == status.HTTP_200_OK
 
 
-@pytest.mark.django_db
-def test_get_coords_in_map_graph(authorized_client, test_file_remove):
+# graphs
 
-    resp = authorized_client.post(
-        reverse('importer:import_file'),
-        {
-            'data_type': 'event',
-            'file': get_test_excel_file()[0]
-        },
-        format='multipart'
-    )
 
-    assert resp.status_code == status.HTTP_200_OK
-    assert Event.objects.count() == 42
+# @pytest.mark.django_db
+# def test_graph(authorized_client, imported_events_5, test_file_remove):
+
+
+
+
+
+# @pytest.mark.django_db
+# def test_get_coords_in_map_graph(authorized_client, imported_events_5, test_file_remove):
+#     pass

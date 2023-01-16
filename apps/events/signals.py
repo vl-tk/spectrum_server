@@ -1,6 +1,6 @@
 import logging
 
-from apps.data.models import DGisRecord
+from apps.data.models import CityRecord, DGisRecord
 from apps.data.services import OSMProvider
 from apps.events.models import Event
 from django.db.models.signals import post_save
@@ -21,7 +21,10 @@ def on_save(sender, instance, created, **kwargs):
 
         ADDRESS, DGIS_ID = None, None
 
+        coords_saved = False
+
         for attr in attrs:
+
             value = getattr(instance.eav, attr.slug)
 
             if DGIS_ID_NAME in attr.name:
@@ -34,10 +37,10 @@ def on_save(sender, instance, created, **kwargs):
                     ADDRESS = value
                     break
 
-        if ADDRESS is not None:
+        # TODO: hack, поправить когда будет определенность с полями
+        city = instance.eav.gorod.split(',')[0]
 
-            # TODO: hack
-            city = instance.eav.gorod.split(',')[0]
+        if ADDRESS is not None:
 
             clat, clong = OSMProvider().get_coords(address=f'{city} {ADDRESS}')
 
@@ -46,7 +49,8 @@ def on_save(sender, instance, created, **kwargs):
                 clat=clat,
                 clong=clong
             )
-            print(instance)
+
+            coords_saved = True
 
         elif DGIS_ID is not None:
 
@@ -70,4 +74,17 @@ def on_save(sender, instance, created, **kwargs):
                     clat=dg.clat,
                     clong=dg.clong
                 )
-                print(instance)
+
+                coords_saved = True
+
+        if not coords_saved:
+
+            try:
+                cr = CityRecord.objects.get(city=city)
+            except CityRecord.DoesNotExist:
+                pass
+            else:
+                Event.objects.filter(pk=instance.pk).update(
+                    clat=cr.clat,
+                    clong=cr.clong
+                )
