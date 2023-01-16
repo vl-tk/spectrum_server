@@ -50,12 +50,13 @@ class ColumnMatcher:
 
 class ExcelImportService:
 
-    def __init__(self, filepath: Path, importer, importer_user):
+    def __init__(self, filepath: Path, importer, importer_user, force_rewrite=False):
         self.df = pd.read_excel(filepath)
         self.filepath = filepath
         self.importer = importer
         self.importer_user = importer_user
         self.columns = self.get_columns()
+        self.force_rewrite = force_rewrite
 
         # if rename columns
         # df.columns = KEYS
@@ -100,10 +101,36 @@ class ExcelImportService:
 
         return data
 
+    def handle_rewrite(self):
+
+        if self.force_rewrite:
+
+            objs = self.importer.content_type.model_class().objects.filter(
+                eav__source_filename=self.filepath.name
+            )
+
+            objs.update(eav__source_filename=f'{self.filepath.name}__TMP_RENAMED')
+
+    def handle_post_rewrite(self, count_to_load):
+
+        if self.force_rewrite:
+
+            new_records = self.importer.content_type.model_class().objects.filter(
+                eav__source_filename=self.filepath.name
+            ).count()
+
+            if count_to_load == new_records:
+
+                objs = self.importer.content_type.model_class().objects.filter(
+                    eav__source_filename=f'{self.filepath.name}__TMP_RENAMED'
+                ).delete()
+
     def load_file(self):
 
         ilogger.info('STARTED import "%s" using %s', self.filepath.name,
                      self.importer.__class__.__name__)
+
+        self.handle_rewrite()
 
         slugs = self.create_columns()
 
@@ -121,6 +148,8 @@ class ExcelImportService:
             )
             if res:
                 success +=1
+
+        self.handle_post_rewrite(count_to_load=self.df.to_records())
 
         LogRecord.objects.create(
             user=self.importer_user,

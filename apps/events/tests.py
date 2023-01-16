@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import pytest
 from apps.events.models import Event
 from django.urls import reverse
@@ -360,3 +362,39 @@ def test_get_coords_in_map_graph(authorized_client, imported_events_5, test_file
     assert resp.status_code == status.HTTP_200_OK
     assert resp.data['results'][0]['fields']['clat'] is not None
     assert resp.data['results'][0]['fields']['clong'] is not None
+
+
+@pytest.mark.django_db
+def test_import_force_insert(authorized_client, imported_events_5, test_file_remove):
+
+    assert Event.objects.count() == 5
+
+    for e in Event.objects.all():
+        assert e.eav.source_filename == 'events_test_mini_5.xlsx'
+
+    resp = authorized_client.post(
+        reverse('importer:import_file'),
+        {
+            'data_type': 'event',
+            'file': get_test_excel_file()[2]
+        },
+        format='multipart'
+    )
+
+    assert resp.status_code == status.HTTP_400_BAD_REQUEST
+
+    resp = authorized_client.post(
+        reverse('importer:import_file'),
+        {
+            'data_type': 'event',
+            'file': get_test_excel_file()[2],
+            'force_rewrite': 'Y'
+        },
+        format='multipart'
+    )
+
+    assert resp.status_code == status.HTTP_200_OK
+    assert Event.objects.count() == 5
+
+    for e in Event.objects.all():
+        assert e.eav.source_filename == 'events_test_mini_5.xlsx'

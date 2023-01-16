@@ -26,7 +26,7 @@ class ImportSerializer(serializers.Serializer):
     data_type = serializers.CharField(required=True)
     file = serializers.FileField(required=True)
 
-    force_insert = serializers.BooleanField(default=False, required=False)
+    force_rewrite = serializers.BooleanField(default=False, required=False)
 
     def validate(self, attrs):
 
@@ -34,12 +34,11 @@ class ImportSerializer(serializers.Serializer):
 
         location = Path(settings.PROJECT_DIR) / "media_files"
 
-        filename = FileSystemStorage(location=location).save(
-            in_memory_file_obj.name,
-            in_memory_file_obj
-        )
+        self.file = location / in_memory_file_obj.name
 
-        file = location / filename
+        with open(self.file, 'wb+') as f:
+            for chunk in in_memory_file_obj.chunks():
+                f.write(chunk)
 
         try:
             Attribute.objects.get(slug='source_filename')
@@ -51,7 +50,7 @@ class ImportSerializer(serializers.Serializer):
                 eav__source_filename__startswith=in_memory_file_obj.name
             ).exists()
 
-            if is_file_loaded and not attrs.get('force_insert'):
+            if is_file_loaded and not attrs.get('force_rewrite'):
 
                 event = Event.objects.filter(
                     eav__source_filename__startswith=in_memory_file_obj.name
@@ -64,12 +63,12 @@ class ImportSerializer(serializers.Serializer):
                 raise ValidationError(
                     {'file_loaded': f"File is already loaded ({timedelta} ago)."})
 
-        if not self.is_excel_file(file):
-            file.unlink()
+        if not self.is_excel_file(self.file):
+            self.file.unlink()
             raise ValidationError(
                 {'file': "Incorrect file. Excel file (xls/xlsx) is expected"})
         else:
-            attrs['file'] = file
+            attrs['file'] = self.file
 
         if attrs.get('data_type') not in self.VALID_IMPORT_DATA_TYPES:
             raise ValidationError({'data_type': "Unknown data type"})
@@ -111,7 +110,8 @@ class ImportSerializer(serializers.Serializer):
         eis = ExcelImportService(
             filepath=self.validated_data['file'],
             importer=importer,
-            importer_user=self.context['request'].user
+            importer_user=self.context['request'].user,
+            force_rewrite=self.validated_data['force_rewrite']
         )
 
         try:
@@ -119,5 +119,7 @@ class ImportSerializer(serializers.Serializer):
         except Exception as e:
             logger.exception(e)
             return
+
+        self.file.unlink()
 
         return rows_imported

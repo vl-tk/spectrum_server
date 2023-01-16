@@ -22,7 +22,7 @@ class ImportExcelView(APIView):
         parameters=[
             OpenApiParameter(name='data_type', required=True, type=str),
             OpenApiParameter(name='file', required=True, type=OpenApiTypes.BINARY), # TODO:
-            OpenApiParameter(name='force_insert', required=False, type=str)
+            OpenApiParameter(name='force_rewrite', required=False, type=str)
         ],
         tags=['import'],
         summary="Импорт"
