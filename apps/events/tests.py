@@ -336,16 +336,27 @@ def test_export_events(authorized_client, imported_events, test_file_remove):
     assert resp.status_code == status.HTTP_200_OK
 
 
-# graphs
+# graphs endpoints
+
+@pytest.mark.django_db
+def test_graph(authorized_client, imported_events_5, test_file_remove):
+
+    resp = authorized_client.get(
+        reverse('events:event_region_graph'),
+        {
+        }
+    )
+    assert resp.status_code == status.HTTP_200_OK
 
 
-# @pytest.mark.django_db
-# def test_graph(authorized_client, imported_events_5, test_file_remove):
+@pytest.mark.django_db
+def test_get_coords_in_map_graph(authorized_client, imported_events_5, test_file_remove):
 
-
-
-
-
-# @pytest.mark.django_db
-# def test_get_coords_in_map_graph(authorized_client, imported_events_5, test_file_remove):
-#     pass
+    resp = authorized_client.get(
+        reverse('events:event_map_graph'),
+        {
+        }
+    )
+    assert resp.status_code == status.HTTP_200_OK
+    assert resp.data['results'][0]['fields']['clat'] is not None
+    assert resp.data['results'][0]['fields']['clong'] is not None
