@@ -58,7 +58,7 @@ class DGisRecord(models.Model):
 
     name = models.TextField('Наименование организации')
 
-    brand = models.CharField('Бренд', max_length=2048)
+    brand = models.CharField('Бренд', max_length=2048, null=True, blank=True)
 
     # not in table
     inn = ArrayField(
@@ -68,7 +68,7 @@ class DGisRecord(models.Model):
         blank=True
     )
 
-    legal_name = models.CharField('Юр. название', max_length=2048)
+    legal_name = models.CharField('Юр. название', max_length=2048, null=True, blank=True)
 
     org_form = models.CharField('ОПФ', max_length=2048, null=True, blank=True)
 
