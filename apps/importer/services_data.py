@@ -471,9 +471,12 @@ class EAVDataProvider(PaginationMixin, FilterMixin):
 
             entities = []
             for event_id, entity_dict in results.items():
+
                 res = {}
                 res['id'] = event_id
                 res['fields'] = {}
+                res['fields_hidden'] = {}
+
                 for field in self.entity_fields.keys():
                     if field not in entity_dict.keys():
                         res['fields'][field] = None
