@@ -124,6 +124,8 @@ class DGisRecord(models.Model):
     clat = models.FloatField('Широта', null=True, blank=True)
     clong = models.FloatField('Долгота', null=True, blank=True)
 
+    city = models.CharField('Город', max_length=512, null=True, blank=True)
+
     # not in table
 
     is_edited_manually = models.BooleanField('Редактировано', default=False)

@@ -25,11 +25,9 @@ def dgis_save(sender, instance, created, **kwargs):
         DGisRecord.objects.filter(pk=instance.pk).update(inn=inns)  # won't trigger signal
         print(instance)
 
-    if created:
+    city = instance.unit.split('(')[0].replace('г.', '').strip()
 
-        if instance.clat is None or instance.clong is None:
-
-            city = instance.unit.split('(')[0].replace('г.').strip()
+    if created or (instance.clat is None or instance.clong is None):
 
             clat, clong = OSMProvider().get_coords(
                 address=f'{city} {instance.street} {instance.address}'
@@ -39,3 +37,9 @@ def dgis_save(sender, instance, created, **kwargs):
                 clat=clat,
                 clong=clong
             )
+
+    if created or instance.city is None:
+
+        DGisRecord.objects.filter(pk=instance.pk).update(
+            city=city
+        )

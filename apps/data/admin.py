@@ -93,8 +93,10 @@ class DGisRecordAdmin(SimpleHistoryAdmin):
         'categories',
         'inn_ogrn',
 
+        # additional, not from imported db
         'clat',
         'clong',
+        'city',
 
         'updated_at',
         'created_at'
@@ -103,7 +105,8 @@ class DGisRecordAdmin(SimpleHistoryAdmin):
     search_fields = [
         'name',
         'brand',
-        'inn'
+        'inn',
+        'city'
     ]
 
     list_filter = [
