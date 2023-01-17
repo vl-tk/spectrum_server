@@ -481,8 +481,8 @@ class EAVDataProvider(PaginationMixin, FilterMixin):
                         res['fields'][field] = entity_dict[field]
                 res['sort'] = entity_dict['sort']
 
-                res['fields']['clat'] = entity_dict['clat']  # not universal
-                res['fields']['clong'] = entity_dict['clong']
+                res['fields_hidden']['clat'] = entity_dict['clat']  # not universal
+                res['fields_hidden']['clong'] = entity_dict['clong']
 
                 res['created_at'] = entity_dict['created_at']
                 res['updated_at'] = entity_dict['updated_at']
