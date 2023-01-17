@@ -319,3 +319,24 @@ class EventMapGraphView(APIView):
         ).get_entities()
 
         return Response(events, status=status.HTTP_200_OK)
+
+
+class EventStatsView(APIView):
+
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(
+        parameters=[
+        ],
+        tags=['events'],
+        summary='Статистика',
+    )
+    def get(self, request, *args, **kwargs):
+
+        count = Event.objects.all().count()
+
+        res = {
+            'total': count
+        }
+
+        return Response(res, status=status.HTTP_200_OK)
