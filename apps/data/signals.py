@@ -29,7 +29,7 @@ def dgis_save(sender, instance, created, **kwargs):
 
         if instance.clat is None or instance.clong is None:
 
-            city = instance.unit.split('(')[0]
+            city = instance.unit.split('(')[0].replace('г.').strip()
 
             clat, clong = OSMProvider().get_coords(
                 address=f'{city} {instance.street} {instance.address}'
