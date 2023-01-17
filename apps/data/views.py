@@ -36,7 +36,7 @@ class DGisRecordFilterSet(FilterSet):
 
     class Meta:
         model = DGisRecord
-        fields = '__all__'
+        fields = ['city']
         exclude = ['inn']
 
 
