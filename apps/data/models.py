@@ -70,13 +70,13 @@ class DGisRecord(models.Model):
 
     legal_name = models.CharField('Юр. название', max_length=2048)
 
-    org_form = models.CharField('ОПФ', max_length=2048)
+    org_form = models.CharField('ОПФ', max_length=2048, null=True, blank=True)
 
     branch_legal_name = models.CharField('Юр. название филиала', max_length=2048, null=True, blank=True)
 
     branch_org_name = models.CharField('ОПФ филиала', max_length=2048, null=True, blank=True)
 
-    extension = models.CharField('Расширение', max_length=2048)
+    extension = models.CharField('Расширение', max_length=2048, null=True, blank=True)
 
     extension_addition = models.CharField('Дополнение к расширению', max_length=2048, null=True, blank=True)
 
@@ -84,17 +84,17 @@ class DGisRecord(models.Model):
 
     division_extension = models.CharField('Расширение подразделения', max_length=2048, null=True, blank=True)
 
-    project_publications = models.CharField('Проект', max_length=2048)
+    project_publications = models.CharField('Проект', max_length=2048, null=True, blank=True)
 
-    unit = models.CharField('Единица территориального деления', max_length=2048)
-    street = models.CharField('Улица', max_length=2048)
-    address = models.CharField('Адрес', max_length=2048)
-    number_of_floors = models.CharField('Этажность', max_length=2048)
-    building_purpose = models.CharField('Назначение здания', max_length=2048)
+    unit = models.CharField('Единица территориального деления', max_length=2048, null=True, blank=True)
+    street = models.CharField('Улица', max_length=2048, null=True, blank=True)
+    address = models.CharField('Адрес', max_length=2048, null=True, blank=True)
+    number_of_floors = models.CharField('Этажность', max_length=2048, null=True, blank=True)
+    building_purpose = models.CharField('Назначение здания', max_length=2048, null=True, blank=True)
 
-    phone_area_code = models.TextField('Код телефонной зоны')
-    phones = models.TextField('Телефоны')
-    emails = models.TextField('Адреса электронной почты')
+    phone_area_code = models.TextField('Код телефонной зоны', null=True, blank=True)
+    phones = models.TextField('Телефоны', null=True, blank=True)
+    emails = models.TextField('Адреса электронной почты', null=True, blank=True)
 
     web_alias = models.TextField('Web-Алиас', null=True, blank=True)
     web_sites = models.TextField('Веб сайты', null=True, blank=True)
@@ -117,7 +117,7 @@ class DGisRecord(models.Model):
 
     categories = models.TextField('Рубрики', null=True, blank=True)
 
-    inn_ogrn = models.TextField('ИНН/ОГРН')
+    inn_ogrn = models.TextField('ИНН/ОГРН', null=True, blank=True)
 
     # additional data NOT from the imported database but
 
