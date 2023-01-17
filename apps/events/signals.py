@@ -62,6 +62,8 @@ def on_save(sender, instance, created, **kwargs):
 
                 if dg.clat is None or dg.clong is None:
 
+                    city = dg.unit.split('(')[0]
+
                     clat, clong = OSMProvider().get_coords(
                         address=f'{dg.project_publications} {dg.street} {dg.address}'
                     )

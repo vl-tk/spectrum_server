@@ -29,8 +29,10 @@ def dgis_save(sender, instance, created, **kwargs):
 
         if instance.clat is None or instance.clong is None:
 
+            city = instance.unit.split('(')[0]
+
             clat, clong = OSMProvider().get_coords(
-                address=f'{instance.project_publications} {instance.street} {instance.address}'
+                address=f'{city} {instance.street} {instance.address}'
             )
 
             DGisRecord.objects.filter(pk=instance.pk).update(
