@@ -33,6 +33,7 @@ class ImportSerializer(serializers.Serializer):
         in_memory_file_obj = attrs['file']
 
         location = Path(settings.PROJECT_DIR) / "media_files"
+        location.mkdir(exist_ok=True)
 
         self.file = location / in_memory_file_obj.name
 
