@@ -64,8 +64,12 @@ class EventListView(ListAPIView):
 
         results = []
         for r in events['results']:
-            dt = parse(r['fields']['data_nachala'].split('+')[0])
-            r['fields']['status'] = 'Запланирована' if dt > timezone.now() else 'Проведена'
+            try:
+                dt = parse(r['fields']['data_nachala'].split('+')[0])
+            except AttributeError:
+                r['fields']['status'] = 'Запланирована' if dt > timezone.now() else 'Проведена'
+            else:
+                r['fields']['status'] = 'Запланирована'
             results.append(r)
 
         res['results'] = results

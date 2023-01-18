@@ -573,6 +573,13 @@ def test_import_more_columns(authorized_client, imported_events_5, test_file_rem
 
     assert Event.objects.count() == 10
 
+    resp = authorized_client.get(
+        reverse('events:list_events')
+    )
+    assert resp.status_code == status.HTTP_200_OK
+    assert resp.data['results'][0]['fields']['new_column'] == None
+    assert resp.data['results'][-1]['fields']['new_column'] == '5'
+
 
 @pytest.mark.django_db
 def test_import_less_columns(authorized_client, imported_events_5, test_file_remove):
@@ -589,3 +596,10 @@ def test_import_less_columns(authorized_client, imported_events_5, test_file_rem
     )
 
     assert Event.objects.count() == 10
+
+    resp = authorized_client.get(
+        reverse('events:list_events')
+    )
+    assert resp.status_code == status.HTTP_200_OK
+    assert [resp.data['results'][0]['fields'][k] for k in resp.data['results'][0]['fields'].keys() if k in ['aaa', 'bbb', 'ccc']] == [None, None, None]
+    assert [resp.data['results'][-1]['fields'][k] for k in resp.data['results'][-1]['fields'].keys() if k in ['aaa', 'bbb', 'ccc', 'status']] != [None, None, None]
