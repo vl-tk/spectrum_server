@@ -47,7 +47,8 @@ class EventImporter(BaseImporter):
             return
 
         from pprint import pprint
-        ilogger.info(f'{event} CREATED with values: {pprint(values)}')
+        ilogger.info(f'{event} CREATED')
+        # ilogger.info(f'{event} CREATED with values: {pprint(values)}')
         return True
 
 

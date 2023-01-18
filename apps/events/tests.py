@@ -555,3 +555,37 @@ def test_filter_events(authorized_client, imported_events_5, test_file_remove):
     cities_limited = {'slug': 'gorod', 'name': 'Город', 'values': ['Москва', 'Санкт-Петербург', 'Саратов']}
 
     assert cities_limited in resp.data
+
+
+@pytest.mark.django_db
+def test_import_more_columns(authorized_client, imported_events_5, test_file_remove):
+
+    assert Event.objects.count() == 5
+
+    resp = authorized_client.post(
+        reverse('importer:import_file'),
+        {
+            'data_type': 'event',
+            'file': get_test_excel_file()[3],
+        },
+        format='multipart'
+    )
+
+    assert Event.objects.count() == 10
+
+
+@pytest.mark.django_db
+def test_import_less_columns(authorized_client, imported_events_5, test_file_remove):
+
+    assert Event.objects.count() == 5
+
+    resp = authorized_client.post(
+        reverse('importer:import_file'),
+        {
+            'data_type': 'event',
+            'file': get_test_excel_file()[4],
+        },
+        format='multipart'
+    )
+
+    assert Event.objects.count() == 10

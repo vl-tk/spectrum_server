@@ -5,8 +5,7 @@ from apps.data.services import OSMProvider
 from apps.events.models import Event
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-
-logger = logging.getLogger('django')
+from utils.logger import ilogger
 
 
 @receiver(post_save, sender=Event)
@@ -28,17 +27,23 @@ def on_save(sender, instance, created, **kwargs):
             value = getattr(instance.eav, attr.slug)
 
             if DGIS_ID_NAME in attr.name:
-                if value.strip().isdigit():
+                if value is not None and value.strip().isdigit():
                     DGIS_ID = int(value)
                     break
 
             if ADDRESS_NAME in attr.name:
-                if value.strip():
+                if value is not None and value.strip():
                     ADDRESS = value
                     break
 
         # TODO: hack, поправить когда будет определенность с полями
-        city = instance.eav.gorod.split(',')[0]
+        try:
+            city = instance.eav.gorod.split(',')[0]
+        except AttributeError:
+            city = None
+
+        if ADDRESS is not None or DGIS_ID is not None:
+            ilogger.info(f'Event address request')
 
         if ADDRESS is not None:
 

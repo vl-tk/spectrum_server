@@ -33,11 +33,12 @@ class OSMProvider(Provider):
 
         ilogger.info(f'RESPONSE : {response.json()}')
 
-        try:
-            coords = response.json()[0]['lat'], response.json()[0]['lon']
-        except Exception as e:
-            ilogger.exception(e)
-        else:
-            ilogger.info(f'COORDS RESULT : {coords}')
+        if response.json():
+            try:
+                coords = response.json()[0]['lat'], response.json()[0]['lon']
+            except Exception as e:
+                ilogger.exception(e)
+            else:
+                ilogger.info(f'COORDS RESULT : {coords}')
 
         return coords

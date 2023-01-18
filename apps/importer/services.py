@@ -158,7 +158,7 @@ class ExcelImportService:
         )
 
         ilogger.info(
-            'FINISHED import "%s" (%d imported to db/%d in file)',
+            'FINISHED import "%s" (%d to db/%d from file)',
             self.filepath.name,
             success,
             len(self.df.to_records())  # TODO: method?
@@ -179,7 +179,7 @@ class ExcelImportService:
 
     def create_columns(self):
 
-        ilogger.info('STARTED create_columns for "%s"', self.filepath)
+        ilogger.info('STARTED create_columns')
 
         slugs = []
 
@@ -198,10 +198,12 @@ class ExcelImportService:
 
             try:
                 attr, created = Attribute.objects.get_or_create(
-                    name=column,
                     slug=converted_slug,
-                    datatype=self.columns[column],
-                    display_order=index
+                    defaults={
+                        'name': column,
+                        'datatype': self.columns[column],
+                        'display_order': index
+                    }
                 )
                 attr.entity_ct.set([self.importer.content_type])
             except Exception as e:
