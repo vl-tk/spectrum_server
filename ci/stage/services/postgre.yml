@@ -20,6 +20,7 @@ services:
       - proxy
     volumes:
       - lottery-pgdata:/var/lib/postgresql/data
+      - /home/ubuntu/pg_backups:/backups
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U main"]
       interval: 10s

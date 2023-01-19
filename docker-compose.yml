@@ -8,6 +8,7 @@ networks:
       name: main-gnet
 
 services:
+
   postgres:
     image: postgres:14.5
     container_name: server-postgres
@@ -17,7 +18,7 @@ services:
       POSTGRES_DB: main
     volumes:
       - ./pgdata:/var/lib/postgresql/data
-      - ./test:/home
+      - /home/ubuntu/pg_backups:/backups
     ports:
       - 5432:5432
     healthcheck:
