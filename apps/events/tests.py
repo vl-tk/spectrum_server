@@ -603,3 +603,40 @@ def test_import_less_columns(authorized_client, imported_events_5, test_file_rem
     assert resp.status_code == status.HTTP_200_OK
     assert [resp.data['results'][0]['fields'][k] for k in resp.data['results'][0]['fields'].keys() if k in ['aaa', 'bbb', 'ccc']] == [None, None, None]
     assert [resp.data['results'][-1]['fields'][k] for k in resp.data['results'][-1]['fields'].keys() if k in ['aaa', 'bbb', 'ccc', 'status']] != [None, None, None]
+
+
+@pytest.mark.django_db
+def test_suggestions_for_fields(authorized_client, imported_events_5, test_file_remove):
+
+    assert Event.objects.count() == 5
+
+    resp = authorized_client.get(
+        reverse('events:events_suggestions'),
+        {
+            'field': 'some field'
+        }
+    )
+    assert resp.status_code == status.HTTP_400_BAD_REQUEST
+
+    resp = authorized_client.get(
+        reverse('events:events_suggestions'),
+        {
+            'field': 'gorod'
+        }
+    )
+    assert resp.status_code == status.HTTP_200_OK
+    assert resp.data == ['Калининград', 'Москва', 'Самара, Тольятти', 'Санкт-Петербург', 'Саратов']
+
+    resp = authorized_client.get(
+        reverse('events:events_suggestions'),
+        {
+            'field': 'data_nachala'
+        }
+    )
+    assert resp.status_code == status.HTTP_200_OK
+    assert resp.data == [
+        '01.01.2022',
+        '02.01.2022',
+        '03.01.2022',
+        '04.01.2022',
+    ]

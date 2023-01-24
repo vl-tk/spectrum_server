@@ -344,3 +344,41 @@ class EventStatsView(APIView):
         }
 
         return Response(res, status=status.HTTP_200_OK)
+
+
+class EventSuggestionView(APIView):
+
+    permission_classes = [IsAuthenticated]
+
+    def _get_value(self, value):
+        if value[0] is not None:
+            v = value[0]
+        else:
+            v = value[1]
+        if isinstance(v, datetime):
+            return v.strftime('%d.%m.%Y')
+        return v
+
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(name='field', required=True, type=str, description='Поле'),
+        ],
+        tags=['events'],
+        summary='Подсказки',
+    )
+    def get(self, request, *args, **kwargs):
+
+        field_name = self.request.query_params.get('field')
+
+        try:
+            at = Attribute.objects.get(slug=field_name)
+        except Attribute.DoesNotExist:
+            return Response({'error': f'unknown field: "{field_name}"'}, status=status.HTTP_400_BAD_REQUEST)
+
+        values = Value.objects.filter(
+            attribute__slug=field_name
+        ).distinct().values_list('value_text', 'value_date')
+
+        values = [self._get_value(v) for v in values if (v[0] is not None or v[1] is not None)]
+
+        return Response(sorted(values), status=status.HTTP_200_OK)
