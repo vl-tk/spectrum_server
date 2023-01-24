@@ -15,13 +15,13 @@ class CHZRecordAdmin(SimpleHistoryAdmin, admin.ModelAdmin): # CursorPaginatorAdm
     list_display = [
         'pk',
         'product_name',
+        'gt',
         'owner_name',
         'inn',
         'is_edited_manually',
-        'prid',
-        'gt',
-        'pg_name',
-        'producer_name',
+        # 'pg_name',
+        # 'producer_name',
+        # 'prid',
         'mrp',
         'in_russia',
         'out_total',
@@ -41,6 +41,9 @@ class CHZRecordAdmin(SimpleHistoryAdmin, admin.ModelAdmin): # CursorPaginatorAdm
 
     list_filter = [
         'is_edited_manually',
+        # 'product_name',
+        'producer_name',
+        'pg_name',
         'created_at',
         'updated_at'
     ]

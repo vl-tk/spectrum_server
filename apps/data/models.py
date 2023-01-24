@@ -9,29 +9,29 @@ class CHZRecord(models.Model):
 
     date = models.DateField()
 
-    inn = models.CharField('ИНН', max_length=50)
+    owner_name = models.CharField('Продавец', max_length=255)
 
-    owner_name = models.CharField(max_length=255)
+    inn = models.CharField('ИНН продавца', max_length=50)
 
-    prid = models.CharField(max_length=255)
+    gt = models.CharField('GTIN', max_length=255)
 
-    gt = models.CharField(max_length=255)
+    pg_name = models.CharField('Тип', max_length=255)
 
-    pg_name = models.CharField(max_length=255)
+    product_name = models.CharField('Продукт', max_length=255)
 
-    product_name = models.CharField(max_length=255)
+    producer_name = models.CharField('Производитель', max_length=255)
 
-    producer_name = models.CharField(max_length=255)
+    prid = models.CharField('ИНН производителя', max_length=255)
 
     mrp = models.PositiveIntegerField()
 
     in_russia = models.PositiveIntegerField()
 
-    out_total = models.PositiveIntegerField()
+    out_total = models.PositiveIntegerField('Всего продано')
 
-    out_whosale = models.PositiveIntegerField()
+    out_whosale = models.PositiveIntegerField('Опт')
 
-    out_retail = models.PositiveIntegerField()
+    out_retail = models.PositiveIntegerField('Розница')
 
     out_recycle = models.PositiveIntegerField()
 
