@@ -37,6 +37,7 @@ class CHZRecordAdmin(SimpleHistoryAdmin, admin.ModelAdmin): # CursorPaginatorAdm
         'product_name',
         'owner_name',
         'inn',
+        'gt'
     ]
 
     list_filter = [
