@@ -11,7 +11,7 @@ class CHZRecord(models.Model):
 
     owner_name = models.CharField('Продавец', max_length=255)
 
-    inn = models.CharField('ИНН продавца', max_length=50)
+    inn = models.PositiveBigIntegerField('ИНН продавца')
 
     gt = models.CharField('GTIN', max_length=255)
 

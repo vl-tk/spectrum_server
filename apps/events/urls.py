@@ -18,7 +18,7 @@ urlpatterns = [
     path('reports', EventReportView.as_view(), name='event_report'),
     path('graph/regions', EventRegionGraphView.as_view(), name='event_region_graph'),
     path('graph/map', EventMapGraphView.as_view(), name='event_map_graph'),
-    path('suggestions', EventSuggestionView.as_view(), name='events_suggestions')
+    path('suggestions', EventSuggestionView.as_view(), name='events_suggestions'),
 ]
 
 urlpatterns += router.urls
