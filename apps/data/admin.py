@@ -45,6 +45,7 @@ class CHZRecordAdmin(SimpleHistoryAdmin, admin.ModelAdmin): # CursorPaginatorAdm
         # 'product_name',
         'producer_name',
         'pg_name',
+        'gt',
         'created_at',
         'updated_at'
     ]
