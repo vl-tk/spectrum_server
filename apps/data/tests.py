@@ -30,3 +30,21 @@ def test_dgis_record_coords_on_save():
 
     assert record.clong is not None
     assert record.clat is not None
+
+
+@pytest.mark.django_db
+def test_chz_report_filter(authorized_client):
+
+    resp = authorized_client.get(
+        reverse('data:chz_report_filter_regions')
+    )
+    assert resp.status_code == status.HTTP_200_OK
+
+
+@pytest.mark.django_db
+def test_chz_report1(authorized_client):
+
+    resp = authorized_client.get(
+        reverse('data:chz_report1')
+    )
+    assert resp.status_code == status.HTTP_200_OK

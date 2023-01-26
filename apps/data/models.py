@@ -217,3 +217,11 @@ def get_region(city: str) -> str:
         return '-'
 
     return REGION.get(c.region, '-')
+
+
+def get_regions():
+
+    regions = list(DGisRecord.objects.all().values_list('project_publications', flat=True).distinct(
+        ).order_by('project_publications'))
+
+    return regions

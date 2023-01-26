@@ -3,7 +3,8 @@ from datetime import datetime
 from typing import *
 
 import pytz
-from apps.data.models import CHZRecord
+from apps.data.models import CHZRecord, DGisRecord, get_regions
+from apps.data.serializers import CHZRecordSerializer
 from apps.importer.services_data import EAVDataProvider
 from apps.log_app.models import LogRecord
 from apps.report.services import ReportBuilder
@@ -29,6 +30,21 @@ from utils.info import REGION
 logger = logging.getLogger('django')
 
 
+class CHZRecordRegionFilterView(APIView):
+
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(
+        parameters=[
+        ],
+        tags=['data'],
+        summary='Список регионов для фильтра',
+    )
+    def get(self, request, *args, **kwargs):
+        values = get_regions()
+        return Response(values, status=status.HTTP_200_OK)
+
+
 class CHZReport1View(APIView):
 
     permission_classes = [IsAuthenticated]
@@ -36,16 +52,61 @@ class CHZReport1View(APIView):
     @extend_schema(
         parameters=[
         ],
-        tags=['events'],
+        tags=['data'],
         summary='Розничные продажи по GTIN',
     )
     def get(self, request, *args, **kwargs):
 
-        CHZRecord.objects.all() \
-          .values('country__name') \
-          .aggregate(country_population=Sum('population')) \
-          .order_by('-country_population')
+        args = []
 
-        data = {}
+        inns = []
+        for v in self.request.query_params.get('inn', '').split(','):
+            try:
+                inn = int(v.strip())
+            except ValueError:
+                pass
+            else:
+                inns.append(inn)
 
-        return Response(data, status=status.HTTP_200_OK)
+        if inns:
+            inns = ', '.join([str(v) for v in inns])
+            conditions = f'AND cz.inn IN ({inns})'
+        else:
+            conditions = ''
+
+        cursor = connection.cursor()
+
+        sql = f"""
+        SELECT cz.inn, cz.owner_name, SUM(cz.out_retail) AS retail_sales FROM data_chzrecord AS cz
+        WHERE 1=1 {conditions}
+        GROUP BY cz.inn, cz.owner_name
+        HAVING SUM(cz.out_retail) > 0
+        ORDER BY retail_sales DESC
+        """
+
+        # SELECT * FROM categories c
+        # WHERE
+        # EXISTS (SELECT 1 FROM article a WHERE c.id = a.category_id);
+
+        try:
+            cursor.execute(sql)
+            records = cursor.fetchall()
+        except Exception as e:
+            cursor.close
+            raise e
+
+        # SELECT * FROM categories c
+        # WHERE
+        # EXISTS (SELECT 1 FROM article a WHERE c.id = a.category_id);
+
+        # Use join
+
+        # SELECT
+        #     TABLE_A.COLUMN_1,
+        #     TABLE_A.COLUMN_2, TABLE_B.COLUMN_A AS COLUMN_3, ABLE_B.COLUMN_B AS COLUMN_4
+        # FROM
+        #     TABLE_A
+        # JOIN
+        #     TABLE_B ON TABLE_B.COLUMN_Z LIKE CONCAT('%', TABLE_A.COLUMN_2, '%')
+
+        return Response(records, status=status.HTTP_200_OK)
