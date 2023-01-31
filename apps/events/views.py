@@ -1,3 +1,4 @@
+import difflib
 import logging
 from datetime import datetime
 from typing import *
@@ -382,3 +383,43 @@ class EventSuggestionView(APIView):
         values = [self._get_value(v) for v in values if (v[0] is not None or v[1] is not None)]
 
         return Response(sorted(values), status=status.HTTP_200_OK)
+
+def get_ratio(string1, string2):
+    ratio = difflib.SequenceMatcher(
+        None,
+        string1,
+        string2
+    ).quick_ratio()
+    return ratio
+
+
+class EventTyposView(APIView):
+
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(name='column', required=True, type=str, description='Колонка'),
+        ],
+        tags=['events'],
+        summary='Опечатки',
+    )
+    def get(self, request, *args, **kwargs):
+
+        column_name = self.request.query_params.get('column')
+
+        if column_name:
+
+            atts = Attribute.objects.all()
+
+            values = {get_ratio(att.name, column_name): att for att in atts}
+
+            if 1 in values.keys():
+                return Response({'msg': 'Column found in DB'}, status=status.HTTP_200_OK)
+            else:
+                max_value = max(values.keys())
+                att = values[max_value]
+
+                return Response(
+                    {'msg': 'Column NOT found in DB. Possible column found in DB', 'column': {'slug': att.slug, 'name': att.name}
+                    }, status=status.HTTP_200_OK)

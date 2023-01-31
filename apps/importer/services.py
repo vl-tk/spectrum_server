@@ -15,39 +15,6 @@ from transliterate import translit
 from utils.logger import ilogger
 
 
-class ColumnMatcher:
-    """
-    Запускать перед импортом чтобы определять какие колонки скорее всего с
-    опечатками и нужно брать существующие значения в базе
-    """
-
-    POSSIBLE_MATCH_VALUE = 0.75
-
-    def __init__(self, new_columns: List[str]):
-        self.new_columns = new_columns
-
-    def find_possible_matches(self):
-
-        recommendations = defaultdict()
-
-        existing_columns = self.get_existing_columns()
-
-        for new_column in self.new_columns:
-
-            ratio = difflib.SequenceMatcher(None, new_column,
-                                            existing_column).quick_ratio()
-
-            if ratio > POSSIBLE_MATCH_VALUE:
-
-                recommendations[new_column].append(existing_column)
-
-        return recommendations
-
-    def get_existing_columns(self):
-        # TODO: get all attributes from EAV
-        return []
-
-
 class ExcelImportService:
 
     def __init__(self, filepath: Path, importer, importer_user, force_rewrite=False):

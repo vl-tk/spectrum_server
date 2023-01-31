@@ -640,3 +640,27 @@ def test_suggestions_for_fields(authorized_client, imported_events_5, test_file_
         '03.01.2022',
         '04.01.2022',
     ]
+
+
+@pytest.mark.django_db
+def test_typos(authorized_client, imported_events_5, test_file_remove):
+
+    assert Event.objects.count() == 5
+
+    resp = authorized_client.get(
+        reverse('events:events_typos'),
+        {
+            'column': 'Город'
+        }
+    )
+    assert resp.status_code == status.HTTP_200_OK
+    assert resp.data == {'msg': 'Column found in DB'}
+
+    resp = authorized_client.get(
+        reverse('events:events_typos'),
+        {
+            'column': 'Горот'
+        }
+    )
+    assert resp.status_code == status.HTTP_200_OK
+    assert resp.data == {'msg': 'Column NOT found in DB. Possible column found in DB', 'column': {'slug': 'gorod', 'name': 'Город'}}
