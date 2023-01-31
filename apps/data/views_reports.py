@@ -12,7 +12,7 @@ from dateutil.parser import parse
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.db import connection
-from django.db.models import Q
+from django.db.models import Count, Q
 from django.http import FileResponse, Http404, HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.utils import timezone
@@ -38,11 +38,34 @@ class CHZRecordRegionFilterView(APIView):
         parameters=[
         ],
         tags=['data'],
-        summary='Список регионов для фильтра',
+        summary='Список регионов ЧЗ для фильтра',
     )
     def get(self, request, *args, **kwargs):
         values = get_regions()
         return Response(values, status=status.HTTP_200_OK)
+
+
+class CHZRecordGTINView(APIView):
+
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(
+        parameters=[
+        ],
+        tags=['data'],
+        summary='Список GTIN ЧЗ для фильтра',
+    )
+    def get(self, request, *args, **kwargs):
+
+        # TODO: use materialized view
+
+        chz = CHZRecord.objects.all().values('gt', 'product_name')  # .annotate(total=Count('gt')).order_by('-total')
+
+        """
+        {"gt":"04660105980858","product_name":"Табак для кальяна, ICE FRUIT GUM, 40 гр, SPECTRUM TOBACCO","total":16457}
+        """
+
+        return Response(chz, status=status.HTTP_200_OK)
 
 
 class CHZReport1View(APIView):
@@ -58,6 +81,16 @@ class CHZReport1View(APIView):
     def get(self, request, *args, **kwargs):
 
         args = []
+        conditions = ''
+
+        gtins = []
+        for gtin in self.request.query_params.get('gtin', '').split(','):
+            try:
+                gtin = int(gtin.strip())
+            except ValueError:
+                pass
+            else:
+                gtins.append(gtin)
 
         inns = []
         for v in self.request.query_params.get('inn', '').split(','):
@@ -71,22 +104,23 @@ class CHZReport1View(APIView):
         if inns:
             inns = ', '.join([str(v) for v in inns])
             conditions = f'AND cz.inn IN ({inns})'
-        else:
-            conditions = ''
+
+        if gtins:
+            gtins = ', '.join([f"'{v}'" for v in gtins])
+            conditions += f' AND cz.gt::text IN ({gtins})'
 
         cursor = connection.cursor()
 
-        sql = f"""
+        sql = """
         SELECT cz.inn, cz.owner_name, SUM(cz.out_retail) AS retail_sales FROM data_chzrecord AS cz
+        -- RIGHT OUTER JOIN data_dgisrecord AS dg ON cz.inn = ANY(dg.inn)
         WHERE 1=1 {conditions}
         GROUP BY cz.inn, cz.owner_name
         HAVING SUM(cz.out_retail) > 0
         ORDER BY retail_sales DESC
-        """
-
-        # SELECT * FROM categories c
-        # WHERE
-        # EXISTS (SELECT 1 FROM article a WHERE c.id = a.category_id);
+        """.format(
+            conditions=conditions
+        )
 
         try:
             cursor.execute(sql)
@@ -94,19 +128,5 @@ class CHZReport1View(APIView):
         except Exception as e:
             cursor.close
             raise e
-
-        # SELECT * FROM categories c
-        # WHERE
-        # EXISTS (SELECT 1 FROM article a WHERE c.id = a.category_id);
-
-        # Use join
-
-        # SELECT
-        #     TABLE_A.COLUMN_1,
-        #     TABLE_A.COLUMN_2, TABLE_B.COLUMN_A AS COLUMN_3, ABLE_B.COLUMN_B AS COLUMN_4
-        # FROM
-        #     TABLE_A
-        # JOIN
-        #     TABLE_B ON TABLE_B.COLUMN_Z LIKE CONCAT('%', TABLE_A.COLUMN_2, '%')
 
         return Response(records, status=status.HTTP_200_OK)

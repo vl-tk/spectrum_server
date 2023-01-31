@@ -13,7 +13,7 @@ class CHZRecord(models.Model):
 
     inn = models.PositiveBigIntegerField('ИНН продавца')
 
-    gt = models.CharField('GTIN', max_length=255)
+    gt = models.PositiveBigIntegerField('GTIN', max_length=255)
 
     pg_name = models.CharField('Тип', max_length=255)
 
@@ -220,6 +220,9 @@ def get_region(city: str) -> str:
 
 
 def get_regions():
+    """
+    TODO: use materialized view
+    """
 
     regions = list(DGisRecord.objects.all().values_list('project_publications', flat=True).distinct(
         ).order_by('project_publications'))

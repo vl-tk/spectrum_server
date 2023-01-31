@@ -42,9 +42,14 @@ def test_chz_report_filter(authorized_client):
 
 
 @pytest.mark.django_db
-def test_chz_report1(authorized_client):
+def test_chz_report1(authorized_client, chz_records_mini):
+
+    CHZRecord.objects.count() == 6
 
     resp = authorized_client.get(
-        reverse('data:chz_report1')
+        reverse('data:chz_report1'),
+        {
+            # 'inn': ''
+        }
     )
     assert resp.status_code == status.HTTP_200_OK
