@@ -384,6 +384,7 @@ class EventSuggestionView(APIView):
 
         return Response(sorted(values), status=status.HTTP_200_OK)
 
+
 def get_ratio(string1, string2):
     ratio = difflib.SequenceMatcher(
         None,
@@ -393,33 +394,61 @@ def get_ratio(string1, string2):
     return ratio
 
 
-class EventTyposView(APIView):
+class EventTyposColumnView(APIView):
 
     permission_classes = [IsAuthenticated]
 
     @extend_schema(
         parameters=[
-            OpenApiParameter(name='column', required=True, type=str, description='Колонка'),
+            OpenApiParameter(name='columns', required=False, type=str, description='Колонки'),
         ],
         tags=['events'],
         summary='Опечатки',
     )
     def get(self, request, *args, **kwargs):
 
-        column_name = self.request.query_params.get('column')
+        column_names = self.request.query_params.get('columns').split(',')
 
-        if column_name:
+        res = {}
+
+        ADDITIONAL_COLUMNS = ['Статус']
+
+        if column_names:
 
             atts = Attribute.objects.all()
 
-            values = {get_ratio(att.name, column_name): att for att in atts}
+            for column_name in [c for c in column_names if c not in ADDITIONAL_COLUMNS]:
 
-            if 1 in values.keys():
-                return Response({'msg': 'Column found in DB'}, status=status.HTTP_200_OK)
-            else:
+                values = {get_ratio(att.name, column_name): att for att in atts}
+
+                if 1 in values.keys():
+                    continue
+
                 max_value = max(values.keys())
                 att = values[max_value]
 
-                return Response(
-                    {'msg': 'Column NOT found in DB. Possible column found in DB', 'column': {'slug': att.slug, 'name': att.name}
-                    }, status=status.HTTP_200_OK)
+                res[column_name] = {
+                    'msg': 'Column NOT found in DB. Possible column found in DB',
+                    'column_name': att.name,
+                    'column_slug': att.slug
+                }
+
+        return Response(res, status=status.HTTP_200_OK)
+
+
+class EventTypoCellsView(APIView):
+
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(
+        parameters=[
+            # OpenApiParameter(name='columns', required=False, type=str, description='Колонки'),
+        ],
+        tags=['events'],
+        summary='Опечатки',
+    )
+    def get(self, request, *args, **kwargs):
+
+        res = {}
+
+        return Response(res, status=status.HTTP_200_OK)

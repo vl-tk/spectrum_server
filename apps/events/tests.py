@@ -648,19 +648,14 @@ def test_typos(authorized_client, imported_events_5, test_file_remove):
     assert Event.objects.count() == 5
 
     resp = authorized_client.get(
-        reverse('events:events_typos'),
+        reverse('events:events_typos_columns'),
         {
-            'column': 'Город'
+            'columns': 'Период,Город,Страна,Поставщик,Адрес/ID точки,Дата начала,Дата окончания,Тип мероприятия,Название мероприятие,Обучение,Механика,Что отправляем,Дата добавления к заказу,Способ отправки,Описание,Бюджет,Примечание,Кол-во взаимодействующих,Файл импорта,Статус'
         }
     )
     assert resp.status_code == status.HTTP_200_OK
-    assert resp.data == {'msg': 'Column found in DB'}
-
-    resp = authorized_client.get(
-        reverse('events:events_typos'),
-        {
-            'column': 'Горот'
-        }
-    )
-    assert resp.status_code == status.HTTP_200_OK
-    assert resp.data == {'msg': 'Column NOT found in DB. Possible column found in DB', 'column': {'slug': 'gorod', 'name': 'Город'}}
+    assert resp.data['Название мероприятие'] == {
+        'msg': 'Column NOT found in DB. Possible column found in DB',
+        'column_name': 'Название мероприятия',
+        'column_slug': 'nazvanie_meroprijatija'
+    }

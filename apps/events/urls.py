@@ -1,8 +1,8 @@
 from apps.events.views import (EventExportView, EventFilterView, EventListView,
                                EventMapGraphView, EventRegionGraphView,
                                EventReportView, EventStatsView,
-                               EventSuggestionView, EventTyposView,
-                               EventUpdateView)
+                               EventSuggestionView, EventTypoCellsView,
+                               EventTyposColumnView, EventUpdateView)
 from django.urls import path
 from rest_framework import routers
 
@@ -20,7 +20,8 @@ urlpatterns = [
     path('graph/regions', EventRegionGraphView.as_view(), name='event_region_graph'),
     path('graph/map', EventMapGraphView.as_view(), name='event_map_graph'),
     path('suggestions', EventSuggestionView.as_view(), name='events_suggestions'),
-    path('typos', EventTyposView.as_view(), name='events_typos'),
+    path('typos/columns', EventTyposColumnView.as_view(), name='events_typos_columns'),
+    path('typos/cells', EventTypoCellsView.as_view(), name='events_typos_cells'),
 ]
 
 urlpatterns += router.urls
