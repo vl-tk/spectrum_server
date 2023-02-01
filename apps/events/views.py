@@ -477,6 +477,10 @@ class EventTypoCellsView(APIView):
     )
     def post(self, request, *args, **kwargs):
 
+        def str_value(value):
+            res = [v for v in str(value) if v.isalpha()]
+            return ''.join(res)
+
         serializer = PreImportSerializer(
             data=request.data,
             context={
@@ -506,6 +510,11 @@ class EventTypoCellsView(APIView):
                 if v in db_values[k]:
                     pass
                 else:
+
+                    # if 01.01.2021 is different from 01.01.2022 OR 11 is different from 12 - skip
+                    if not (str_value(v) or [str_value(v) for v in db_values[k] if str_value(v)]):
+                        continue
+
                     match, ratio, possible_value = self.find_match(v, db_values[k])
                     if match:
                         res[k] = {
