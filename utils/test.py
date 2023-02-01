@@ -40,9 +40,9 @@ def get_test_excel_file() -> list:
         File(open(Path(settings.TEST_FILES_ROOT) / 'events_test_mini_5.xlsx', mode='rb')),
         File(open(Path(settings.TEST_FILES_ROOT) / 'events_test_mini_more_columns.xlsx', mode='rb')),
         File(open(Path(settings.TEST_FILES_ROOT) / 'events_test_mini_less_columns.xlsx', mode='rb')),
+        File(open(Path(settings.TEST_FILES_ROOT) / 'events_test_mini_with_typos.xlsx', mode='rb')),
         # File(open(Path(settings.TEST_FILES_ROOT) / '2gis_test_big.xlsx', mode='rb'))
     ]
-
 
 
 class UserFactoryMixin:

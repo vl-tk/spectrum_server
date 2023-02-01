@@ -9,6 +9,7 @@ from apps.events.models import Event
 from apps.events.reports import EventReportBuilder
 from apps.events.serializers import EventSerializer
 from apps.events.services import EventExporter
+from apps.importer.serializers import PreImportSerializer
 from apps.importer.services_data import EAVDataProvider
 from apps.log_app.models import LogRecord
 from apps.report.services import ReportBuilder
@@ -21,9 +22,11 @@ from django.http import FileResponse, Http404, HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.utils import timezone
 from django.utils.timezone import make_aware
+from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, extend_schema
 from eav.models import Attribute, Value
 from main.pagination import StandardResultsSetPagination
+from pandas import Timestamp
 from rest_framework import status
 from rest_framework.generics import ListAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -440,15 +443,77 @@ class EventTypoCellsView(APIView):
 
     permission_classes = [IsAuthenticated]
 
+    def _get_value(self, value):
+        if value[0] is not None:
+            v = value[0]
+        else:
+            v = value[1]
+        if isinstance(v, datetime):
+            return v.strftime('%d.%m.%Y')
+        return v
+
+    def find_match(self, value, db_values):
+        THRESHOLD = 0.85
+        ratios = {}
+
+        for db_value in db_values:
+            ratio = get_ratio(str(value), str(db_value))
+            if ratio < 1:
+                ratios[round(ratio, 2)] = db_value
+
+        if ratios.keys():
+            max_value = max(ratios.keys())
+            if max_value >= THRESHOLD:
+                return ratios[max_value], max_value, value
+
+        return None, None, None
+
     @extend_schema(
         parameters=[
-            # OpenApiParameter(name='columns', required=False, type=str, description='Колонки'),
+            OpenApiParameter(name='file', required=True, type=OpenApiTypes.BINARY),
         ],
         tags=['events'],
         summary='Опечатки',
     )
-    def get(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
+
+        serializer = PreImportSerializer(
+            data=request.data,
+            context={
+                'request': request,
+            }
+        )
+        serializer.is_valid(raise_exception=True)
+        pre_imported_values = serializer.get_cells_values()
+
+        attrs = Attribute.objects.all()
+
+        db_values = {}
+
+        for att in attrs:
+
+            values = Value.objects.filter(
+                attribute__slug=att.slug
+            ).distinct().values_list('value_text', 'value_date')
+
+            values = list(set([self._get_value(v) for v in values if (v[0] is not None or v[1] is not None)]))
+
+            db_values[att.name] = values
 
         res = {}
+        for k, pre_values in pre_imported_values.items():
+            for v in pre_values:
+                if v in db_values[k]:
+                    pass
+                else:
+                    match, ratio, possible_value = self.find_match(v, db_values[k])
+                    if match:
+                        res[k] = {
+                            'value': match,
+                            'ratio': ratio,
+                            'orig_value': possible_value
+                        }
+
+        import pdb; pdb.set_trace()
 
         return Response(res, status=status.HTTP_200_OK)

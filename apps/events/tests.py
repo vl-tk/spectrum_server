@@ -659,3 +659,26 @@ def test_typos(authorized_client, imported_events_5, test_file_remove):
         'column_name': 'Название мероприятия',
         'column_slug': 'nazvanie_meroprijatija'
     }
+
+
+@pytest.mark.django_db
+def test_typos_cells(authorized_client, imported_events_5, test_file_remove):
+
+    assert Event.objects.count() == 5
+
+    resp = authorized_client.post(
+        reverse('events:events_typos_cells'),
+        {
+            'file': get_test_excel_file()[5]
+        },
+        format='multipart'
+    )
+    assert resp.status_code == status.HTTP_200_OK
+    assert resp.data == {
+        'Страна': {
+            'value': 'Россия', 'ratio': 0.91, 'orig_value': 'Росси'
+        },
+        'Поставщик': {
+            'value': 'ДЮС', 'ratio': 0.86, 'orig_value': 'ДЮСs'
+        }
+    }
