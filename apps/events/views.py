@@ -523,6 +523,4 @@ class EventTypoCellsView(APIView):
                             'orig_value': possible_value
                         }
 
-        import pdb; pdb.set_trace()
-
         return Response(res, status=status.HTTP_200_OK)
