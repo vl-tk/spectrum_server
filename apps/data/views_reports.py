@@ -115,8 +115,12 @@ class CHZReport1View(APIView):
         cursor = connection.cursor()
 
         sql = """
-        SELECT cz.inn, cz.owner_name, SUM(cz.out_retail) AS retail_sales FROM data_chzrecord AS cz
-        -- RIGHT OUTER JOIN data_dgisrecord AS dg ON cz.inn = ANY(dg.inn)
+        SELECT
+            cz.inn,
+            cz.owner_name,
+            SUM(cz.out_retail) AS retail_sales
+        FROM data_chzrecord AS cz
+        RIGHT OUTER JOIN data_dgisrecord AS dg ON cz.inn = ANY(dg.inn)
         WHERE 1=1 {conditions}
         GROUP BY cz.inn, cz.owner_name
         HAVING SUM(cz.out_retail) > 0
@@ -132,4 +136,14 @@ class CHZReport1View(APIView):
             cursor.close
             raise e
 
-        return Response(records, status=status.HTTP_200_OK)
+        res = []
+
+        for r in records:
+            res.append({
+                r[1]: {
+                    'total': r[2],
+                    'inn': r[0]
+                }
+            })
+
+        return Response(res, status=status.HTTP_200_OK)
