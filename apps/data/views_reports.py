@@ -131,6 +131,11 @@ class CHZReport1View(APIView):
             else:
                 inns.append(inn)
 
+        regions = []
+        for v in self.request.query_params.get('region', '').split(','):
+            if v.strip():
+                regions.append(v.strip())
+
         if inns:
             inns = ', '.join([str(v) for v in inns][0:MAX_ITEMS])
             conditions = f'AND cz.inn IN ({inns})'
@@ -138,6 +143,10 @@ class CHZReport1View(APIView):
         if gtins:
             gtins = ', '.join([f"'{v}'" for v in gtins][0:MAX_ITEMS])
             conditions += f' AND cz.gt::text IN ({gtins})'
+
+        if regions:
+            regions = ', '.join([f"'{v}'" for v in regions][0:MAX_ITEMS])
+            conditions += f' AND dg.project_publications::text IN ({regions})'
 
         cursor = connection.cursor()
 
@@ -155,8 +164,6 @@ class CHZReport1View(APIView):
         """.format(
             conditions=conditions
         )
-
-        # print(sql)
 
         try:
             cursor.execute(sql)
