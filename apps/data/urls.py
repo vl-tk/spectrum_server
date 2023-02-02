@@ -1,6 +1,6 @@
 from apps.data.views import (CHZListView, DGisRecordListView,
                              DGisRecordPotentialListView)
-from apps.data.views_reports import (CHZRecordGTINView,
+from apps.data.views_reports import (CHZRecordGTINView, CHZRecordINNView,
                                      CHZRecordRegionFilterView, CHZReport1View)
 from django.urls import path
 from rest_framework import routers
@@ -17,6 +17,7 @@ urlpatterns = [
     path('dgisrecords_potential', DGisRecordPotentialListView.as_view(), name='dgisrecords_potential'),
     path('reports/helper/regions', CHZRecordRegionFilterView.as_view(), name='chz_report_filter_regions'),
     path('reports/helper/gtin_list', CHZRecordGTINView.as_view(), name='chz_report_gtin'),
+    path('reports/helper/inn_list', CHZRecordINNView.as_view(), name='chz_report_inn'),
     path('reports/custom/retail_sales_for_gtin', CHZReport1View.as_view(), name='chz_report1')
 ]
 

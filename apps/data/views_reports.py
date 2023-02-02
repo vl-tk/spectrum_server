@@ -45,6 +45,31 @@ class CHZRecordRegionFilterView(APIView):
         return Response(values, status=status.HTTP_200_OK)
 
 
+class CHZRecordINNView(APIView):
+
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(
+        parameters=[
+        ],
+        tags=['data'],
+        summary='Список INN ЧЗ для фильтра',
+    )
+    def get(self, request, *args, **kwargs):
+
+        values = list(CHZRecord.objects.all().values(
+            'inn', 'owner_name'
+        ).distinct().order_by('owner_name'))
+
+        res = []
+        for v in values:
+            if v['owner_name'] == '-':
+                v['owner_name'] = v['inn']
+            res.append(v)
+
+        return Response(values, status=status.HTTP_200_OK)
+
+
 class CHZRecordGTINView(APIView):
 
     permission_classes = [IsAuthenticated]
@@ -83,6 +108,8 @@ class CHZReport1View(APIView):
     )
     def get(self, request, *args, **kwargs):
 
+        MAX_ITEMS = 5
+
         args = []
         conditions = ''
 
@@ -105,11 +132,11 @@ class CHZReport1View(APIView):
                 inns.append(inn)
 
         if inns:
-            inns = ', '.join([str(v) for v in inns])
+            inns = ', '.join([str(v) for v in inns][0:MAX_ITEMS])
             conditions = f'AND cz.inn IN ({inns})'
 
         if gtins:
-            gtins = ', '.join([f"'{v}'" for v in gtins])
+            gtins = ', '.join([f"'{v}'" for v in gtins][0:MAX_ITEMS])
             conditions += f' AND cz.gt::text IN ({gtins})'
 
         cursor = connection.cursor()
