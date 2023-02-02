@@ -89,11 +89,11 @@ class CHZReport1View(APIView):
         gtins = []
         for gtin in self.request.query_params.get('gtin', '').split(','):
             try:
-                gtin = int(gtin.strip())
+                gtin_value = int(gtin.strip())
             except ValueError:
                 pass
             else:
-                gtins.append(gtin)
+                gtins.append(gtin.strip())
 
         inns = []
         for v in self.request.query_params.get('inn', '').split(','):
