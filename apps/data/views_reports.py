@@ -129,6 +129,8 @@ class CHZReport1View(APIView):
             conditions=conditions
         )
 
+        # print(sql)
+
         try:
             cursor.execute(sql)
             records = cursor.fetchall()
@@ -140,10 +142,9 @@ class CHZReport1View(APIView):
 
         for r in records:
             res.append({
-                r[1]: {
-                    'total': r[2],
-                    'inn': r[0]
-                }
+                'name': r[1],
+                'total': r[2],
+                'inn': r[0]
             })
 
         return Response(res, status=status.HTTP_200_OK)
