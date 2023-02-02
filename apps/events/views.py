@@ -410,7 +410,7 @@ class EventTyposColumnView(APIView):
     )
     def get(self, request, *args, **kwargs):
 
-        column_names = self.request.query_params.get('columns').split(',')
+        column_names = self.request.query_params.get('columns', '').split(',')
 
         res = {}
 
