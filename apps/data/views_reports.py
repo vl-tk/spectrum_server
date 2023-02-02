@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import *
 
 import pytz
-from apps.data.models import CHZRecord, DGisRecord, get_regions
+from apps.data.models import CHZRecord, DGisRecord, GTINRecordMV, get_regions
 from apps.data.serializers import CHZRecordSerializer
 from apps.importer.services_data import EAVDataProvider
 from apps.log_app.models import LogRecord
@@ -57,15 +57,18 @@ class CHZRecordGTINView(APIView):
     )
     def get(self, request, *args, **kwargs):
 
-        # TODO: use materialized view
+        records = GTINRecordMV.objects.all()
 
-        chz = CHZRecord.objects.all().values('gt', 'product_name')  # .annotate(total=Count('gt')).order_by('-total')
+        # TODO: serializer
+        res = []
+        for r in records:
+            res.append({
+                'id': r.pk,
+                'product_name': r.product_name,
+                'total': r.total
+            })
 
-        """
-        {"gt":"04660105980858","product_name":"Табак для кальяна, ICE FRUIT GUM, 40 гр, SPECTRUM TOBACCO","total":16457}
-        """
-
-        return Response(chz, status=status.HTTP_200_OK)
+        return Response(res, status=status.HTTP_200_OK)
 
 
 class CHZReport1View(APIView):

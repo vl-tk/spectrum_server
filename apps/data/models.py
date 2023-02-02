@@ -228,3 +228,16 @@ def get_regions():
         ).order_by('project_publications'))
 
     return regions
+
+
+class GTINRecordMV(models.Model):
+    """
+    see data 0045 migration for sql
+    """
+
+    product_name = models.CharField(max_length=1024, null=False, blank=False)
+    total = models.PositiveSmallIntegerField(null=False, blank=False)
+
+    class Meta:
+        managed = False
+        db_table = 'gtin_records'
