@@ -144,7 +144,6 @@ class CHZReport1View(APIView):
         args = []
         conditions = ''
 
-        weight = self.request.query_params.get('weight', '')
         product_name = self.request.query_params.get('product_name', '')
         position = self.request.query_params.get('position', '')
 
@@ -166,14 +165,18 @@ class CHZReport1View(APIView):
             else:
                 inns.append(inn)
 
-        inns = []
-        for v in self.request.query_params.get('inn', '').split(','):
+        weights = []
+        for v in self.request.query_params.get('weight', '').split(','):
             try:
-                inn = int(v.strip())
+                weight = int(v.strip())
             except ValueError:
                 pass
             else:
-                inns.append(inn)
+                weights.append(weight)
+
+        if weights:
+            weights = ', '.join([f"'{v}'" for v in weights][0:MAX_ITEMS])
+            conditions += f' AND cz.weight IN ({weights})'
 
         regions = []
         for v in self.request.query_params.get('region', '').split(','):
@@ -192,8 +195,7 @@ class CHZReport1View(APIView):
             gtins = ', '.join([f"'{v}'" for v in gtins][0:MAX_ITEMS])
             conditions += f' AND cz.gt::text IN ({gtins})'
 
-        if weight:
-            conditions += f' AND cz.weight = {weight}'
+        # product_name
 
         product_names = []
         for v in self.request.query_params.get('product_name', '').split(','):
@@ -204,6 +206,8 @@ class CHZReport1View(APIView):
             product_names = ', '.join([f"'{v}'" for v in product_names][0:MAX_ITEMS])
             conditions += f' AND cz.product_name::text IN ({product_names})'
 
+        # position
+
         positions = []
         for v in self.request.query_params.get('position', '').split(','):
             if v.strip():
@@ -212,6 +216,19 @@ class CHZReport1View(APIView):
         if positions:
             positions = ', '.join([f"'{v}'" for v in positions][0:MAX_ITEMS])
             conditions += f' AND cz.position::text IN ({positions})'
+
+        # from_date
+
+        from_date = self.request.query_params.get('from_date')
+        to_date = self.request.query_params.get('to_date')
+
+        if from_date:
+            conditions += f' AND cz.date::date >= ({from_date})'
+
+        if to_date:
+            conditions += f' AND cz.date::date <= ({to_date})'
+
+        # query
 
         cursor = connection.cursor()
 
@@ -300,6 +317,8 @@ class CHZReport2View(APIView):
         if regions:
             regions = ', '.join([f"'{v}'" for v in regions][0:MAX_ITEMS])
             conditions += f' AND dg.project_publications::text IN ({regions})'
+
+        # query
 
         cursor = connection.cursor()
 
