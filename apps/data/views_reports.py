@@ -131,24 +131,17 @@ class CHZReport1View(APIView):
 
     permission_classes = [IsAuthenticated]
 
-    @extend_schema(
-        parameters=[
-        ],
-        tags=['data'],
-        summary='Розничные продавцы по ИНН',
-    )
-    def get(self, request, *args, **kwargs):
+    def make_condition(self, request):
 
         MAX_ITEMS = 5
 
-        args = []
         conditions = ''
 
-        product_name = self.request.query_params.get('product_name', '')
-        position = self.request.query_params.get('position', '')
+        product_name = request.query_params.get('product_name', '')
+        position = request.query_params.get('position', '')
 
         gtins = []
-        for gtin in self.request.query_params.get('gtin', '').split(','):
+        for gtin in request.query_params.get('gtin', '').split(','):
             try:
                 gtin_value = int(gtin.strip())
             except ValueError:
@@ -157,7 +150,7 @@ class CHZReport1View(APIView):
                 gtins.append(gtin.strip())
 
         inns = []
-        for v in self.request.query_params.get('inn', '').split(','):
+        for v in request.query_params.get('inn', '').split(','):
             try:
                 inn = int(v.strip())
             except ValueError:
@@ -166,7 +159,7 @@ class CHZReport1View(APIView):
                 inns.append(inn)
 
         weights = []
-        for v in self.request.query_params.get('weight', '').split(','):
+        for v in request.query_params.get('weight', '').split(','):
             try:
                 weight = int(v.strip())
             except ValueError:
@@ -179,7 +172,7 @@ class CHZReport1View(APIView):
             conditions += f' AND cz.weight IN ({weights})'
 
         regions = []
-        for v in self.request.query_params.get('region', '').split(','):
+        for v in request.query_params.get('region', '').split(','):
             if v.strip():
                 regions.append(v.strip())
 
@@ -198,7 +191,7 @@ class CHZReport1View(APIView):
         # product_name
 
         product_names = []
-        for v in self.request.query_params.get('product_name', '').split(','):
+        for v in request.query_params.get('product_name', '').split(','):
             if v.strip():
                 product_names.append(v.strip())
 
@@ -209,7 +202,7 @@ class CHZReport1View(APIView):
         # position
 
         positions = []
-        for v in self.request.query_params.get('position', '').split(','):
+        for v in request.query_params.get('position', '').split(','):
             if v.strip():
                 positions.append(v.strip())
 
@@ -217,16 +210,28 @@ class CHZReport1View(APIView):
             positions = ', '.join([f"'{v}'" for v in positions][0:MAX_ITEMS])
             conditions += f' AND cz.position::text IN ({positions})'
 
-        # from_date
+        # dates
 
-        from_date = self.request.query_params.get('from_date')
-        to_date = self.request.query_params.get('to_date')
+        from_date = request.query_params.get('from_date')
+        to_date = request.query_params.get('to_date')
 
         if from_date:
             conditions += f' AND cz.date::date >= to_date(\'{from_date}\', \'YYYY-MM-DD\')'
 
         if to_date:
             conditions += f' AND cz.date::date <= to_date(\'{to_date}\', \'YYYY-MM-DD\')'
+
+        return conditions
+
+    @extend_schema(
+        parameters=[
+        ],
+        tags=['data'],
+        summary='Розничные продавцы по ИНН',
+    )
+    def get(self, request, *args, **kwargs):
+
+        conditions = self.make_condition(self.request)
 
         # query
 
@@ -270,21 +275,14 @@ class CHZReport2View(APIView):
 
     permission_classes = [IsAuthenticated]
 
-    @extend_schema(
-        parameters=[
-        ],
-        tags=['data'],
-        summary='Розничные продажи по GTIN',
-    )
-    def get(self, request, *args, **kwargs):
+    def make_condition(self, request):
 
         MAX_ITEMS = 5
 
-        args = []
         conditions = ''
 
         gtins = []
-        for gtin in self.request.query_params.get('gtin', '').split(','):
+        for gtin in request.query_params.get('gtin', '').split(','):
             try:
                 gtin_value = int(gtin.strip())
             except ValueError:
@@ -293,7 +291,7 @@ class CHZReport2View(APIView):
                 gtins.append(gtin.strip())
 
         inns = []
-        for v in self.request.query_params.get('inn', '').split(','):
+        for v in request.query_params.get('inn', '').split(','):
             try:
                 inn = int(v.strip())
             except ValueError:
@@ -302,7 +300,7 @@ class CHZReport2View(APIView):
                 inns.append(inn)
 
         regions = []
-        for v in self.request.query_params.get('region', '').split(','):
+        for v in request.query_params.get('region', '').split(','):
             if v.strip():
                 regions.append(v.strip())
 
@@ -318,7 +316,30 @@ class CHZReport2View(APIView):
             regions = ', '.join([f"'{v}'" for v in regions][0:MAX_ITEMS])
             conditions += f' AND dg.project_publications::text IN ({regions})'
 
+        # dates
+
+        from_date = request.query_params.get('from_date')
+        to_date = request.query_params.get('to_date')
+
+        if from_date:
+            conditions += f' AND cz.date::date >= to_date(\'{from_date}\', \'YYYY-MM-DD\')'
+
+        if to_date:
+            conditions += f' AND cz.date::date <= to_date(\'{to_date}\', \'YYYY-MM-DD\')'
+
+        return conditions
+
+    @extend_schema(
+        parameters=[
+        ],
+        tags=['data'],
+        summary='Розничные продажи по GTIN',
+    )
+    def get(self, request, *args, **kwargs):
+
         # query
+
+        conditions = self.make_condition(self.request)
 
         cursor = connection.cursor()
 
