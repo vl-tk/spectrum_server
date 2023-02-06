@@ -3,6 +3,12 @@ from datetime import datetime
 from typing import *
 
 import pytz
+from apps.data.models import (CHZRecord, DGisRecord, GTINRecordMV,
+                              get_positions, get_products, get_regions)
+from apps.data.serializers import CHZRecordSerializer
+from apps.importer.services_data import EAVDataProvider
+from apps.log_app.models import LogRecord
+from apps.report.services import ReportBuilder
 from dateutil.parser import parse
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
@@ -14,19 +20,12 @@ from django.utils import timezone
 from django.utils.timezone import make_aware
 from drf_spectacular.utils import OpenApiParameter, extend_schema
 from eav.models import Attribute, Value
+from main.pagination import StandardResultsSetPagination
 from rest_framework import status
 from rest_framework.generics import ListAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
-from apps.data.models import (CHZRecord, DGisRecord, GTINRecordMV,
-                              get_positions, get_products, get_regions)
-from apps.data.serializers import CHZRecordSerializer
-from apps.importer.services_data import EAVDataProvider
-from apps.log_app.models import LogRecord
-from apps.report.services import ReportBuilder
-from main.pagination import StandardResultsSetPagination
 from utils.info import REGION
 
 logger = logging.getLogger('django')
@@ -147,6 +146,7 @@ class CHZReport1View(APIView):
 
         weight = self.request.query_params.get('weight', '')
         product_name = self.request.query_params.get('product_name', '')
+        position = self.request.query_params.get('position', '')
 
         gtins = []
         for gtin in self.request.query_params.get('gtin', '').split(','):
@@ -195,8 +195,23 @@ class CHZReport1View(APIView):
         if weight:
             conditions += f' AND cz.weight = {weight}'
 
-        if product_name:
-            conditions += f' AND cz.product_name = \'{product_name}\''
+        product_names = []
+        for v in self.request.query_params.get('product_name', '').split(','):
+            if v.strip():
+                product_names.append(v.strip())
+
+        if product_names:
+            product_names = ', '.join([f"'{v}'" for v in product_names][0:MAX_ITEMS])
+            conditions += f' AND cz.product_name::text IN ({product_names})'
+
+        positions = []
+        for v in self.request.query_params.get('position', '').split(','):
+            if v.strip():
+                positions.append(v.strip())
+
+        if positions:
+            positions = ', '.join([f"'{v}'" for v in positions][0:MAX_ITEMS])
+            conditions += f' AND cz.position::text IN ({positions})'
 
         cursor = connection.cursor()
 
