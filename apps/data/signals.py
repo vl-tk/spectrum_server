@@ -1,9 +1,11 @@
 import logging
+import re
 
-from apps.data.models import DGisRecord
-from apps.data.services import OSMProvider
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+
+from apps.data.models import CHZRecord, DGisRecord
+from apps.data.services import OSMProvider
 
 logger = logging.getLogger('django')
 
@@ -43,3 +45,29 @@ def dgis_save(sender, instance, created, **kwargs):
         DGisRecord.objects.filter(pk=instance.pk).update(
             city=city
         )
+
+
+@receiver(post_save, sender=CHZRecord)
+def chz_save(sender, instance, created, **kwargs):
+
+    if created or (instance.weight is None and instance.product_name is not None):
+
+        weight = re.findall(r"\s(\d+)\sгр", instance.product_name)
+
+        if weight:
+
+            weight = weight[0]
+
+            CHZRecord.objects.filter(pk=instance.pk).update(
+                weight=weight
+            )
+
+    if created or (instance.position is None and instance.product_name is not None):
+
+        position = instance.product_name.split(',')[1].strip()
+
+        if position:
+
+            CHZRecord.objects.filter(pk=instance.pk).update(
+                position=position
+            )

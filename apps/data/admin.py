@@ -1,8 +1,9 @@
 from admin_cursor_paginator import CursorPaginatorAdmin
-from apps.data.models import CHZRecord, CityRecord, DGisRecord
 from django.contrib import admin
 from django.utils.html import strip_tags
 from simple_history.admin import SimpleHistoryAdmin
+
+from apps.data.models import CHZRecord, CityRecord, DGisRecord
 
 # from .admin_opt import OptAdmin
 
@@ -45,6 +46,7 @@ class CHZRecordAdmin(SimpleHistoryAdmin, admin.ModelAdmin): # CursorPaginatorAdm
         # 'product_name',
         'producer_name',
         'pg_name',
+        'weight',
         'gt',
         'created_at',
         'updated_at'

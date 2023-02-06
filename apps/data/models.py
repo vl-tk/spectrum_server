@@ -13,7 +13,7 @@ class CHZRecord(models.Model):
 
     inn = models.PositiveBigIntegerField('ИНН продавца')
 
-    gt = models.PositiveBigIntegerField('GTIN', max_length=255)
+    gt = models.PositiveBigIntegerField('GTIN')
 
     pg_name = models.CharField('Тип', max_length=255)
 
@@ -36,6 +36,10 @@ class CHZRecord(models.Model):
     out_recycle = models.PositiveIntegerField()
 
     is_edited_manually = models.BooleanField('Редактировано', default=False)
+
+    # additional columns
+    weight = models.PositiveIntegerField(null=True, blank=True)
+    position = models.CharField('Позиция', null=True, blank=True, max_length=255)
 
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     updated_at = models.DateTimeField(auto_now=True, editable=False)
@@ -228,6 +232,22 @@ def get_regions():
         ).order_by('project_publications'))
 
     return regions
+
+
+def get_products():
+
+    prs = list(CHZRecord.objects.all().values_list('product_name', flat=True).distinct(
+        ).order_by('product_name'))
+
+    return prs
+
+
+def get_positions():
+
+    prs = list(CHZRecord.objects.all().values_list('position', flat=True).distinct(
+        ).order_by('position'))
+
+    return prs
 
 
 class GTINRecordMV(models.Model):
