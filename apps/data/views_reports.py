@@ -223,10 +223,10 @@ class CHZReport1View(APIView):
         to_date = self.request.query_params.get('to_date')
 
         if from_date:
-            conditions += f' AND cz.date::date >= ({from_date})'
+            conditions += f' AND cz.date::date >= to_date(\'{from_date}\', \'YYYY-MM-DD\')'
 
         if to_date:
-            conditions += f' AND cz.date::date <= ({to_date})'
+            conditions += f' AND cz.date::date <= to_date(\'{to_date}\', \'YYYY-MM-DD\')'
 
         # query
 
