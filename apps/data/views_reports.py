@@ -245,13 +245,14 @@ class CHZReport1View(APIView):
             cz.owner_name,
             SUM(cz.out_retail) AS retail_sales
         FROM data_chzrecord AS cz
-        RIGHT OUTER JOIN data_dgisrecord AS dg ON cz.inn = ANY(dg.inn)
+        {dgis_join}
         WHERE 1=1 {conditions}
         GROUP BY cz.inn, cz.owner_name
         HAVING SUM(cz.out_retail) > 0
         ORDER BY retail_sales DESC
         """.format(
-            conditions=conditions
+            conditions=conditions,
+            dgis_join=dgis_join
         )
 
         try:
@@ -362,7 +363,8 @@ class CHZReport2View(APIView):
         HAVING SUM(cz.out_retail) > 0
         ORDER BY retail_sales DESC
         """.format(
-            conditions=conditions
+            conditions=conditions,
+            dgis_join=dgis_join
         )
 
         cursor = connection.cursor()
