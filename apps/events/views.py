@@ -477,10 +477,6 @@ class EventTypoCellsView(APIView):
     )
     def post(self, request, *args, **kwargs):
 
-        def str_value(value):
-            res = [v for v in str(value) if v.isalpha()]
-            return ''.join(res)
-
         serializer = PreImportSerializer(
             data=request.data,
             context={

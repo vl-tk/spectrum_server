@@ -31,6 +31,16 @@ from utils.info import REGION
 logger = logging.getLogger('django')
 
 
+def str_value(value):
+    res = [v for v in str(value) if v.isalpha()]
+    return ''.join(res)
+
+
+def date_value(value):
+    res = [v for v in str(value) if v.isdigit() or v in ['-']]
+    return ''.join(res)
+
+
 class CHZRecordRegionFilterView(APIView):
 
     permission_classes = [IsAuthenticated]
@@ -175,7 +185,7 @@ class CHZReport1View(APIView):
         regions = []
         for v in request.query_params.get('region', '').split(','):
             if v.strip():
-                regions.append(v.strip())
+                regions.append(str_value(v.strip()))
 
         if regions:
             regions = ', '.join([f"'{v}'" for v in regions][0:MAX_ITEMS])
@@ -214,8 +224,8 @@ class CHZReport1View(APIView):
 
         # dates
 
-        from_date = request.query_params.get('from_date')
-        to_date = request.query_params.get('to_date')
+        from_date = date_value(request.query_params.get('from_date'))
+        to_date = date_value(request.query_params.get('to_date'))
 
         if from_date:
             conditions += f' AND cz.date::date >= to_date(\'{from_date}\', \'YYYY-MM-DD\')'
@@ -311,7 +321,7 @@ class CHZReport2View(APIView):
         regions = []
         for v in request.query_params.get('region', '').split(','):
             if v.strip():
-                regions.append(v.strip())
+                regions.append(str_value(v.strip()))
 
         if inns:
             inns = ', '.join([str(v) for v in inns][0:MAX_ITEMS])
@@ -328,8 +338,8 @@ class CHZReport2View(APIView):
 
         # dates
 
-        from_date = request.query_params.get('from_date')
-        to_date = request.query_params.get('to_date')
+        from_date = date_value(request.query_params.get('from_date'))
+        to_date = date_value(request.query_params.get('to_date'))
 
         if from_date:
             conditions += f' AND cz.date::date >= to_date(\'{from_date}\', \'YYYY-MM-DD\')'
