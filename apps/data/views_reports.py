@@ -233,7 +233,12 @@ class CHZReport1View(APIView):
     )
     def get(self, request, *args, **kwargs):
 
-        conditions = self.make_condition(self.request)
+        conditions, dgis_joined = self.make_condition(self.request)
+
+        if dgis_joined:
+            dgis_join = 'RIGHT OUTER JOIN data_dgisrecord AS dg ON cz.inn = ANY(dg.inn)'
+        else:
+            dgis_join = ''
 
         # query
 
