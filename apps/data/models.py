@@ -23,22 +23,22 @@ class CHZRecord(models.Model):
 
     prid = models.CharField('ИНН производителя', max_length=255)
 
-    mrp = models.PositiveIntegerField()
+    mrp = models.PositiveSmallIntegerField()
 
-    in_russia = models.PositiveIntegerField()
+    in_russia = models.PositiveSmallIntegerField()
 
-    out_total = models.PositiveIntegerField('Всего продано')
+    out_total = models.PositiveSmallIntegerField('Всего продано')
 
-    out_whosale = models.PositiveIntegerField('Опт')
+    out_whosale = models.PositiveSmallIntegerField('Опт')
 
-    out_retail = models.PositiveIntegerField('Розница')
+    out_retail = models.PositiveSmallIntegerField('Розница')
 
-    out_recycle = models.PositiveIntegerField()
+    out_recycle = models.PositiveSmallIntegerField()
 
     is_edited_manually = models.BooleanField('Редактировано', default=False)
 
     # additional columns
-    weight = models.PositiveIntegerField(null=True, blank=True)
+    weight = models.PositiveSmallIntegerField(null=True, blank=True)
     position = models.CharField('Позиция', null=True, blank=True, max_length=255)
 
     created_at = models.DateTimeField(auto_now_add=True, editable=False)

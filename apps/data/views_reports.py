@@ -136,6 +136,7 @@ class CHZReport1View(APIView):
         MAX_ITEMS = 5
 
         conditions = ''
+        dgis_joined = False
 
         product_name = request.query_params.get('product_name', '')
         position = request.query_params.get('position', '')
@@ -179,6 +180,7 @@ class CHZReport1View(APIView):
         if regions:
             regions = ', '.join([f"'{v}'" for v in regions][0:MAX_ITEMS])
             conditions += f' AND dg.project_publications::text IN ({regions})'
+            dgis_joined = True
 
         if inns:
             inns = ', '.join([str(v) for v in inns][0:MAX_ITEMS])
@@ -221,7 +223,7 @@ class CHZReport1View(APIView):
         if to_date:
             conditions += f' AND cz.date::date <= to_date(\'{to_date}\', \'YYYY-MM-DD\')'
 
-        return conditions
+        return conditions, dgis_joined
 
     @extend_schema(
         parameters=[
@@ -280,6 +282,7 @@ class CHZReport2View(APIView):
         MAX_ITEMS = 5
 
         conditions = ''
+        dgis_joined = False
 
         gtins = []
         for gtin in request.query_params.get('gtin', '').split(','):
@@ -315,6 +318,7 @@ class CHZReport2View(APIView):
         if regions:
             regions = ', '.join([f"'{v}'" for v in regions][0:MAX_ITEMS])
             conditions += f' AND dg.project_publications::text IN ({regions})'
+            dgis_joined = True
 
         # dates
 
@@ -327,7 +331,7 @@ class CHZReport2View(APIView):
         if to_date:
             conditions += f' AND cz.date::date <= to_date(\'{to_date}\', \'YYYY-MM-DD\')'
 
-        return conditions
+        return conditions, dgis_joined
 
     @extend_schema(
         parameters=[
@@ -339,9 +343,12 @@ class CHZReport2View(APIView):
 
         # query
 
-        conditions = self.make_condition(self.request)
+        conditions, dgis_joined = self.make_condition(self.request)
 
-        cursor = connection.cursor()
+        if dgis_joined:
+            dgis_join = 'RIGHT OUTER JOIN data_dgisrecord AS dg ON cz.inn = ANY(dg.inn)'
+        else:
+            dgis_join = ''
 
         sql = """
         SELECT
@@ -349,7 +356,7 @@ class CHZReport2View(APIView):
             cz.product_name,
             SUM(cz.out_retail) AS retail_sales
         FROM data_chzrecord AS cz
-        RIGHT OUTER JOIN data_dgisrecord AS dg ON cz.inn = ANY(dg.inn)
+        {dgis_join}
         WHERE 1=1 {conditions}
         GROUP BY cz.gt, cz.product_name
         HAVING SUM(cz.out_retail) > 0
@@ -357,6 +364,8 @@ class CHZReport2View(APIView):
         """.format(
             conditions=conditions
         )
+
+        cursor = connection.cursor()
 
         try:
             cursor.execute(sql)
