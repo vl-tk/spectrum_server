@@ -13,7 +13,7 @@ class CHZRecord(models.Model):
 
     inn = models.PositiveBigIntegerField('ИНН продавца')
 
-    gt = models.PositiveBigIntegerField('GTIN')
+    gt = models.CharField('GTIN', max_length=16)
 
     pg_name = models.CharField('Тип', max_length=255)
 
@@ -49,6 +49,11 @@ class CHZRecord(models.Model):
     class Meta:
         verbose_name = 'Запись ЧЗ'
         verbose_name_plural = 'Записи ЧЗ'
+
+        indexes = [
+            models.Index(fields=['gt']),
+            models.Index(fields=['inn']),
+        ]
 
     def __str__(self):
         return f'#{self.pk} - "{self.product_name}" - ИНН: {self.inn}'
