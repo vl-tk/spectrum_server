@@ -53,6 +53,10 @@ class CHZRecord(models.Model):
         indexes = [
             models.Index(fields=['gt']),
             models.Index(fields=['inn']),
+            models.Index(fields=['product_name']),
+            models.Index(fields=['weight']),
+            models.Index(fields=['position']),
+            models.Index(fields=['date']),
         ]
 
     def __str__(self):
@@ -147,6 +151,10 @@ class DGisRecord(models.Model):
     class Meta:
         verbose_name = 'Запись 2ГИС'
         verbose_name_plural = 'Записи 2ГИС'
+
+        indexes = [
+            models.Index(fields=['project_publications']),
+        ]
 
         # only 32 fields are suppported but we need all fields to 100% check if line is unique
         # constraints = [
