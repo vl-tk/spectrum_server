@@ -138,6 +138,9 @@ class CHZRecordGTINView(APIView):
 
 
 class CHZReport1View(APIView):
+    """
+    Розничные продавцы по ИНН
+    """
 
     permission_classes = [IsAuthenticated]
 
@@ -290,6 +293,9 @@ class CHZReport1View(APIView):
 
 
 class CHZReport2View(APIView):
+    """
+    Розничные продажи по GTIN
+    """
 
     permission_classes = [IsAuthenticated]
 
@@ -398,6 +404,123 @@ class CHZReport2View(APIView):
                 'gt': r[0],
                 'product_name': r[1],
                 'total': r[2]
+            })
+
+        return Response(res, status=status.HTTP_200_OK)
+
+
+class CHZReport3View(APIView):
+    """
+    Оптовые покупатели
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def make_condition(self, request):
+
+        MAX_ITEMS = 5
+
+        conditions = ''
+        dgis_joined = False
+
+        gtins = []
+        for gtin in request.query_params.get('gtin', '').split(','):
+            try:
+                gtin_value = int(gtin.strip())
+            except ValueError:
+                pass
+            else:
+                gtins.append(gtin.strip())
+
+        inns = []
+        for v in request.query_params.get('inn', '').split(','):
+            try:
+                inn = int(v.strip())
+            except ValueError:
+                pass
+            else:
+                inns.append(inn)
+
+        regions = []
+        for v in request.query_params.get('region', '').split(','):
+            if v.strip():
+                regions.append(str_value(v.strip()))
+
+        if inns:
+            inns = ', '.join([str(v) for v in inns][0:MAX_ITEMS])
+            conditions = f'AND cz.inn IN ({inns})'
+
+        if gtins:
+            gtins = ', '.join([f"'{v}'" for v in gtins][0:MAX_ITEMS])
+            conditions += f' AND cz.gt::text IN ({gtins})'
+
+        if regions:
+            regions = ', '.join([f"'{v}'" for v in regions][0:MAX_ITEMS])
+            conditions += f' AND dg.project_publications::text IN ({regions})'
+            dgis_joined = True
+
+        # dates
+
+        from_date = date_value(request.query_params.get('from_date'))
+        to_date = date_value(request.query_params.get('to_date'))
+
+        if from_date:
+            conditions += f' AND cz.date::date >= to_date(\'{from_date}\', \'YYYY-MM-DD\')'
+
+        if to_date:
+            conditions += f' AND cz.date::date <= to_date(\'{to_date}\', \'YYYY-MM-DD\')'
+
+        return conditions, dgis_joined
+
+    @extend_schema(
+        parameters=[
+        ],
+        tags=['data'],
+        summary='Оптовые покупатели',
+    )
+    def get(self, request, *args, **kwargs):
+
+        # query
+
+        conditions, dgis_joined = self.make_condition(self.request)
+
+        if dgis_joined:
+            dgis_join = 'RIGHT OUTER JOIN data_dgisrecord AS dg ON cz.inn = ANY(dg.inn)'
+        else:
+            dgis_join = ''
+
+        sql = """
+        SELECT
+            cz.inn,
+            cz.owner_name,
+            SUM(cz.in_russia) AS whosale_purchase
+        FROM data_chzrecord AS cz
+        {dgis_join}
+        WHERE 1=1 {conditions}
+        GROUP BY cz.inn, cz.owner_name
+        HAVING SUM(cz.in_russia) > 0
+        ORDER BY whosale_purchase DESC
+        """.format(
+            conditions=conditions,
+            dgis_join=dgis_join
+        )
+
+        cursor = connection.cursor()
+
+        try:
+            cursor.execute(sql)
+            records = cursor.fetchall()
+        except Exception as e:
+            cursor.close
+            raise e
+
+        res = []
+
+        for r in records:
+            res.append({
+                'name': r[1],
+                'total': r[2],
+                'inn': r[0]
             })
 
         return Response(res, status=status.HTTP_200_OK)
