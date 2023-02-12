@@ -641,3 +641,159 @@ class CHZReport4View(APIView):
             })
 
         return Response(res, status=status.HTTP_200_OK)
+
+
+class CHZReport5View(APIView):
+    """
+    Динамика продаж розничных продавцов / Розница - ИНН
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def make_condition(self, request):
+
+        MAX_ITEMS = 5
+
+        conditions = ''
+        dgis_joined = False
+
+        product_name = request.query_params.get('product_name', '')
+        position = request.query_params.get('position', '')
+
+        gtins = []
+        for gtin in request.query_params.get('gtin', '').split(','):
+            try:
+                gtin_value = int(gtin.strip())
+            except ValueError:
+                pass
+            else:
+                gtins.append(gtin.strip())
+
+        inns = []
+        for v in request.query_params.get('inn', '').split(','):
+            try:
+                inn = int(v.strip())
+            except ValueError:
+                pass
+            else:
+                inns.append(inn)
+
+        weights = []
+        for v in request.query_params.get('weight', '').split(','):
+            try:
+                weight = int(v.strip())
+            except ValueError:
+                pass
+            else:
+                weights.append(weight)
+
+        if weights:
+            weights = ', '.join([f"'{v}'" for v in weights][0:MAX_ITEMS])
+            conditions += f' AND cz.weight IN ({weights})'
+
+        regions = []
+        for v in request.query_params.get('region', '').split(','):
+            if v.strip():
+                regions.append(str_value(v.strip()))
+
+        if regions:
+            regions = ', '.join([f"'{v}'" for v in regions][0:MAX_ITEMS])
+            conditions += f' AND dg.project_publications::text IN ({regions})'
+            dgis_joined = True
+
+        if inns:
+            inns = ', '.join([str(v) for v in inns][0:MAX_ITEMS])
+            conditions = f'AND cz.inn IN ({inns})'
+
+        if gtins:
+            gtins = ', '.join([f"'{v}'" for v in gtins][0:MAX_ITEMS])
+            conditions += f' AND cz.gt::text IN ({gtins})'
+
+        # product_name
+
+        product_names = []
+        for v in request.query_params.get('product_name', '').split(','):
+            if v.strip():
+                product_names.append(v.strip())
+
+        if product_names:
+            product_names = ', '.join([f"'{v}'" for v in product_names][0:MAX_ITEMS])
+            conditions += f' AND cz.product_name::text IN ({product_names})'
+
+        # position
+
+        positions = []
+        for v in request.query_params.get('position', '').split(','):
+            if v.strip():
+                positions.append(v.strip())
+
+        if positions:
+            positions = ', '.join([f"'{v}'" for v in positions][0:MAX_ITEMS])
+            conditions += f' AND cz.position::text IN ({positions})'
+
+        # dates
+
+        from_date = date_value(request.query_params.get('from_date'))
+        to_date = date_value(request.query_params.get('to_date'))
+
+        if from_date:
+            conditions += f' AND cz.date::date >= to_date(\'{from_date}\', \'YYYY-MM-DD\')'
+
+        if to_date:
+            conditions += f' AND cz.date::date <= to_date(\'{to_date}\', \'YYYY-MM-DD\')'
+
+        return conditions, dgis_joined
+
+    @extend_schema(
+        parameters=[
+        ],
+        tags=['data'],
+        summary='Динамика продаж розничных продавцов / Розница - ИНН'
+    )
+    def get(self, request, *args, **kwargs):
+
+        conditions, dgis_joined = self.make_condition(self.request)
+
+        # query
+
+        cursor = connection.cursor()
+
+        sql = """
+        SELECT
+            cz.inn,
+            cz.owner_name,
+            SUM(cz.out_retail) AS retail_sales,
+            dg.clat,
+            dg.clong,
+            dg.project_publications,
+            to_char(date, 'YYYY-MM') AS month_year
+        FROM data_chzrecord AS cz
+        RIGHT OUTER JOIN data_dgisrecord AS dg ON cz.inn = ANY(dg.inn)
+        WHERE 1=1 {conditions}
+        GROUP BY cz.inn, cz.owner_name, dg.clat, dg.clong, dg.project_publications, month_year
+        ORDER BY month_year DESC
+        """.format(
+            conditions=conditions
+        )
+
+        try:
+            cursor.execute(sql)
+            records = cursor.fetchall()
+        except Exception as e:
+            cursor.close
+            raise e
+
+        res = []
+
+        for r in records:
+            res.append({
+                'name': r[1],
+                'total': r[2],
+                'inn': r[0],
+                'date': r[6],
+                'lat': r[3],
+                'long': r[4],
+                'city': r[5]
+            })
+
+        return Response(res, status=status.HTTP_200_OK)
