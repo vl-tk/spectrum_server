@@ -123,7 +123,12 @@ class CHZRecordGTINView(APIView):
     )
     def get(self, request, *args, **kwargs):
 
-        records = GTINRecordMV.objects.all()
+        name = request.query_params.get('name')
+
+        if name:
+            records = GTINRecordMV.objects.filter(product_name__icontains=name)
+        else:
+            records = GTINRecordMV.objects.all()
 
         # TODO: serializer
         res = []
