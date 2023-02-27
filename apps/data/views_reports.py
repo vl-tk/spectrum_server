@@ -3,8 +3,9 @@ from datetime import datetime
 from typing import *
 
 import pytz
-from apps.data.models import (CHZRecord, DGisRecord, GTINRecordMV,
-                              get_positions, get_products, get_regions)
+from apps.data.models import (ABCGTINRecord, CHZRecord, DGisRecord,
+                              GTINRecordMV, get_positions, get_products,
+                              get_regions)
 from apps.data.serializers import CHZRecordSerializer
 from apps.importer.services_data import EAVDataProvider
 from apps.log_app.models import LogRecord
@@ -799,6 +800,95 @@ class CHZReport5View(APIView):
                 'lat': r[3],
                 'long': r[4],
                 'city': r[5]
+            })
+
+        return Response(res, status=status.HTTP_200_OK)
+
+
+class CHZReport6View(APIView):
+    """
+    АВС-анализ относительно розничных продаж по региону
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def prepare_report(self):
+
+        for region in get_regions():
+
+            regions = f"'{region}'"
+            conditions = f" AND dg.project_publications::text IN ({regions})"
+
+            sql = """
+            SELECT
+                cz.gt,
+                cz.product_name,
+                SUM(cz.out_retail) AS retail_sales
+            FROM data_chzrecord AS cz
+            RIGHT OUTER JOIN data_dgisrecord AS dg ON cz.inn = ANY(dg.inn)
+            WHERE 1=1 {conditions}
+            GROUP BY cz.gt, cz.product_name
+            HAVING SUM(cz.out_retail) > 0
+            ORDER BY retail_sales DESC
+            """.format(
+                conditions=conditions
+            )
+
+            cursor = connection.cursor()
+
+            try:
+                cursor.execute(sql)
+                records = cursor.fetchall()
+            except Exception as e:
+                cursor.close
+                raise e
+
+            res = []
+
+            total = sum([r[2] for r in records])
+            current_total = 0
+
+            for r in records:
+
+                current_total += r[2]
+                percent = (current_total / total) * 100
+
+                if percent <= 80:
+                    group = 'A'
+                elif percent > 80 and percent < 95:
+                    group = 'B'
+                else:
+                    group = 'C'
+
+                ABCGTINRecord.objects.create(
+                    gtin=r[0],
+                    product_name=r[1],
+                    retail_sales=r[2],
+                    region=region,
+                    group=group
+                )
+
+    @extend_schema(
+        parameters=[
+        ],
+        tags=['data'],
+        summary='Розничные продажи по GTIN',
+    )
+    def get(self, request, *args, **kwargs):
+        """
+        TODO: improve. bad code
+        """
+
+        records = ABCGTINRecord.objects.all()
+
+        res = []
+        for r in records:
+            res.append({
+                'gtin': r.gtin,
+                'product_name': r.product_name,
+                'total': r.retail_sales,
+                'region': r.region,
+                'group': r.group
             })
 
         return Response(res, status=status.HTTP_200_OK)
