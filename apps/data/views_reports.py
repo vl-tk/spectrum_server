@@ -126,7 +126,7 @@ class CHZRecordGTINView(APIView):
         name = request.query_params.get('name')
 
         if name:
-            records = GTINRecordMV.objects.filter(product_name__icontains=name)
+            records = GTINRecordMV.objects.filter(Q(product_name__icontains=name)|Q(id__icontains=name))
         else:
             records = GTINRecordMV.objects.all()
 
