@@ -282,7 +282,13 @@ class ABCGTINRecord(models.Model):
 
     product_name = models.CharField(max_length=1024, null=False, blank=False)
 
-    retail_sales = models.PositiveSmallIntegerField()
+    retail_sales = models.PositiveSmallIntegerField(null=True, blank=True)
+
+    total_sales = models.PositiveSmallIntegerField(null=True, blank=True)
+
+    retail_sales_share = models.PositiveSmallIntegerField(null=True, blank=True)
+
+    acc_retail_sales_share = models.PositiveSmallIntegerField(null=True, blank=True)
 
     region = models.CharField('Регион', max_length=512, null=True, blank=True)
 
@@ -292,8 +298,8 @@ class ABCGTINRecord(models.Model):
     updated_at = models.DateTimeField(auto_now=True, editable=False)
 
     class Meta:
-        verbose_name = 'Запись'
-        verbose_name_plural = 'Записи'
+        verbose_name = 'Запись Отчета: ABC-анализ розничные продажи по регионам'
+        verbose_name_plural = 'Записи Отчета: ABC-анализ розничные продажи по регионам'
 
         unique_together = ("gtin", "region")
 

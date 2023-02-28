@@ -1,4 +1,5 @@
 import logging
+from collections import defaultdict
 from datetime import datetime
 from typing import *
 
@@ -814,6 +815,8 @@ class CHZReport6View(APIView):
 
     def prepare_report(self):
 
+        ABCGTINRecord.objects.all().delete()
+
         for region in get_regions():
 
             regions = f"'{region}'"
@@ -851,11 +854,12 @@ class CHZReport6View(APIView):
             for r in records:
 
                 current_total += r[2]
-                percent = (current_total / total) * 100
+                percent = (r[2] / total) * 100
+                acc_percent = (current_total / total) * 100
 
-                if percent <= 80:
+                if acc_percent <= 80:
                     group = 'A'
-                elif percent > 80 and percent < 95:
+                elif acc_percent > 80 and acc_percent < 95:
                     group = 'B'
                 else:
                     group = 'C'
@@ -864,6 +868,9 @@ class CHZReport6View(APIView):
                     gtin=r[0],
                     product_name=r[1],
                     retail_sales=r[2],
+                    total_sales=total,
+                    retail_sales_share=percent,
+                    acc_retail_sales_share=acc_percent,
                     region=region,
                     group=group
                 )
@@ -881,13 +888,15 @@ class CHZReport6View(APIView):
 
         records = ABCGTINRecord.objects.all()
 
-        res = []
+        res = defaultdict(list)
         for r in records:
-            res.append({
+            res[r.region].append({
                 'gtin': r.gtin,
                 'product_name': r.product_name,
-                'total': r.retail_sales,
-                'region': r.region,
+                'retail_sales': r.retail_sales,
+                'total_sales': r.total_sales,
+                'retail_sales_share': r.retail_sales_share,
+                'acc_retail_sales_share': r.acc_retail_sales_share,
                 'group': r.group
             })
 
