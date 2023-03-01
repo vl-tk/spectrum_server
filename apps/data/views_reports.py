@@ -4,12 +4,12 @@ from datetime import datetime
 from typing import *
 
 import pytz
-from apps.data.models import (ABCGTINRecord, CHZRecord, DGisRecord,
-                              GTINRecordMV, get_positions, get_products,
-                              get_regions)
+from apps.data.models import (CHZRecord, DGisRecord, GTINRecordMV,
+                              get_positions, get_products, get_regions)
 from apps.data.serializers import CHZRecordSerializer
 from apps.importer.services_data import EAVDataProvider
 from apps.log_app.models import LogRecord
+from apps.report.models import ABCGTINRecord
 from apps.report.services import ReportBuilder
 from dateutil.parser import parse
 from django.conf import settings
