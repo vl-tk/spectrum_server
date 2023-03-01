@@ -172,6 +172,14 @@ class City(admin.ModelAdmin):
     ]
 
 
+class DGisRecordInline(admin.StackedInline):
+    model = DGisRecord
+    fields = [
+        'unit'
+    ]
+    extra = 0
+
+
 @admin.register(DGisPlace)
 class DGisPlaceAdmin(admin.ModelAdmin):
 
@@ -180,7 +188,7 @@ class DGisPlaceAdmin(admin.ModelAdmin):
         'country',
         'region',
         'city',
-        'district',
+        # 'district',
         'street',
         'street_num',
         'clat',
@@ -201,4 +209,8 @@ class DGisPlaceAdmin(admin.ModelAdmin):
         'region',
         'created_at',
         'updated_at'
+    ]
+
+    inlines = [
+        DGisRecordInline,
     ]
