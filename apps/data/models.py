@@ -148,10 +148,17 @@ class DGisRecord(models.Model):
 
     # ДОПОЛНИТЕЛЬНЫЕ КОЛОНКИ (НЕ В БАЗЕ)
 
+    # TODO: remove after DGisPlace are used
     clat = models.FloatField('Широта', null=True, blank=True)
     clong = models.FloatField('Долгота', null=True, blank=True)
-
     city = models.CharField('Город', max_length=512, null=True, blank=True)
+
+    dgis_place = models.ForeignKey(
+        'DGisPlace',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True
+    )
 
     is_edited_manually = models.BooleanField('Редактировано', default=False)
 
@@ -216,11 +223,44 @@ class DGisRecord(models.Model):
         return f'#{self.pk} - "{self.name}" - ИНН: {self.inn}'
 
 
+class DGisPlace(models.Model):
+    """
+    Модель используется для хранения данных о локации в привязке к записи в 2ГИС
+    """
+
+    country = models.CharField('Страна', max_length=256)
+
+    region = models.CharField('Регион', max_length=256, null=True, blank=True)
+
+    city = models.CharField('Город', max_length=256)
+
+    subregion = models.CharField(max_length=256, null=True, blank=True)
+
+    district = models.CharField('Район', max_length=256, null=True, blank=True)
+
+    street = models.CharField('Улица', max_length=2048, null=True, blank=True)
+
+    street_num = models.CharField('Номер', max_length=2048, null=True, blank=True)
+
+    clat = models.FloatField('Широта', null=True, blank=True)
+    clong = models.FloatField('Долгота', null=True, blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True, editable=False)
+    updated_at = models.DateTimeField(auto_now=True, editable=False)
+
+    class Meta:
+        verbose_name = 'Локация 2ГИС'
+        verbose_name_plural = 'Локации 2ГИС'
+
+    def __str__(self):
+        return f'#{self.pk} - {self.region}:{self.city} - {self.street}, {self.street_num} - {self.clat}:{self.clong}'
+
+
 class City(models.Model):
     """
-    Модель используется для хранения данных о городах (изначално России) и их координатах
+    Модель используется для хранения справочных данных о городах (изначално России) и их координатах
 
-    для привязки данных Events к географической локации при импорте event
+    для дополнения этими данными Events к географической локации при их импорте
     см. apps/events/signals.py
 
     (event - это основная сущность в работе с импортируемыми таблицами)

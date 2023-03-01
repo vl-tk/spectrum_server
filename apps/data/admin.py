@@ -1,5 +1,5 @@
 from admin_cursor_paginator import CursorPaginatorAdmin
-from apps.data.models import CHZRecord, City, DGisRecord
+from apps.data.models import CHZRecord, City, DGisPlace, DGisRecord
 from django.contrib import admin
 from django.utils.html import strip_tags
 from simple_history.admin import SimpleHistoryAdmin
@@ -85,6 +85,8 @@ class DGisRecordAdmin(SimpleHistoryAdmin):
         'extension_addition',
         'division',
         'division_extension',
+
+        'dgis_place',
         'project_publications',
         'unit',
         'street',
@@ -101,6 +103,7 @@ class DGisRecordAdmin(SimpleHistoryAdmin):
         'inn_ogrn',
 
         # additional, not from imported db
+        'dgis_place',
         'clat',
         'clong',
         'city',
@@ -113,7 +116,8 @@ class DGisRecordAdmin(SimpleHistoryAdmin):
         'name',
         'brand',
         'inn',
-        'city'
+        'city',
+        'unit'
     ]
 
     list_filter = [
@@ -159,6 +163,38 @@ class City(admin.ModelAdmin):
     search_fields = [
         'city',
         'region'
+    ]
+
+    list_filter = [
+        'region',
+        'created_at',
+        'updated_at'
+    ]
+
+
+@admin.register(DGisPlace)
+class DGisPlaceAdmin(admin.ModelAdmin):
+
+    list_display = [
+        'pk',
+        'country',
+        'region',
+        'city',
+        'district',
+        'street',
+        'street_num',
+        'clat',
+        'clong',
+        'updated_at',
+        'created_at'
+    ]
+
+    search_fields = [
+        'country',
+        'region',
+        'city',
+        'district',
+        'street',
     ]
 
     list_filter = [
