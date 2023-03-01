@@ -2,13 +2,15 @@ from apps.data.models import CHZRecord, City, DGisRecord
 
 
 def get_region_code_for_city(city: str) -> str:
-    from utils.info import REGION_CODES
+    from utils.info import get_region_codes_by_short_name
     try:
         c = City.objects.get(city=city)
     except City.DoesNotExist:
         return '-'
 
-    return REGION_CODES.get(c.region, '-')
+    REGION_CODES = get_region_codes_by_short_name()
+
+    return REGION_CODES.get(c.region, '-')[0]
 
 
 def get_regions():

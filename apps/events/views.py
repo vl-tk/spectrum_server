@@ -32,7 +32,7 @@ from rest_framework.generics import ListAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from utils.info import REGION_CODES
+from utils.info import get_region_codes_by_short_name
 
 logger = logging.getLogger('django')
 
@@ -293,8 +293,10 @@ class EventRegionGraphView(APIView):
 
         data = {'-': []}
 
+        REGION_CODES = get_region_codes_by_short_name()
+
         for k, v in REGION_CODES.items():
-            data[v] = []
+            data[v[0]] = []
 
         for event in events['results']:
             region_code = get_region_code_for_city(event['fields']['gorod'])
