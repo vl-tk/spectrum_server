@@ -162,6 +162,7 @@ class CityRecord(admin.ModelAdmin):
     ]
 
     list_filter = [
+        'region',
         'created_at',
         'updated_at'
     ]

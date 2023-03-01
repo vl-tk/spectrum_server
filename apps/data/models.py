@@ -35,15 +35,18 @@ class CHZRecord(models.Model):
 
     out_recycle = models.PositiveSmallIntegerField()
 
+    # ДОПОЛНИТЕЛЬНЫЕ КОЛОНКИ (НЕ В БАЗЕ)
+
     is_edited_manually = models.BooleanField('Редактировано', default=False)
 
-    # additional columns
+    # парсится из product_name в отдельные колонки
     weight = models.PositiveSmallIntegerField(null=True, blank=True)
     position = models.CharField('Позиция', null=True, blank=True, max_length=255)
 
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     updated_at = models.DateTimeField(auto_now=True, editable=False)
 
+    # для отслеживания вносимых админом в запись изменений. было одним из требований
     history = HistoricalRecords()
 
     class Meta:
@@ -73,7 +76,7 @@ class DGisRecord(models.Model):
 
     brand = models.CharField('Бренд', max_length=2048, null=True, blank=True)
 
-    # not in table
+    # доп. поле. Парсится из ИНН/ОГРН
     inn = ArrayField(
         models.PositiveBigIntegerField(),
         verbose_name='ИНН',
@@ -132,14 +135,12 @@ class DGisRecord(models.Model):
 
     inn_ogrn = models.TextField('ИНН/ОГРН', null=True, blank=True)
 
-    # additional data NOT from the imported database but
+    # ДОПОЛНИТЕЛЬНЫЕ КОЛОНКИ (НЕ В БАЗЕ)
 
     clat = models.FloatField('Широта', null=True, blank=True)
     clong = models.FloatField('Долгота', null=True, blank=True)
 
     city = models.CharField('Город', max_length=512, null=True, blank=True)
-
-    # not in table
 
     is_edited_manually = models.BooleanField('Редактировано', default=False)
 
@@ -217,8 +218,8 @@ class CityRecord(models.Model):
     updated_at = models.DateTimeField(auto_now=True, editable=False)
 
     class Meta:
-        verbose_name = 'Город'
-        verbose_name_plural = 'Города'
+        verbose_name = 'Город России'
+        verbose_name_plural = 'Города России'
 
         unique_together = ("city", "region")
 
