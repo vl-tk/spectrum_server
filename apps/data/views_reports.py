@@ -4,9 +4,9 @@ from datetime import datetime
 from typing import *
 
 import pytz
-from apps.data.models import (CHZRecord, DGisRecord, GTINRecordMV,
-                              get_positions, get_products, get_regions)
+from apps.data.models import CHZRecord, DGisRecord, GTINRecordMV
 from apps.data.serializers import CHZRecordSerializer
+from apps.data.utils import get_positions, get_products, get_regions
 from apps.importer.services_data import EAVDataProvider
 from apps.log_app.models import LogRecord
 from apps.report.models import ABCGTINRecord
@@ -28,7 +28,6 @@ from rest_framework.generics import ListAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from utils.info import REGION
 
 logger = logging.getLogger('django')
 

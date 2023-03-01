@@ -1,6 +1,6 @@
 import logging
 
-from apps.data.models import CityRecord, DGisRecord
+from apps.data.models import City, DGisRecord
 from apps.data.services import OSMProvider
 from apps.events.models import Event
 from django.db.models.signals import post_save
@@ -10,6 +10,10 @@ from utils.logger import ilogger
 
 @receiver(post_save, sender=Event)
 def on_save(sender, instance, created, **kwargs):
+    """
+    Пытаемся определить координаты Акции либо по адресу, либо по точке 2гис,
+    либо - при их отсутствии - по городу
+    """
 
     if created:
 
@@ -87,8 +91,8 @@ def on_save(sender, instance, created, **kwargs):
         if not coords_saved:
 
             try:
-                cr = CityRecord.objects.get(city=city)
-            except CityRecord.DoesNotExist:
+                cr = City.objects.get(city=city)
+            except City.DoesNotExist:
                 pass
             else:
                 Event.objects.filter(pk=instance.pk).update(

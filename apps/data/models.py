@@ -5,6 +5,11 @@ from simple_history.models import HistoricalRecords
 
 
 class CHZRecord(models.Model):
+    """
+    Импортируемая модель Записи базы данных Честного знака о продажах товаров
+
+    TODO: нерешенный пока вопрос - получение обновлений. что перезаписывать, что обновлять
+    """
     # 2022-05-15,3811470644,"ООО ""ААА""",7806292496,04660105982173,Альтернативная табачная продукция,"Табак для кальяна, DRUNK CHERRY, 40 гр, SPECTRUM TOBACCO","ООО ""СПЕКТРУМ ТБК""",0,0,7,7,0,0
 
     date = models.DateField()
@@ -67,6 +72,12 @@ class CHZRecord(models.Model):
 
 
 class DGisRecord(models.Model):
+    """
+    Импортируемая модель Записи базы данных 2ГИС о местах продажи товаров
+
+    TODO: нерешенный пока вопрос - получение обновлений
+    """
+
     """
     Наименование организации    Бренд  Юридическое название Организационно-правовая форма      Юридическое название филиала       Организационно-правовая форма филиала     Расширение    Дополнение к расширению     Подразделение Расширение подразделения    Проект Публикации    Единица территориального деления   Улица  Адрес  Этажность     Назначение здания    Код телефонной зоны  Телефоны      Адреса электронной почты    Web-Алиас     Веб сайты     Skype  Icq    ВКонтакте     Twitter       Facebook      Instagram     LinkedIn      Pinterest     YouTube       GooglePlus    Одноклассники WhatsApp      Viber  Telegram      Графики работы       Рубрики       ИНН/ОГРН
     Бристоль, магазин у дома, ООО Альбион-2002       Бристоль      Альбион-2002  ООО                  магазин у дома                            Пенза  Пенза г. (Пенза городской округ, Пензенская обл., Россия)      Антонова      9      9      Жилой дом     (8412)Пенза г. (Пенза городской округ, Пензенская обл., Россия),Заречный г. (ЗАТО Заречный городской округ, Пензенская обл., Россия) 8007071555 [Обработан, Действующий, Контакт организации] 235645 [В архиве, Скрытый, Контакт не принадлежит организации]                     bristol.ru [Обработан, Действующий, Контакт организации]                     bristol_retail [Обработан, Действующий, Контакт организации]   magazinybristol [Обработан, Действующий, Контакт организации]  retail-1617203448558323 [Обработан, Действующий, Контакт организации] bristol_retail [Обработан, Действующий, Контакт организации] magaziny_bristol [В архиве, Скрытый, Контакт больше не функционирует, Контакт временно не функционирует, Контакт организации]                               group/54037646999782 [Обработан, Действующий, Контакт организации]    79108951221 [Обработан, Действующий, Контакт организации]      79108951221 [Обработан, Действующий, Контакт организации]             Пн-Вс 8:00-23:00     Алкогольные напитки Безалкогольные напитки Табачные изделия / Товары для курения Магазины разливного пива Снэковая продукция  5257056036/1025202393677
@@ -205,7 +216,15 @@ class DGisRecord(models.Model):
         return f'#{self.pk} - "{self.name}" - ИНН: {self.inn}'
 
 
-class CityRecord(models.Model):
+class City(models.Model):
+    """
+    Модель используется для хранения данных о городах (изначално России) и их координатах
+
+    для привязки данных Events к географической локации при импорте event
+    см. apps/events/signals.py
+
+    (event - это основная сущность в работе с импортируемыми таблицами)
+    """
 
     city = models.CharField('Город', max_length=2048)
 
@@ -218,8 +237,8 @@ class CityRecord(models.Model):
     updated_at = models.DateTimeField(auto_now=True, editable=False)
 
     class Meta:
-        verbose_name = 'Город России'
-        verbose_name_plural = 'Города России'
+        verbose_name = 'Город'
+        verbose_name_plural = 'Города'
 
         unique_together = ("city", "region")
 
@@ -227,46 +246,13 @@ class CityRecord(models.Model):
         return f'#{self.pk} - "{self.city}" - {self.clat}:{self.clong}'
 
 
-def get_region(city: str) -> str:
-    from utils.info import REGION
-    try:
-        c = CityRecord.objects.get(city=city)
-    except CityRecord.DoesNotExist:
-        return '-'
-
-    return REGION.get(c.region, '-')
-
-
-def get_regions():
-    """
-    TODO: use materialized view
-    """
-
-    regions = list(DGisRecord.objects.all().values_list('project_publications', flat=True).distinct(
-        ).order_by('project_publications'))
-
-    return regions
-
-
-def get_products():
-
-    prs = list(CHZRecord.objects.all().values_list('product_name', flat=True).distinct(
-        ).order_by('product_name'))
-
-    return prs
-
-
-def get_positions():
-
-    prs = list(CHZRecord.objects.all().values_list('position', flat=True).distinct(
-        ).order_by('position'))
-
-    return prs
-
-
 class GTINRecordMV(models.Model):
     """
-    see data 0045 migration for sql
+    модель вокруг Materalized View 'gtin_records' для этого отчета
+
+    TODO: переместить в apps.report
+
+    см. apps/data/migrations/0045 - SQL
     """
 
     product_name = models.CharField(max_length=1024, null=False, blank=False)

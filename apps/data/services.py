@@ -5,11 +5,11 @@ import requests
 from utils.logger import ilogger
 
 
-class Provider:
+class GeoProvider:
     pass
 
 
-class OSMProvider(Provider):
+class OSMProvider(GeoProvider):
 
     URL = "https://nominatim.openstreetmap.org/search/{address}?format=json&addressdetails=1&limit=1&polygon_svg=1"
 

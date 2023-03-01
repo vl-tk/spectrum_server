@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from pathlib import Path
 
-from apps.data.models import CityRecord
+from apps.data.models import City
 from django.contrib.contenttypes.models import ContentType
 from django.core.management.base import BaseCommand
 
@@ -24,7 +24,7 @@ class Command(BaseCommand):
 
                 if len(items) == 4:
 
-                    CityRecord.objects.create(
+                    City.objects.create(
                         city=items[0],
                         region=items[3],
                         clat=items[1],

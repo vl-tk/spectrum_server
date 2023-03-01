@@ -1,5 +1,5 @@
 import pytest
-from apps.data.models import CHZRecord, CityRecord, DGisRecord
+from apps.data.models import CHZRecord, City, DGisRecord
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient, APITestCase

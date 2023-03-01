@@ -1,5 +1,5 @@
 from admin_cursor_paginator import CursorPaginatorAdmin
-from apps.data.models import CHZRecord, CityRecord, DGisRecord
+from apps.data.models import CHZRecord, City, DGisRecord
 from django.contrib import admin
 from django.utils.html import strip_tags
 from simple_history.admin import SimpleHistoryAdmin
@@ -143,8 +143,8 @@ class DGisRecordAdmin(SimpleHistoryAdmin):
         super().save_model(request, obj, form, change)
 
 
-@admin.register(CityRecord)
-class CityRecord(admin.ModelAdmin):
+@admin.register(City)
+class City(admin.ModelAdmin):
 
     list_display = [
         'pk',

@@ -4,7 +4,7 @@ from datetime import datetime
 from typing import *
 
 import pytz
-from apps.data.models import get_region
+from apps.data.utils import get_region_code_for_city
 from apps.events.models import Event
 from apps.events.reports import EventReportBuilder
 from apps.events.serializers import EventSerializer
@@ -32,7 +32,7 @@ from rest_framework.generics import ListAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from utils.info import REGION
+from utils.info import REGION_CODES
 
 logger = logging.getLogger('django')
 
@@ -293,11 +293,11 @@ class EventRegionGraphView(APIView):
 
         data = {'-': []}
 
-        for k, v in REGION.items():
+        for k, v in REGION_CODES.items():
             data[v] = []
 
         for event in events['results']:
-            region_code = get_region(event['fields']['gorod'])
+            region_code = get_region_code_for_city(event['fields']['gorod'])
             data[region_code].append(event)
 
         return Response(data, status=status.HTTP_200_OK)
