@@ -6,7 +6,8 @@ from typing import *
 import pytz
 from apps.data.models import CHZRecord, DGisRecord, GTINRecordMV
 from apps.data.serializers import CHZRecordSerializer
-from apps.data.utils import get_positions, get_products, get_regions
+from apps.data.utils import (get_cities, get_positions, get_products,
+                             get_regions)
 from apps.importer.services_data import EAVDataProvider
 from apps.log_app.models import LogRecord
 from apps.report.models import ABCGTINRecord
@@ -50,10 +51,25 @@ class CHZRecordRegionFilterView(APIView):
         parameters=[
         ],
         tags=['data'],
-        summary='Список регионов ЧЗ для фильтра',
+        summary='Список регионов 2ГИС для фильтра',
     )
     def get(self, request, *args, **kwargs):
         values = get_regions()
+        return Response(values, status=status.HTTP_200_OK)
+
+
+class CHZRecordCityFilterView(APIView):
+
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(
+        parameters=[
+        ],
+        tags=['data'],
+        summary='Список городов 2ГИС для фильтра',
+    )
+    def get(self, request, *args, **kwargs):
+        values = get_cities()
         return Response(values, status=status.HTTP_200_OK)
 
 

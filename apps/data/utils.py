@@ -1,4 +1,4 @@
-from apps.data.models import CHZRecord, City, DGisRecord
+from apps.data.models import CHZRecord, City, DGisPlace, DGisRecord
 
 
 def get_region_code_for_city(city: str) -> str:
@@ -16,12 +16,22 @@ def get_region_code_for_city(city: str) -> str:
 def get_regions():
     """
     TODO: use materialized view
+
+    # old
+    regions = list(DGisRecord.objects.all().values_list('project_publications', flat=True).distinct(
+         ).order_by('project_publications'))
     """
 
-    regions = list(DGisRecord.objects.all().values_list('project_publications', flat=True).distinct(
-        ).order_by('project_publications'))
+    regions = DGisPlace.objects.values_list('country', 'region').order_by('country', 'region').distinct()
 
     return regions
+
+
+def get_cities():
+
+    cities = DGisPlace.objects.values_list('country', 'city').order_by('country', 'city').distinct()
+
+    return cities
 
 
 def get_products():

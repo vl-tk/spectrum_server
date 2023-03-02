@@ -1,6 +1,7 @@
 from apps.data.views import (CHZListView, DGisRecordListView,
                              DGisRecordPotentialListView)
-from apps.data.views_reports import (CHZRecordGTINView, CHZRecordINNView,
+from apps.data.views_reports import (CHZRecordCityFilterView,
+                                     CHZRecordGTINView, CHZRecordINNView,
                                      CHZRecordPositionsFilterView,
                                      CHZRecordProductNameFilterView,
                                      CHZRecordRegionFilterView, CHZReport1View,
@@ -22,6 +23,7 @@ urlpatterns = [
     path('dgisrecords_potential', DGisRecordPotentialListView.as_view(), name='dgisrecords_potential'),
     # filter helpers
     path('reports/helper/regions', CHZRecordRegionFilterView.as_view(), name='chz_report_filter_regions'),
+    path('reports/helper/cities', CHZRecordCityFilterView.as_view(), name='chz_report_filter_cities'),
     path('reports/helper/gtin_list', CHZRecordGTINView.as_view(), name='chz_report_gtin'),
     path('reports/helper/inn_list', CHZRecordINNView.as_view(), name='chz_report_inn'),
     path('reports/helper/products', CHZRecordProductNameFilterView.as_view(), name='chz_products'),
