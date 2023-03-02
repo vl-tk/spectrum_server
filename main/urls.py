@@ -57,6 +57,7 @@ urlpatterns = \
         # path('social/', include('social_django.urls', namespace='social')),
 
         path('api/v1/data/', include('apps.data.urls', namespace='data')),
+        path('api/v1/reports/', include('apps.report.urls', namespace='reports')),
         path('api/v1/users/', include('apps.users.urls', namespace='users')),
         path('api/v1/import/', include('apps.importer.urls', namespace='importer')),
         path('api/v1/events/', include('apps.events.urls', namespace='events')),
