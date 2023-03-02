@@ -1,6 +1,8 @@
 from admin_cursor_paginator import CursorPaginatorAdmin
 from apps.data.models import CHZRecord, City, DGisPlace, DGisRecord
 from django.contrib import admin
+from django.contrib.admin import SimpleListFilter
+from django.db.models import Q
 from django.utils.html import strip_tags
 from simple_history.admin import SimpleHistoryAdmin
 
@@ -172,6 +174,37 @@ class City(admin.ModelAdmin):
     ]
 
 
+class CoordsFilter(SimpleListFilter):
+    title = 'coords'
+
+    parameter_name = 'clat__isnull'
+
+    def lookups(self, request, model_admin):
+
+        queryset = model_admin.get_queryset(request)
+
+        return (
+            (0, f'Has coords'),
+            (1, f'Without coords')
+        )
+
+    def choices(self, cl):
+        for lookup, title in self.lookup_choices:
+            yield {
+                'selected': self.value() == str(lookup),
+                'query_string': cl.get_query_string({self.parameter_name: lookup, }, []),
+                'display': title,
+            }
+
+    def queryset(self, request, queryset):
+        if self.value():
+            if self.value() == '0':
+                return queryset.filter(Q(clat__isnull=False))
+            if self.value() == '1':
+                return queryset.filter(Q(clat__isnull=True))
+        return queryset
+
+
 class DGisRecordInline(admin.StackedInline):
     model = DGisRecord
     fields = [
@@ -206,6 +239,8 @@ class DGisPlaceAdmin(admin.ModelAdmin):
     ]
 
     list_filter = [
+        CoordsFilter,
+        'country',
         'region',
         'created_at',
         'updated_at'
