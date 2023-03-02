@@ -832,10 +832,13 @@ class CHZReport6View(APIView):
 
         ABCGTINRecord.objects.all().delete()
 
-        for region in get_regions():
+        for (country, region) in get_regions():
+
+            if not region:
+                continue
 
             regions = f"'{region}'"
-            conditions = f" AND dg.project_publications::text IN ({regions})"
+            conditions = f" AND dgp.region::text IN ({regions})"
 
             sql = """
             SELECT
@@ -844,6 +847,7 @@ class CHZReport6View(APIView):
                 SUM(cz.out_retail) AS retail_sales
             FROM data_chzrecord AS cz
             RIGHT OUTER JOIN data_dgisrecord AS dg ON cz.inn = ANY(dg.inn)
+            INNER JOIN data_dgisplace AS dgp ON dgp.id = dg.dgis_place_id
             WHERE 1=1 {conditions}
             GROUP BY cz.gt, cz.product_name
             HAVING SUM(cz.out_retail) > 0

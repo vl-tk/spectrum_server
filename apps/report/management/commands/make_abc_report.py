@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from typing import Any
 
-from apps.data.views_reports import CHZReport6View
+from apps.report.views import CHZReport6View
 from django.contrib.contenttypes.models import ContentType
 from django.core.management.base import BaseCommand
 
