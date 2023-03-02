@@ -13,6 +13,20 @@ def _clean(text:str) -> str:
     return text.replace('обл.', 'область').replace('респ.', '').replace(' город фед. значения', '')
 
 
+def get_coordinates(country, city, instance):
+
+    try:
+        city = City.objects.get(city=city)
+    except City.DoesNotExist:
+        clat, clong = OSMProvider().get_coords(
+            address=f'{country} {city}'
+        )
+    else:
+        clat, clong = city.clat, city.clong
+
+    return clat, clong
+
+
 @receiver(post_save, sender=DGisRecord)
 def dgis_save(sender, instance, created, **kwargs):
 
@@ -77,9 +91,7 @@ def dgis_save(sender, instance, created, **kwargs):
                 logger.error(instance.unit)
                 logger.exception(e)
 
-        clat, clong = OSMProvider().get_coords(
-            address=f'{country} {city} {instance.street} {instance.address}'
-        )
+        clat, clong = get_coordinates(country, city, instance)
 
         dgis_place = DGisPlace.objects.create(
             country=country,
