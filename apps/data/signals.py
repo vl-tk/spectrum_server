@@ -21,6 +21,9 @@ def get_coordinates(country, city, instance):
         clat, clong = OSMProvider().get_coords(
             address=f'{country} {city}'
         )
+    except City.MultipleObjectsReturned:
+        city = City.objects.filter(city=city)[0]
+        clat, clong = city.clat, city.clong
     else:
         clat, clong = city.clat, city.clong
 
