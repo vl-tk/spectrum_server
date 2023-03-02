@@ -1,7 +1,7 @@
 import logging
 import re
 
-from apps.data.models import CHZRecord, DGisPlace, DGisRecord
+from apps.data.models import CHZRecord, City, DGisPlace, DGisRecord
 from apps.data.services import OSMProvider
 from django.db.models.signals import post_save
 from django.dispatch import receiver
