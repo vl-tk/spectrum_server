@@ -4,7 +4,7 @@ from datetime import datetime
 from typing import *
 
 import pytz
-from apps.data.models import CHZRecord, DGisRecord, GTINRecordMV
+from apps.data.models import CHZRecord, DGisPlace, DGisRecord, GTINRecordMV
 from apps.data.serializers import CHZRecordSerializer
 from apps.data.utils import (get_cities, get_positions, get_products,
                              get_regions)
@@ -34,7 +34,7 @@ logger = logging.getLogger('django')
 
 
 def str_value(value):
-    res = [v for v in str(value) if v.isalpha()]
+    res = [v for v in str(value) if v.isalpha() or v == ' ']
     return ''.join(res)
 
 
@@ -901,11 +901,27 @@ class CHZReport6View(APIView):
         summary='Розничные продажи по GTIN',
     )
     def get(self, request, *args, **kwargs):
-        """
-        TODO: improve. bad code
-        """
 
-        records = ABCGTINRecord.objects.all()
+        regions = []
+        for v in request.query_params.get('region', '').split(','):
+            if v.strip():
+                regions.append(str_value(v.strip()))
+
+        cities = []
+        for v in request.query_params.get('city', '').split(','):
+            if v.strip():
+                cities.append(str_value(v.strip()))
+
+        if cities:
+            cities_regions = DGisPlace.objects.filter(city__in=cities).values_list('region', flat=True).distinct()
+            regions += cities_regions
+
+        print(regions)
+
+        if regions:
+            records = ABCGTINRecord.objects.filter(region__in=regions)
+        else:
+            records = ABCGTINRecord.objects.all()
 
         res = defaultdict(list)
         for r in records:
