@@ -212,9 +212,19 @@ class CHZReport1View(APIView):
             if v.strip():
                 regions.append(str_value(v.strip()))
 
+        cities = []
+        for v in request.query_params.get('city', '').split(','):
+            if v.strip():
+                cities.append(str_value(v.strip()))
+
         if regions:
             regions = ', '.join([f"'{v}'" for v in regions][0:MAX_ITEMS])
-            conditions += f' AND dg.project_publications::text IN ({regions})'
+            conditions += f' AND dgp.region::text IN ({regions})'
+            dgis_joined = True
+
+        if cities:
+            cities = ', '.join([f"'{v}'" for v in cities][0:MAX_ITEMS])
+            conditions += f' AND dgp.city::text IN ({cities})'
             dgis_joined = True
 
         if inns:
@@ -271,7 +281,12 @@ class CHZReport1View(APIView):
         conditions, dgis_joined = self.make_condition(self.request)
 
         if dgis_joined:
-            dgis_join = 'RIGHT OUTER JOIN data_dgisrecord AS dg ON cz.inn = ANY(dg.inn)'
+
+            dgis_join = """
+            RIGHT OUTER JOIN data_dgisrecord AS dg ON cz.inn = ANY(dg.inn)
+            INNER JOIN data_dgisplace AS dgp ON dgp.id = dg.dgis_place_id
+            """
+
         else:
             dgis_join = ''
 
@@ -351,6 +366,21 @@ class CHZReport2View(APIView):
             if v.strip():
                 regions.append(str_value(v.strip()))
 
+        cities = []
+        for v in request.query_params.get('city', '').split(','):
+            if v.strip():
+                cities.append(str_value(v.strip()))
+
+        if regions:
+            regions = ', '.join([f"'{v}'" for v in regions][0:MAX_ITEMS])
+            conditions += f' AND dgp.region::text IN ({regions})'
+            dgis_joined = True
+
+        if cities:
+            cities = ', '.join([f"'{v}'" for v in cities][0:MAX_ITEMS])
+            conditions += f' AND dgp.city::text IN ({cities})'
+            dgis_joined = True
+
         if inns:
             inns = ', '.join([str(v) for v in inns][0:MAX_ITEMS])
             conditions = f'AND cz.inn IN ({inns})'
@@ -358,11 +388,6 @@ class CHZReport2View(APIView):
         if gtins:
             gtins = ', '.join([f"'{v}'" for v in gtins][0:MAX_ITEMS])
             conditions += f' AND cz.gt::text IN ({gtins})'
-
-        if regions:
-            regions = ', '.join([f"'{v}'" for v in regions][0:MAX_ITEMS])
-            conditions += f' AND dg.project_publications::text IN ({regions})'
-            dgis_joined = True
 
         # dates
 
@@ -390,7 +415,12 @@ class CHZReport2View(APIView):
         conditions, dgis_joined = self.make_condition(self.request)
 
         if dgis_joined:
-            dgis_join = 'RIGHT OUTER JOIN data_dgisrecord AS dg ON cz.inn = ANY(dg.inn)'
+
+            dgis_join = """
+            RIGHT OUTER JOIN data_dgisrecord AS dg ON cz.inn = ANY(dg.inn)
+            INNER JOIN data_dgisplace AS dgp ON dgp.id = dg.dgis_place_id
+            """
+
         else:
             dgis_join = ''
 
@@ -463,11 +493,6 @@ class CHZReport3View(APIView):
             else:
                 inns.append(inn)
 
-        regions = []
-        for v in request.query_params.get('region', '').split(','):
-            if v.strip():
-                regions.append(str_value(v.strip()))
-
         if inns:
             inns = ', '.join([str(v) for v in inns][0:MAX_ITEMS])
             conditions = f'AND cz.inn IN ({inns})'
@@ -476,9 +501,24 @@ class CHZReport3View(APIView):
             gtins = ', '.join([f"'{v}'" for v in gtins][0:MAX_ITEMS])
             conditions += f' AND cz.gt::text IN ({gtins})'
 
+        regions = []
+        for v in request.query_params.get('region', '').split(','):
+            if v.strip():
+                regions.append(str_value(v.strip()))
+
+        cities = []
+        for v in request.query_params.get('city', '').split(','):
+            if v.strip():
+                cities.append(str_value(v.strip()))
+
         if regions:
             regions = ', '.join([f"'{v}'" for v in regions][0:MAX_ITEMS])
-            conditions += f' AND dg.project_publications::text IN ({regions})'
+            conditions += f' AND dgp.region::text IN ({regions})'
+            dgis_joined = True
+
+        if cities:
+            cities = ', '.join([f"'{v}'" for v in cities][0:MAX_ITEMS])
+            conditions += f' AND dgp.city::text IN ({cities})'
             dgis_joined = True
 
         # dates
@@ -507,7 +547,12 @@ class CHZReport3View(APIView):
         conditions, dgis_joined = self.make_condition(self.request)
 
         if dgis_joined:
-            dgis_join = 'RIGHT OUTER JOIN data_dgisrecord AS dg ON cz.inn = ANY(dg.inn)'
+
+            dgis_join = """
+            RIGHT OUTER JOIN data_dgisrecord AS dg ON cz.inn = ANY(dg.inn)
+            INNER JOIN data_dgisplace AS dgp ON dgp.id = dg.dgis_place_id
+            """
+
         else:
             dgis_join = ''
 
@@ -580,11 +625,6 @@ class CHZReport4View(APIView):
             else:
                 inns.append(inn)
 
-        regions = []
-        for v in request.query_params.get('region', '').split(','):
-            if v.strip():
-                regions.append(str_value(v.strip()))
-
         if inns:
             inns = ', '.join([str(v) for v in inns][0:MAX_ITEMS])
             conditions = f'AND cz.inn IN ({inns})'
@@ -593,9 +633,24 @@ class CHZReport4View(APIView):
             gtins = ', '.join([f"'{v}'" for v in gtins][0:MAX_ITEMS])
             conditions += f' AND cz.gt::text IN ({gtins})'
 
+        regions = []
+        for v in request.query_params.get('region', '').split(','):
+            if v.strip():
+                regions.append(str_value(v.strip()))
+
+        cities = []
+        for v in request.query_params.get('city', '').split(','):
+            if v.strip():
+                cities.append(str_value(v.strip()))
+
         if regions:
             regions = ', '.join([f"'{v}'" for v in regions][0:MAX_ITEMS])
-            conditions += f' AND dg.project_publications::text IN ({regions})'
+            conditions += f' AND dgp.region::text IN ({regions})'
+            dgis_joined = True
+
+        if cities:
+            cities = ', '.join([f"'{v}'" for v in cities][0:MAX_ITEMS])
+            conditions += f' AND dgp.city::text IN ({cities})'
             dgis_joined = True
 
         # dates
@@ -624,7 +679,12 @@ class CHZReport4View(APIView):
         conditions, dgis_joined = self.make_condition(self.request)
 
         if dgis_joined:
-            dgis_join = 'RIGHT OUTER JOIN data_dgisrecord AS dg ON cz.inn = ANY(dg.inn)'
+
+            dgis_join = """
+            RIGHT OUTER JOIN data_dgisrecord AS dg ON cz.inn = ANY(dg.inn)
+            INNER JOIN data_dgisplace AS dgp ON dgp.id = dg.dgis_place_id
+            """
+
         else:
             dgis_join = ''
 
@@ -718,9 +778,19 @@ class CHZReport5View(APIView):
             if v.strip():
                 regions.append(str_value(v.strip()))
 
+        cities = []
+        for v in request.query_params.get('city', '').split(','):
+            if v.strip():
+                cities.append(str_value(v.strip()))
+
         if regions:
             regions = ', '.join([f"'{v}'" for v in regions][0:MAX_ITEMS])
-            conditions += f' AND dg.project_publications::text IN ({regions})'
+            conditions += f' AND dgp.region::text IN ({regions})'
+            dgis_joined = True
+
+        if cities:
+            cities = ', '.join([f"'{v}'" for v in cities][0:MAX_ITEMS])
+            conditions += f' AND dgp.city::text IN ({cities})'
             dgis_joined = True
 
         if inns:
@@ -791,6 +861,7 @@ class CHZReport5View(APIView):
             to_char(date, 'YYYY-MM') AS month_year
         FROM data_chzrecord AS cz
         RIGHT OUTER JOIN data_dgisrecord AS dg ON cz.inn = ANY(dg.inn)
+        INNER JOIN data_dgisplace AS dgp ON dgp.id = dg.dgis_place_id
         WHERE 1=1 {conditions}
         GROUP BY cz.inn, cz.owner_name, dg.clat, dg.clong, dg.project_publications, month_year
         ORDER BY month_year DESC
@@ -823,7 +894,7 @@ class CHZReport5View(APIView):
 
 class CHZReport6View(APIView):
     """
-    АВС-анализ относительно розничных продаж по региону
+    АВС-анализ относительно розничных продаж по регионам
     """
 
     permission_classes = [IsAuthenticated]
@@ -898,7 +969,7 @@ class CHZReport6View(APIView):
         parameters=[
         ],
         tags=['data'],
-        summary='Розничные продажи по GTIN',
+        summary='АВС-анализ относительно розничных продаж по регионам',
     )
     def get(self, request, *args, **kwargs):
 
@@ -916,16 +987,20 @@ class CHZReport6View(APIView):
             cities_regions = DGisPlace.objects.filter(city__in=cities).values_list('region', flat=True).distinct()
             regions += cities_regions
 
-        print(regions)
-
         if regions:
             records = ABCGTINRecord.objects.filter(region__in=regions)
         else:
             records = ABCGTINRecord.objects.all()
 
-        res = defaultdict(list)
+        res = {}
         for r in records:
-            res[r.region].append({
+            res[r.region]['data'] = []
+
+            # TODO: add point for region
+            res[r.region]['point'] = {}
+
+        for r in records:
+            res[r.region]['data'].append({
                 'gtin': r.gtin,
                 'product_name': r.product_name,
                 'retail_sales': r.retail_sales,
