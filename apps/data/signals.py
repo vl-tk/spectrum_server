@@ -9,7 +9,7 @@ from django.dispatch import receiver
 logger = logging.getLogger('django')
 
 
-def _clean(text:str) -> str:
+def _clean(text: str) -> str:
     return text.replace('обл.', 'область').replace('респ.', '').replace(' город фед. значения', '')
 
 

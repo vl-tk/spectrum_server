@@ -29,6 +29,7 @@ from rest_framework.generics import ListAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from utils.info import get_region_coords
 
 logger = logging.getLogger('django')
 
@@ -899,7 +900,7 @@ class CHZReport6View(APIView):
 
     permission_classes = [IsAuthenticated]
 
-    def prepare_report(self):
+    def generate_report_records_to_db(self):
 
         ABCGTINRecord.objects.all().delete()
 
@@ -973,19 +974,12 @@ class CHZReport6View(APIView):
     )
     def get(self, request, *args, **kwargs):
 
+        REGION_POINTS = get_region_coords()
+
         regions = []
         for v in request.query_params.get('region', '').split(','):
             if v.strip():
                 regions.append(str_value(v.strip()))
-
-        cities = []
-        for v in request.query_params.get('city', '').split(','):
-            if v.strip():
-                cities.append(str_value(v.strip()))
-
-        if cities:
-            cities_regions = DGisPlace.objects.filter(city__in=cities).values_list('region', flat=True).distinct()
-            regions += cities_regions
 
         if regions:
             records = ABCGTINRecord.objects.filter(region__in=regions)
@@ -994,13 +988,15 @@ class CHZReport6View(APIView):
 
         res = {}
         for r in records:
-            res[r.region]['data'] = []
 
-            # TODO: add point for region
-            res[r.region]['point'] = {}
+            region = r.region.strip()
+
+            res[region] = {}
+            res[region]['data'] = []
+            res[region]['point'] = REGION_POINTS.get(region.strip(), '')
 
         for r in records:
-            res[r.region]['data'].append({
+            res[region]['data'].append({
                 'gtin': r.gtin,
                 'product_name': r.product_name,
                 'retail_sales': r.retail_sales,

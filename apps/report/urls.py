@@ -12,7 +12,7 @@ app_name = 'Clients API'
 router = routers.SimpleRouter()
 
 urlpatterns = [
-    # reports filter helpers (from app.data)
+    # reports filter helpers (from app.data data)
     path('helper/regions', CHZRecordRegionFilterView.as_view(), name='chz_report_filter_regions'),
     path('helper/cities', CHZRecordCityFilterView.as_view(), name='chz_report_filter_cities'),
     path('helper/gtin_list', CHZRecordGTINView.as_view(), name='chz_report_gtin'),

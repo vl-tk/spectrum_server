@@ -8,7 +8,7 @@ class ABCGTINRecordAdmin(admin.ModelAdmin):
 
     def rebuild_report(self, request, queryset):
         from apps.data.views_reports import CHZReport6View
-        CHZReport6View().prepare_report()
+        CHZReport6View().generate_report_records_to_db()
 
         # rebuild_abc_report.delay()
         # check_translate_task.delay("Recipe", pks_of_model)

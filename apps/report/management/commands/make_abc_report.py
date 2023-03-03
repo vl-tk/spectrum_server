@@ -13,4 +13,4 @@ class Command(BaseCommand):
         pass
 
     def handle(self, *args, **options):
-        CHZReport6View().prepare_report()
+        CHZReport6View().generate_report_records_to_db()
