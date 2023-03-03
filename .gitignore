@@ -49,8 +49,8 @@ logs/**
 .server.env
 test/**
 
-*.csv
-*.xlsx
+2gis.xlsx
+chz_978046.csv
 
 *.log
 media_files/
