@@ -1,8 +1,15 @@
+from pathlib import Path
+
+from django.conf import settings
+
+
 def get_region_codes_by_short_name():
 
     REGION_CODES = {}
 
-    with open('data_files/regions_01032023.csv') as f:
+    file = Path(settings.PROJECT_DIR) / 'data_files/regions_01032023.csv'
+
+    with open(file) as f:
         lines = [l.strip() for l in f.readlines()]
 
         for l in lines[1:]:
@@ -16,7 +23,10 @@ def get_region_coords():
 
     REGION_CODES = {}
 
-    with open('data_files/regions_01032023.csv') as f:
+    file = Path(settings.PROJECT_DIR) / 'data_files/regions_01032023.csv'
+
+    with open(file) as f:
+
         lines = [l.strip() for l in f.readlines()]
 
         for l in lines[1:]:

@@ -2,6 +2,7 @@
 from pathlib import Path
 
 from apps.data.models import City
+from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.management.base import BaseCommand
 
@@ -14,7 +15,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
 
-        file = Path('data_files/cities.csv')
+        file = Path(settings.PROJECT_DIR) / 'data_files/cities.csv'
 
         with open(file, 'r') as f:
 
