@@ -36,7 +36,7 @@ def get_region_coords():
 
             REGION_CODES[items[1]] = {
                 "lat": coords.split(';')[0],
-                "long": coords.split(';')[0]
+                "long": coords.split(';')[1]
             }
 
     return REGION_CODES
