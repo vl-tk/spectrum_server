@@ -1,7 +1,7 @@
 ###########
 # BUILDER #
 ###########
-FROM python:3.9-slim-bullseye
+FROM python:3.11-slim-bullseye
 
 LABEL maintainer="Eugene Nitsenko <nitsenko94@gmail.com>"
 
