@@ -22,14 +22,46 @@ def get_regions():
          ).order_by('project_publications'))
     """
 
-    regions = DGisPlace.objects.values_list('country', 'region').order_by('country', 'region').distinct()
+    VALID_COUNTRIES = [
+        'Азербайджан',
+        'Беларусь',
+        'Казахстан',
+        'Кыргызстан',
+        'Россия',
+        'Узбекистан',
+        'Украина'
+    ]
+
+    regions = DGisPlace.objects.filter(
+        country__in=VALID_COUNTRIES
+    ).values_list(
+        'country', 'region'
+    ).order_by(
+        'country', 'region'
+    ).distinct()
 
     return regions
 
 
 def get_cities():
 
-    cities = DGisPlace.objects.values_list('country', 'city').order_by('country', 'city').distinct()
+    VALID_COUNTRIES = [
+        'Азербайджан',
+        'Беларусь',
+        'Казахстан',
+        'Кыргызстан',
+        'Россия',
+        'Узбекистан',
+        'Украина'
+    ]
+
+    cities = DGisPlace.objects.filter(
+        country__in=VALID_COUNTRIES
+    ).values_list(
+        'country', 'city'
+    ).order_by(
+        'country', 'city'
+    ).distinct()
 
     return cities
 
