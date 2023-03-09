@@ -3,7 +3,7 @@ from apps.report.views import (CHZRecordCityFilterView, CHZRecordGTINView,
                                CHZRecordProductNameFilterView,
                                CHZRecordRegionFilterView, CHZReport1View,
                                CHZReport2View, CHZReport3View, CHZReport4View,
-                               CHZReport5View, CHZReport6View)
+                               CHZReport5View, CHZReport6View, CHZReport7View)
 from django.urls import path
 from rest_framework import routers
 
@@ -25,7 +25,8 @@ urlpatterns = [
     path('custom/wholesale_sales', CHZReport3View.as_view(), name='chz_report3'),
     path('custom/wholesale_sales_for_gtin', CHZReport4View.as_view(), name='chz_report4'),
     path('custom/dynamics_of_retail_sales', CHZReport5View.as_view(), name='chz_report5'),
-    path('custom/abc_per_regions', CHZReport6View.as_view(), name='chz_report6')
+    path('custom/abc_per_regions', CHZReport6View.as_view(), name='chz_report6'),
+    path('custom/universes_list', CHZReport7View.as_view(), name='chz_report7')
 ]
 
 urlpatterns += router.urls

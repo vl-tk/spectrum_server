@@ -1007,3 +1007,121 @@ class CHZReport6View(APIView):
             })
 
         return Response(res, status=status.HTTP_200_OK)
+
+
+class CHZReport7View(APIView):
+    """
+    Справочник юниверса производителя
+
+    РОЗНИЦА АДРЕС ИНН РЕГИОН
+
+    Показывает список адресов розничных торговых точек, в которых продавался
+    товар производителя за один выбранный период.
+
+    Для работы данный раздел полезно синхронизировать с 2гис чтобы были видны
+    контактные данные и выгрузка необходимой информации с фильтрацией по
+    регионам.
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def make_condition(self, request):
+
+        MAX_ITEMS = 5
+
+        conditions = ''
+        dgis_joined = False
+
+        regions = []
+        for v in request.query_params.get('region', '').split(','):
+            if v.strip():
+                regions.append(str_value(v.strip()))
+
+        cities = []
+        for v in request.query_params.get('city', '').split(','):
+            if v.strip():
+                cities.append(str_value(v.strip()))
+
+        if regions:
+            regions = ', '.join([f"'{v}'" for v in regions][0:MAX_ITEMS])
+            conditions += f' AND dgp.region::text IN ({regions})'
+            dgis_joined = True
+
+        if cities:
+            cities = ', '.join([f"'{v}'" for v in cities][0:MAX_ITEMS])
+            conditions += f' AND dgp.city::text IN ({cities})'
+            dgis_joined = True
+
+        # dates
+
+        from_date = date_value(request.query_params.get('from_date'))
+        to_date = date_value(request.query_params.get('to_date'))
+
+        if from_date:
+            conditions += f' AND cz.date::date >= to_date(\'{from_date}\', \'YYYY-MM-DD\')'
+
+        if to_date:
+            conditions += f' AND cz.date::date <= to_date(\'{to_date}\', \'YYYY-MM-DD\')'
+
+        return conditions, dgis_joined
+
+    @extend_schema(
+        parameters=[
+        ],
+        tags=['data'],
+        summary='Справочник юниверса производителя',
+    )
+    def get(self, request, *args, **kwargs):
+
+        conditions, dgis_joined = self.make_condition(self.request)
+
+        sql = """
+        SELECT
+            cz.inn,
+            cz.owner_name,
+            dgp.country,
+            dgp.region,
+            dgp.city,
+            dgp.street,
+            dgp.street_num
+        FROM data_chzrecord AS cz
+        RIGHT OUTER JOIN data_dgisrecord AS dg ON cz.inn = ANY(dg.inn)
+        INNER JOIN data_dgisplace AS dgp ON dgp.id = dg.dgis_place_id
+        WHERE 1=1 {conditions}
+        GROUP BY
+            cz.inn,
+            cz.owner_name,
+            dgp.country,
+            dgp.region,
+            dgp.city,
+            dgp.street,
+            dgp.street_num
+        HAVING SUM(cz.out_retail) > 0
+        ORDER BY cz.inn DESC
+        """.format(
+            conditions=conditions
+        )
+
+        cursor = connection.cursor()
+
+        try:
+            cursor.execute(sql)
+            records = cursor.fetchall()
+        except Exception as e:
+            cursor.close
+            raise e
+
+        res = []
+
+        for r in records:
+            res.append({
+                'inn': r[0],
+                'name': r[1],
+                'country': r[2],
+                'region': r[3],
+                'city': r[4],
+                'street': r[5],
+                'street_num': r[6]
+            })
+
+        return Response(res, status=status.HTTP_200_OK)
