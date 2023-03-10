@@ -54,6 +54,10 @@ class ExcelImportService:
 
             values = self.df[column_name].tolist()
 
+            ilogger.info(column_name)
+            ilogger.info(values)
+            ilogger.info(is_date(values))
+
             if _is_date(values):
                 data[column_name] = Attribute.TYPE_DATE
 

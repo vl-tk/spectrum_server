@@ -46,10 +46,9 @@ class EventImporter(BaseImporter):
         except Exception as e:
 
             ilogger.exception(e)
-            ilogger.error(columns)
-            ilogger.error(row_values)
+            ilogger.error(values)
 
-            msg = f'{e}\n{columns}\n{row_values}'
+            msg = f'{e}\n{values}'
 
             LogRecord.objects.create(
                 message=msg,
