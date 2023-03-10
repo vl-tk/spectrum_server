@@ -76,7 +76,9 @@ class ExcelImportService:
                 eav__source_filename=self.filepath.name
             )
 
-            objs.update(eav__source_filename=f'{self.filepath.name}__TMP_RENAMED')
+            for obj in objs:
+                obj.eav.source_filename=f'{self.filepath.name}__TMP_RENAMED'
+                obj.save()
 
     def handle_post_rewrite(self, count_to_load):
 
