@@ -125,7 +125,7 @@ class ImportSerializer(serializers.Serializer, ValidatorMixin):
             rows_imported, total = eis.load_file()
         except Exception as e:
             logger.exception(e)
-            return
+            return 0, 0
 
         self.file.unlink()
 
