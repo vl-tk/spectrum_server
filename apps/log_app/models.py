@@ -19,6 +19,8 @@ class LogRecord(models.Model):
         blank=True
     )
 
+    is_admin_only = models.BooleanField(default=False)
+
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     updated_at = models.DateTimeField(auto_now=True, editable=False)
 
