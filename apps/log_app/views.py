@@ -32,7 +32,7 @@ class LogListCreateView(ListCreateAPIView):
 
     permission_classes = [IsAuthenticated]
 
-    queryset = LogRecord.objects.filter(is_admin_only=False)
+    queryset = LogRecord.objects.filter(is_admin_only=False).order_by('-pk')
     serializer_class = LogRecordSerializer
 
     @extend_schema(
