@@ -22,13 +22,13 @@ class ExcelImportService:
         self.filepath = filepath
         self.importer = importer
         self.importer_user = importer_user
-        self.columns = self.get_columns()
+        self.columns = self._get_columns()
         self.force_rewrite = force_rewrite
 
         # if rename columns
         # df.columns = KEYS
 
-    def get_columns(self):
+    def _get_columns(self):
 
         data = OrderedDict([])
 
@@ -68,7 +68,7 @@ class ExcelImportService:
 
         return data
 
-    def handle_rewrite(self):
+    def _handle_rewrite(self):
 
         if self.force_rewrite:
 
@@ -80,7 +80,7 @@ class ExcelImportService:
                 obj.eav.source_filename=f'{self.filepath.name}__TMP_RENAMED'
                 obj.save()
 
-    def handle_post_rewrite(self, count_to_load):
+    def _handle_post_rewrite(self, count_to_load):
 
         if self.force_rewrite:
 
@@ -107,7 +107,7 @@ class ExcelImportService:
             self.importer.__class__.__name__
         )
 
-        self.handle_rewrite()
+        self._handle_rewrite()
 
         slugs = self.create_columns()
 
@@ -127,7 +127,7 @@ class ExcelImportService:
             if res:
                 success +=1
 
-        self.handle_post_rewrite(count_to_load=self.df.to_records())
+        self._handle_post_rewrite(count_to_load=self.df.to_records())
 
         ilogger.info(
             'FINISHED import "%s" (%d to db/%d from file)',
@@ -161,6 +161,7 @@ class ExcelImportService:
 
         if column_type == 'date':
             dt = datetime.datetime.utcfromtimestamp(value.tolist() / 1e9)
+            # import pdb; pdb.set_trace()
             return dt
 
         # TODO: int, float

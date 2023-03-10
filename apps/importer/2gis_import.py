@@ -197,7 +197,7 @@ def create_dgis_record(item: list):
             for a, i in enumerate(item, start=1):
                 print(a, i)
             print('ERROR:', e)
-            import pdb; pdb.set_trace()
+            # import pdb; pdb.set_trace()
         else:
             print(f'{dg} CREATED')
     else:

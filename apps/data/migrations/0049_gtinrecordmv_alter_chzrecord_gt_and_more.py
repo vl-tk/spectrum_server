@@ -9,12 +9,13 @@ class Migration(migrations.Migration):
         ('data', '0048_gtinrecordmv_alter_chzrecord_gt_and_more'),
     ]
 
+    # TODO: possible investigate
     operations = [
-        migrations.AlterField(
-            model_name='chzrecord',
-            name='gt',
-            field=models.CharField(max_length=16, verbose_name='GTIN'),
-        ),
+        # migrations.AlterField(
+        #     model_name='chzrecord',
+        #     name='gt',
+        #     field=models.CharField(max_length=16, verbose_name='GTIN'),
+        # ),
         migrations.AlterField(
             model_name='historicalchzrecord',
             name='gt',
