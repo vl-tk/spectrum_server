@@ -12,6 +12,16 @@ class LogRecordAdmin(admin.ModelAdmin):
         'message',
         'content_type',
         'object_id',
+        'is_admin_only',
         'created_at',
         'updated_at'
+    ]
+
+    list_filter = [
+        'is_admin_only'
+    ]
+
+    search_fields = [
+        'user',
+        'message'
     ]
