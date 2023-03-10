@@ -148,7 +148,7 @@ class ExcelImportService:
 
         LogRecord.objects.create(
             user=self.importer_user,
-            message=f'Ошибка импорта файла {self.filepath.name} (0 записей импортировано. Обратитесь к администратору)',
+            message=f'Ошибка импорта файла {self.filepath.name} (0 записей импортировано). Обратитесь к администратору',
             content_type=self.importer.content_type
         )
 
@@ -156,17 +156,30 @@ class ExcelImportService:
 
     def preformat_cell(self, value, i) -> str:
 
+        ilogger.info(f'PREFORMAT_CELL')
+
         column = list(self.columns.keys())[i - 1]
         column_type = self.columns[column]
+
+        ilogger.info(f'value: {value}, i: {i}')
+        ilogger.info(f'{column}')
+        ilogger.info(f'{self.columns}')
 
         if column_type == 'date':
             dt = datetime.datetime.utcfromtimestamp(value.tolist() / 1e9)
             # import pdb; pdb.set_trace()
+
+            ilogger.info(f'RETURNING date: {dt}')
+
             return dt
 
         # TODO: int, float
 
-        return str(value) if str(value) != 'nan' else ''
+        value = str(value) if str(value) != 'nan' else ''
+
+        ilogger.info(f'RETURNING str: {value}')
+
+        return value
 
     def create_columns(self):
 
