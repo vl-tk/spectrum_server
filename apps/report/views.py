@@ -901,6 +901,9 @@ class CHZReport6View(APIView):
     permission_classes = [IsAuthenticated]
 
     def generate_report_records_to_db(self):
+        """
+        TODO: БАГ - не обновляются значения, если значения поменялись
+        """
 
         ABCGTINRecord.objects.all().delete()
 
@@ -1021,6 +1024,8 @@ class CHZReport7View(APIView):
     Для работы данный раздел полезно синхронизировать с 2гис чтобы были видны
     контактные данные и выгрузка необходимой информации с фильтрацией по
     регионам.
+
+    TODO: БАГ - Башляков - нет при фильтре по дате 2022-03-07
     """
 
     permission_classes = [IsAuthenticated]
