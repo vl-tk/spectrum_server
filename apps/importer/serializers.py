@@ -67,8 +67,8 @@ class ImportSerializer(serializers.Serializer, ValidatorMixin):
         self.file = location / in_memory_file_obj.name
 
         # fix?
-        if not self.file.endswith('.xlsx'):
-            self.file += '.xlsx'
+        if not self.file.name.endswith('.xlsx'):
+            self.file = Path(self.file.resolve() + '.xlsx')
 
         with open(self.file, 'wb+') as f:
             for chunk in in_memory_file_obj.chunks():
