@@ -146,7 +146,7 @@ class ExcelImportService:
 
         LogRecord.objects.create(
             user=self.importer_user,
-            message=f'Ошибка импорта файла',
+            message=f'Ошибка импорта файла {self.filepath.name} (0 записей импортировано. Обратитесь к администратору)',
             content_type=self.importer.content_type
         )
 

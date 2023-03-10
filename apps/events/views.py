@@ -441,6 +441,11 @@ class EventTyposColumnView(APIView):
         return Response(res, status=status.HTTP_200_OK)
 
 
+def str_value(value):
+    res = [v for v in str(value) if v.isalpha() or v == ' ']
+    return ''.join(res)
+
+
 class EventTypoCellsView(APIView):
 
     permission_classes = [IsAuthenticated]
