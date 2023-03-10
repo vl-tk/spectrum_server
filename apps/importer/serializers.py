@@ -61,6 +61,9 @@ class ImportSerializer(serializers.Serializer, ValidatorMixin):
 
         in_memory_file_obj = attrs['file']
 
+        logger.error('IMPORT FILE')
+        logger.error(attrs)
+
         location = Path(settings.PROJECT_DIR) / "media_files"
         location.mkdir(exist_ok=True)
 
