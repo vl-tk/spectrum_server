@@ -13,6 +13,11 @@ def get_region_code_for_city(city: str) -> str:
     return REGION_CODES.get(c.region, '-')[0]
 
 
+VALID_COUNTRIES = [
+    'Россия',
+]
+
+
 def get_regions():
     """
     TODO: use materialized view
@@ -21,16 +26,6 @@ def get_regions():
     regions = list(DGisRecord.objects.all().values_list('project_publications', flat=True).distinct(
          ).order_by('project_publications'))
     """
-
-    VALID_COUNTRIES = [
-        'Азербайджан',
-        'Беларусь',
-        'Казахстан',
-        'Кыргызстан',
-        'Россия',
-        'Узбекистан',
-        'Украина'
-    ]
 
     regions = DGisPlace.objects.filter(
         country__in=VALID_COUNTRIES
@@ -44,16 +39,6 @@ def get_regions():
 
 
 def get_cities():
-
-    VALID_COUNTRIES = [
-        'Азербайджан',
-        'Беларусь',
-        'Казахстан',
-        'Кыргызстан',
-        'Россия',
-        'Узбекистан',
-        'Украина'
-    ]
 
     cities = DGisPlace.objects.filter(
         country__in=VALID_COUNTRIES
