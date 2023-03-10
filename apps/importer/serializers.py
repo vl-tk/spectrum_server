@@ -66,6 +66,8 @@ class ImportSerializer(serializers.Serializer, ValidatorMixin):
 
         self.file = location / in_memory_file_obj.name
 
+        logger.info(f'FILE: {self.file}')
+
         with open(self.file, 'wb+') as f:
             for chunk in in_memory_file_obj.chunks():
                 f.write(chunk)
