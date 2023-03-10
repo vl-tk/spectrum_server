@@ -41,4 +41,4 @@ class ImportExcelView(APIView):
         if imported > 0:
             return Response(f'Imported: {imported}/{total}', status=status.HTTP_200_OK)
 
-        return Response(f'Imported {imported}/{total}. Please contact administrator', status=status.HTTP_500_SERVER_ERROR)
+        return Response(f'Imported {imported}/{total}. Please contact administrator', status=status.HTTP_500_INTERNAL_SERVER_ERROR)
