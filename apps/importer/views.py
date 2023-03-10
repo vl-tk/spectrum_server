@@ -36,6 +36,9 @@ class ImportExcelView(APIView):
             }
         )
         serializer.is_valid(raise_exception=True)
-        res = serializer.import_data()
+        imported, total = serializer.import_data()
 
-        return Response(res, status=status.HTTP_200_OK)
+        if imported > 0:
+            return Response(f'Imported: {res}/{total}', status=status.HTTP_200_OK)
+
+        return Response(f'Imported {res}/{total}. Please contact administrator', status=status.HTTP_500_SERVER_ERROR)

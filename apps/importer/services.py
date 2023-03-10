@@ -93,15 +93,24 @@ class ExcelImportService:
                 ).delete()
 
     def load_file(self):
+        """
+        Основной метод загрузки файла.
 
-        ilogger.info('STARTED import "%s" using %s', self.filepath.name,
-                     self.importer.__class__.__name__)
+        Внутри - обращается к импортеру конкретной сущности и в ней создаются записи в БД
+        """
+
+        ilogger.info(
+            'STARTED import "%s" using %s',
+            self.filepath.name,
+            self.importer.__class__.__name__
+        )
 
         self.handle_rewrite()
 
         slugs = self.create_columns()
 
         result = {}
+
         success = 0
         for i, row in enumerate(self.df.to_records(), start=1):
 
@@ -118,18 +127,30 @@ class ExcelImportService:
 
         self.handle_post_rewrite(count_to_load=self.df.to_records())
 
-        LogRecord.objects.create(
-            user=self.importer_user,
-            message=f'Импортировано {success} записей',
-            content_type=self.importer.content_type
-        )
-
         ilogger.info(
             'FINISHED import "%s" (%d to db/%d from file)',
             self.filepath.name,
             success,
-            len(self.df.to_records())  # TODO: method?
+            len(self.df.to_records())  # TODO: len method exists for this?
         )
+
+        if success > 0:
+
+            LogRecord.objects.create(
+                user=self.importer_user,
+                message=f'Импортировано {success}/{len(self.df.to_records())} записей',
+                content_type=self.importer.content_type
+            )
+
+            return success, len(self.df.to_records())
+
+        LogRecord.objects.create(
+            user=self.importer_user,
+            message=f'Ошибка импорта файла',
+            content_type=self.importer.content_type
+        )
+
+        return 0, len(self.df.to_records())
 
     def preformat_cell(self, value, i) -> str:
 

@@ -122,14 +122,14 @@ class ImportSerializer(serializers.Serializer, ValidatorMixin):
         )
 
         try:
-            rows_imported = eis.load_file()
+            rows_imported, total = eis.load_file()
         except Exception as e:
             logger.exception(e)
             return
 
         self.file.unlink()
 
-        return rows_imported
+        return rows_imported, total
 
 
 class PreImportSerializer(serializers.Serializer, ValidatorMixin):

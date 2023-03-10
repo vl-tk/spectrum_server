@@ -7,6 +7,7 @@ from typing import *
 import xlsxwriter
 from apps.events.models import Event
 from apps.importer.services import BaseImporter
+from apps.log_app.models import LogRecord
 from django.contrib.contenttypes.models import ContentType
 from eav.models import Attribute
 from utils.logger import ilogger
@@ -43,8 +44,20 @@ class EventImporter(BaseImporter):
         try:
             event = Event.objects.create(**values)
         except Exception as e:
+
             ilogger.exception(e)
-            return
+            ilogger.error(columns)
+            ilogger.error(row_values)
+
+            msg = f'{e}\n{columns}\n{row_values}'
+
+            LogRecord.objects.create(
+                message=msg,
+                content_type=self.content_type,
+                is_admin_only=True
+            )
+
+            return False
 
         from pprint import pprint
         ilogger.info(f'{event} CREATED')
