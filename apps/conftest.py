@@ -1,4 +1,4 @@
-from pathlib import Path
+import os
 
 import pytest
 from apps.data.models import CHZRecord
@@ -6,8 +6,7 @@ from apps.users.models import User
 from apps.users.tokens.serializers import TokenObtainPairSerializer
 from django.conf import settings
 from django.urls import reverse
-from rest_framework import status
-from rest_framework.test import APIClient, APITestCase
+from rest_framework.test import APIClient
 from utils.test import UserFactoryMixin, get_test_excel_file
 
 
@@ -131,3 +130,8 @@ def chz_records_mini():
             out_recycle=int(values[13])
         )
         c.save()
+
+
+@pytest.fixture(scope='module')
+def vcr_cassette_dir(request):
+    return os.path.join(settings.PROJECT_DIR, 'cassettes')
