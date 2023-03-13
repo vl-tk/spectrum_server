@@ -4,24 +4,24 @@ import pytest
 from apps.events.models import Event
 from django.urls import reverse
 from rest_framework import status
-from rest_framework.test import APIClient, APITestCase
 from utils.test import get_test_document_files, get_test_excel_file
 
 
 @pytest.mark.django_db
+@pytest.mark.vcr()
 def test_import_excel_file_events(authorized_client, test_file_remove):
 
     resp = authorized_client.post(
         reverse('importer:import_file'),
         {
             'data_type': 'event',
-            'file': get_test_excel_file()[0]
+            'file': get_test_excel_file()[2]
         },
         format='multipart'
     )
 
     assert resp.status_code == status.HTTP_200_OK
-    assert Event.objects.count() == 42
+    assert Event.objects.count() == 5
 
     # 2nd file after the 1st (with other columns)
 
@@ -35,23 +35,24 @@ def test_import_excel_file_events(authorized_client, test_file_remove):
     )
 
     assert resp.status_code == status.HTTP_200_OK
-    assert Event.objects.count() == 84
+    assert Event.objects.count() == 20
 
 
 @pytest.mark.django_db
+@pytest.mark.vcr()
 def test_import_excel_file_events_same_file(authorized_client, test_file_remove):
 
     resp = authorized_client.post(
         reverse('importer:import_file'),
         {
             'data_type': 'event',
-            'file': get_test_excel_file()[0]
+            'file': get_test_excel_file()[2]
         },
         format='multipart'
     )
 
     assert resp.status_code == status.HTTP_200_OK
-    assert Event.objects.count() == 42
+    assert Event.objects.count() == 5
 
     sleep(1)
 
@@ -61,23 +62,24 @@ def test_import_excel_file_events_same_file(authorized_client, test_file_remove)
         reverse('importer:import_file'),
         {
             'data_type': 'event',
-            'file': get_test_excel_file()[0]
+            'file': get_test_excel_file()[2]
         },
         format='multipart'
     )
 
     assert resp.status_code == status.HTTP_400_BAD_REQUEST
-    assert Event.objects.count() == 42
+    assert Event.objects.count() == 5  # not 10
 
 
 @pytest.mark.django_db
+@pytest.mark.vcr()
 def test_import_incorrect_file_events(authorized_client, test_file_remove):
 
     resp = authorized_client.post(
         reverse('importer:import_file'),
         {
             'data_type': 'event',
-            'file': get_test_document_files()[0]  # document = pdf, docx, not excel
+            'file': get_test_document_files()[0]  # document = pdf, docx, NOT excel
         },
         format='multipart'
     )

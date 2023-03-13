@@ -79,7 +79,7 @@ class ExcelImportService:
                 obj.eav.source_filename=f'{self.filepath.name}__TMP_RENAMED'
                 obj.save()
 
-    def _handle_post_rewrite(self, count_to_load):
+    def _handle_post_rewrite(self, count_to_load: int):
 
         if self.force_rewrite:
 
@@ -125,7 +125,7 @@ class ExcelImportService:
             if res:
                 success +=1
 
-        self._handle_post_rewrite(count_to_load=self.df.to_records())
+        self._handle_post_rewrite(count_to_load=len(self.df.to_records()))
 
         ilogger.info(
             'FINISHED import "%s" (%d to db/%d from file)',

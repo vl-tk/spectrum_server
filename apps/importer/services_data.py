@@ -40,7 +40,7 @@ class PaginationMixin:
                 sql.replace(';', '')
             )
 
-        logger.info('COUNT SQL: %s', count_sql)
+        logger.debug('COUNT SQL: %s', count_sql)
 
         try:
             self.cursor.execute(count_sql)
@@ -49,7 +49,7 @@ class PaginationMixin:
             self.cursor.close
             raise e
 
-        logger.info('COUNT: %s', res)
+        logger.debug('COUNT: %s', res)
 
         self.count = res[0]
 
@@ -105,7 +105,7 @@ class FilterMixin:
             elif key == 'search':
                 filter_params['search'] = {'value': query_params[key]}
 
-        logger.info('FILTER BEFORE REMOVING UNKNOWN FIELDS: %s', filter_params)
+        logger.debug('FILTER BEFORE REMOVING UNKNOWN FIELDS: %s', filter_params)
 
         filter_params = {
             _get_key_without_op(k): v
@@ -113,8 +113,8 @@ class FilterMixin:
             if (_get_key_without_op(k) in self.entity_fields.keys() or k == 'search')
         }
 
-        logger.info('ENTITY FIELDS: %s', self.entity_fields)
-        logger.info('FILTER: %s', filter_params)
+        logger.debug('ENTITY FIELDS: %s', self.entity_fields)
+        logger.debug('FILTER: %s', filter_params)
 
         return filter_params
 
@@ -268,7 +268,7 @@ class EAVDataProvider(PaginationMixin, FilterMixin):
 
             self.entity_fields[attr[1]] = data
 
-        logger.info(self.entity_fields)
+        logger.debug(self.entity_fields)
 
         self.columns_output = [v for k,v in self.entity_fields.items()]
 
@@ -397,7 +397,7 @@ class EAVDataProvider(PaginationMixin, FilterMixin):
 
         sql = self._get_entities_ids_sql(filter_params=filter_params)
 
-        logger.info('ENTITY IDS SQL: %s', sql)
+        logger.debug('ENTITY IDS SQL: %s', sql)
 
         try:
             self.cursor.execute(sql)
@@ -446,7 +446,7 @@ class EAVDataProvider(PaginationMixin, FilterMixin):
                 ids=','.join(ids)
             )
 
-            logger.info('get_entities SQL: %s', sql)
+            logger.debug('get_entities SQL: %s', sql)
 
             try:
                 self.cursor.execute(sql)
@@ -491,7 +491,7 @@ class EAVDataProvider(PaginationMixin, FilterMixin):
                 res['updated_at'] = entity_dict['updated_at']
                 entities.append(res)
 
-            logger.info(sql)
+            logger.debug(sql)
 
         else:
 

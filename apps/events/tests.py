@@ -327,7 +327,7 @@ def test_export_events(authorized_client, imported_events, test_file_remove):
     resp = authorized_client.get(
         reverse('events:export_events'),
         {
-            'field_source_filename': 'events_test_mini.xlsx',
+            'field_source_filename': 'events_test_mini_15.xlsx',
         }
     )
     assert resp.status_code == status.HTTP_200_OK

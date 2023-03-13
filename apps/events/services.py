@@ -75,6 +75,9 @@ class EventExporter:
         self.events = events
 
         self.data = self.events.get('results', [])
+
+        assert self.data
+
         self.columns = self.events.get('columns', [])
         self.column_names = [c['name'] for c in self.events.get('columns', []) if not c.get('is_hidden')]
         self.column_slugs = [c['slug'] for c in self.events.get('columns', []) if not c.get('is_hidden')]
