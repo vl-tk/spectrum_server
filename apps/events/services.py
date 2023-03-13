@@ -1,6 +1,5 @@
 import datetime
 import io
-import tempfile
 from pathlib import Path
 from typing import *
 
@@ -9,7 +8,6 @@ from apps.events.models import Event
 from apps.importer.services import BaseImporter
 from apps.log_app.models import LogRecord
 from django.contrib.contenttypes.models import ContentType
-from eav.models import Attribute
 from utils.logger import ilogger
 
 

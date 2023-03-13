@@ -133,7 +133,12 @@ def chz_save(sender, instance, created, **kwargs):
 
     if created or (instance.position is None and instance.product_name is not None):
 
-        position = instance.product_name.split(',')[1].strip()
+        # Табак для кальяна, PINEAPPLE BOOM HL, 100 гр, SPECTRUM TOBACCO  -> позиция: "PINEAPPLE BOOM HL"
+
+        try:
+            position = instance.product_name.split(',')[1].strip()
+        except Exception:
+            position = ''
 
         if position:
 
