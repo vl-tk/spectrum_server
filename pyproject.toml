@@ -37,6 +37,7 @@ mimesis = "^6.1.1"
 xlsxwriter = "^3.0.3"
 vcrpy = "^4.2.1"
 django-filter = "^22.1"
+pytest-vcr = "^1.0.2"
 
 [tool.poetry.dev-dependencies]
 vcrpy = "^4.1.1"

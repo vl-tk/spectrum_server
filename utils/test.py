@@ -35,12 +35,14 @@ def get_test_document_files() -> list:
 
 def get_test_excel_file() -> list:
     return [
-        File(open(Path(settings.TEST_FILES_ROOT) / 'events_test_mini.xlsx', mode='rb')),  # 42 records
-        File(open(Path(settings.TEST_FILES_ROOT) / 'events_test_mini_2.xlsx', mode='rb')),
+        File(open(Path(settings.TEST_FILES_ROOT) / 'events_test_mini_15.xlsx', mode='rb')),
+        File(open(Path(settings.TEST_FILES_ROOT) / 'events_test_mini_15_2_version.xlsx', mode='rb')),
         File(open(Path(settings.TEST_FILES_ROOT) / 'events_test_mini_5.xlsx', mode='rb')),
         File(open(Path(settings.TEST_FILES_ROOT) / 'events_test_mini_more_columns.xlsx', mode='rb')),
         File(open(Path(settings.TEST_FILES_ROOT) / 'events_test_mini_less_columns.xlsx', mode='rb')),
         File(open(Path(settings.TEST_FILES_ROOT) / 'events_test_mini_with_typos.xlsx', mode='rb')),
+        File(open(Path(settings.TEST_FILES_ROOT) / 'events_test_mini.xlsx', mode='rb')),  # 42 records
+        File(open(Path(settings.TEST_FILES_ROOT) / 'events_test_mini_42_2_version.xlsx', mode='rb')),
         # File(open(Path(settings.TEST_FILES_ROOT) / '2gis_test_big.xlsx', mode='rb'))
     ]
 
