@@ -351,7 +351,7 @@ class EAVDataProvider(PaginationMixin, FilterMixin):
             SELECT * FROM second_ids;
             """
 
-            logger.info(filter_params)
+            logger.debug(filter_params)
 
             cond_names = [f'cond{i}' for i in range(len(filter_params))]
 
@@ -382,7 +382,7 @@ class EAVDataProvider(PaginationMixin, FilterMixin):
                 offset=offset
             )
 
-            logger.info('>>> MULTI FILTER SQL: %s', sql)
+            logger.debug('>>> MULTI FILTER SQL: %s', sql)
 
         return sql
 

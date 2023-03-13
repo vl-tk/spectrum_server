@@ -1,4 +1,3 @@
-import json
 from urllib.parse import quote_plus
 
 import requests
@@ -19,11 +18,11 @@ class OSMProvider(GeoProvider):
         """
         coords = (None, None)
 
-        ilogger.info(f'COORDS REQUEST: {address}')
+        ilogger.info(f'STARTED: get_coords. {address = }')
 
         url = self.URL.format(address=quote_plus(address))
 
-        ilogger.info(url)
+        ilogger.debug(url)
 
         try:
             response = requests.get(url, timeout=2)
@@ -31,7 +30,7 @@ class OSMProvider(GeoProvider):
             ilogger.exception(e)
             return None, None
 
-        ilogger.info(f'RESPONSE : {response.json()}')
+        ilogger.debug(f'RESPONSE : {response.json()}')
 
         if response.json():
             try:
@@ -40,5 +39,7 @@ class OSMProvider(GeoProvider):
                 ilogger.exception(e)
             else:
                 ilogger.info(f'COORDS RESULT : {coords}')
+
+        ilogger.info('FINISHED: get_coords')
 
         return coords

@@ -1,8 +1,7 @@
 import pytest
-from apps.data.models import CHZRecord, City, DGisRecord
+from apps.data.models import CHZRecord, DGisRecord
 from django.urls import reverse
 from rest_framework import status
-from rest_framework.test import APIClient, APITestCase
 
 
 @pytest.mark.django_db
@@ -15,7 +14,7 @@ def test_dgis_record_coords_on_save():
         org_form = 'test',
         extension = 'test',
         project_publications = 'Калининград',
-        unit = 'test',
+        unit = 'Калининград г. (Калининград городской округ, Калининградская обл., Россия)',
         street = 'Генделя',
         address = '5',
         number_of_floors = 'test',

@@ -70,7 +70,10 @@ def dgis_save(sender, instance, created, **kwargs):
             logger.exception(e)
             country = ''
 
-        inside_text = instance.unit.split(' (')[1]
+        try:
+            inside_text = instance.unit.split(' (')[1]
+        except IndexError:
+            inside_text = instance.unit
 
         region = ''
         if inside_text.count(', ') > 1:

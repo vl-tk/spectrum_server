@@ -25,6 +25,12 @@ class EventImporter(BaseImporter):
 
     def create_record(self, columns, row_values: List[str], sort: int = 0, importer_user = None):
 
+        ilogger.info('STARTED: create_record')
+        ilogger.debug(f'{columns = }')
+        ilogger.debug(f'{row_values = }')
+        ilogger.debug(f'{sort = }')
+        ilogger.debug(f'{importer_user = }')
+
         row_values = row_values[1:]  # except for line number
 
         # print(f'{len(columns)}')
@@ -32,9 +38,11 @@ class EventImporter(BaseImporter):
         # print(f'{"; ".join(columns)}')
         # print(f'{";".join([str(i) for i in row_values])}')
 
-        assert len(columns) == len(row_values), f'{len(columns)}, {len(row_values)}, {";".join(columns)}, {";".join([str(i) for i in row_values])}'
+        assert len(columns) == len(row_values), \
+            f'{len(columns)}, {len(row_values)}, {";".join(columns)}, {";".join([str(i) for i in row_values])}'
 
         column_names = [f'eav__{c}' for c in columns]
+
         values = dict(zip(column_names, row_values))
 
         values['eav__source_filename'] = self.filepath.name
@@ -58,9 +66,8 @@ class EventImporter(BaseImporter):
 
             return False
 
-        from pprint import pprint
-        ilogger.info(f'{event} CREATED')
-        # ilogger.info(f'{event} CREATED with values: {pprint(values)}')
+        ilogger.info(f'FINISHED: create_record {event}. Status: OK')
+
         return True
 
 
@@ -82,8 +89,8 @@ class EventExporter:
         for slug in self.column_slugs:
             values.append(row['fields'].get(slug, ''))
 
-        ilogger.info(self.column_names)
-        ilogger.info(f'{values}')
+        ilogger.debug(self.column_names)
+        ilogger.debug(f'{values}')
 
         return values
 
