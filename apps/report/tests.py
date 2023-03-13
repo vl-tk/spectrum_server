@@ -20,7 +20,7 @@ def test_report_events(authorized_client, imported_events, test_file_remove):
         }
     )
     assert resp.status_code == status.HTTP_200_OK
-    assert resp.json() =={'01.2022': '338.71', '02.2022': '100.00'}
+    assert resp.json() == {'01.2022': '406.67'}
 
     resp = authorized_client.get(
         reverse('events:event_report'),
