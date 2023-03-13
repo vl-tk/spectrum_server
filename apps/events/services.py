@@ -23,9 +23,9 @@ class EventImporter(BaseImporter):
             model='event'
         )
 
-    def create_record(self, columns, row_values: List[str], sort: int = 0, importer_user = None):
+    def create_record(self, columns, row_values: List[str], sort: int = 0, importer_user = None, total = 0):
 
-        ilogger.info('STARTED: create_record')
+        ilogger.info(f'STARTED: create_record: {sort}/{total}')
         ilogger.debug(f'{columns = }')
         ilogger.debug(f'{row_values = }')
         ilogger.debug(f'{sort = }')

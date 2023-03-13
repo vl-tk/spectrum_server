@@ -1,11 +1,6 @@
 import datetime
-import difflib
-import logging
-import os
 from collections import OrderedDict
-from logging.handlers import RotatingFileHandler
 from pathlib import Path
-from typing import List
 
 import pandas as pd
 from apps.log_app.models import LogRecord
@@ -94,7 +89,7 @@ class ExcelImportService:
 
             if count_to_load == new_records:
 
-                objs = self.importer.content_type.model_class().objects.filter(
+                self.importer.content_type.model_class().objects.filter(
                     eav__source_filename=f'{self.filepath.name}__TMP_RENAMED'
                 ).delete()
 
@@ -115,8 +110,6 @@ class ExcelImportService:
 
         slugs = self.create_columns()
 
-        result = {}
-
         success = 0
         for i, row in enumerate(self.df.to_records(), start=1):
 
@@ -126,7 +119,8 @@ class ExcelImportService:
                 columns=slugs,
                 row_values=row_values,
                 sort=i,
-                importer_user=self.importer_user
+                importer_user=self.importer_user,
+                total=len(self.df.to_records())
             )
             if res:
                 success +=1
